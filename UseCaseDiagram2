@@ -1,0 +1,29 @@
+@startuml
+left to right direction
+skinparam usecaseBorderColor #555
+skinparam usecaseBackgroundColor #EFEFEF
+
+actor Admin
+rectangle "WG-App" {
+  usecase "Einladung erzeugen" as UC2
+
+  usecase "\"Einladen\" klicken" as UC2_S1
+  usecase "Code/Link generieren" as UC2_S2
+  usecase "Link/Code teilen" as UC2_S3
+
+  usecase "Voraussetzung:\nWG existiert\nAdmin ist Mitglied dieser WG" as UC2_PRE <<precondition>>
+  usecase "Nachbedingung:\nGültiger Invite (TTL z. B. 7 Tage)" as UC2_POST <<postcondition>>
+  usecase "Ausnahme:\nInvite-Limit erreicht -> Hinweis" as UC2_EXC <<exception>>
+}
+
+Admin --> UC2
+
+UC2 .> UC2_S1 : <<include>>
+UC2 .> UC2_S2 : <<include>>
+UC2 .> UC2_S3 : <<include>>
+
+UC2_PRE ..> UC2 : <<pre>>
+UC2 ..> UC2_POST : <<post>>
+UC2 ..> UC2_EXC : <<extends>>
+
+@enduml
