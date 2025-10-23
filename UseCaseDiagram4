@@ -1,0 +1,29 @@
+@startuml
+left to right direction
+skinparam usecaseBorderColor #555
+skinparam usecaseBackgroundColor #EFEFEF
+
+actor Bewohner
+rectangle "WG-App" {
+  usecase "Ausgabe erfassen & aufteilen" as UC4
+
+  usecase "Betrag, Zahler,\nDatum, Notiz\n(+ Belegfoto optional) eingeben" as UC4_S1
+  usecase "Gleich oder\ngewichtet aufteilen" as UC4_S2
+  usecase "Speichern" as UC4_S3
+
+  usecase "Voraussetzung:\nNutzer ist Mitglied der WG" as UC4_PRE <<precondition>>
+  usecase "Nachbedingungen:\nAusgabe gespeichert\nAnteile pro Person berechnet" as UC4_POST <<postcondition>>
+  usecase "Ausnahme:\nUngültiger Betrag/fehlende Felder -> Validierungsfehler" as UC4_EXC <<exception>>
+}
+
+Bewohner --> UC4
+
+UC4 .> UC4_S1 : <<include>>
+UC4 .> UC4_S2 : <<include>>
+UC4 .> UC4_S3 : <<include>>
+
+UC4_PRE ..> UC4 : <<pre>>
+UC4 ..> UC4_POST : <<post>>
+UC4 ..> UC4_EXC : <<extends>>
+
+@enduml
