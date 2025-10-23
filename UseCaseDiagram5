@@ -1,0 +1,29 @@
+@startuml
+left to right direction
+skinparam usecaseBorderColor #555
+skinparam usecaseBackgroundColor #EFEFEF
+
+actor Bewohner
+rectangle "WG-App" {
+  usecase "Salden anzeigen & Ausgleich markieren" as UC5
+
+  usecase "Saldenübersicht öffnen" as UC5_S1
+  usecase "Ausgleichsvorschläge ansehen" as UC5_S2
+  usecase "Zahlung als \"erledigt\" markieren" as UC5_S3
+
+  usecase "Voraussetzung:\nMindestens eine Ausgabe existiert" as UC5_PRE <<precondition>>
+  usecase "Nachbedingungen:\nSalden aktualisiert\nZahlung protokolliert" as UC5_POST <<postcondition>>
+  usecase "Ausnahme:\nUnvollständige Daten -> Hinweis" as UC5_EXC <<exception>>
+}
+
+Bewohner --> UC5
+
+UC5 .> UC5_S1 : <<include>>
+UC5 .> UC5_S2 : <<include>>
+UC5 .> UC5_S3 : <<include>>
+
+UC5_PRE ..> UC5 : <<pre>>
+UC5 ..> UC5_POST : <<post>>
+UC5 ..> UC5_EXC : <<extends>>
+
+@enduml
