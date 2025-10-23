@@ -1,0 +1,28 @@
+@startuml
+left to right direction
+skinparam usecaseBorderColor #555
+skinparam usecaseBackgroundColor #EFEFEF
+
+actor Admin
+rectangle "WG-App" {
+  usecase "WG anlegen" as UC1
+
+  usecase "Name eingeben" as UC1_S1
+  usecase "WG erstellen" as UC1_S2
+  usecase "Admin-Rolle vergeben" as UC1_S3
+
+  usecase "Voraussetzung:\nBenutzer ist eingeloggt" as UC1_PRE <<precondition>>
+  usecase "Nachbedingungen:\nWG existiert\nErsteller ist Admin" as UC1_POST <<postcondition>>
+  usecase "Ausnahme:\nName ungültig → Fehlermeldung" as UC1_EXC <<exception>>
+}
+
+Admin --> UC1
+
+UC1 .> UC1_S1 : <<include>>
+UC1 .> UC1_S2 : <<include>>
+UC1 .> UC1_S3 : <<include>>
+
+UC1_PRE ..> UC1 : <<pre>>
+UC1 ..> UC1_POST : <<post>>
+UC1 ..> UC1_EXC : <<extends>>
+@enduml
