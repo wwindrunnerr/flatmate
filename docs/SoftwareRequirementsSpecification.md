@@ -80,21 +80,21 @@
 > - **Nachbedingungen**. *Eine Nachbedingung eines Anwendungsfalls ist eine Liste möglicher Zustände, in denen sich das System unmittelbar nach Abschluss eines Anwendungsfalls befinden kann.*
 > - **Geschätzter Aufwand (hoch, mittel, niedrig)**
 
-![mainPage.png](docs/mocups/mainPage.png)
+![Mocup_mainPage.png](Mocup_mainPage.png)
 
 #### F02 Putzplan
 
-![Putzplan.png](docs/mocups/Putzplan.png)
+![Mocup_Putzplan.png](Mocup_Putzplan.png)
 
 #### F03 Budgetverwaltung
 
-![Budget.png](docs/mocups/Budget.png)
+![Mocup_Budget.png](Mocup_Budget.png)
 #### F04 Einkaufsliste
 
-![Einkaufsliste.png](docs/mocups/Einkaufsliste.png)
+![Mocup_Einkaufsliste.png](Mocup_Einkaufsliste.png)
 #### F05 Account erstellen / Login-System
 
-![User.png](docs/mocups/User.png)
+![Mocup_User.png](Mocup_User.png)
 ### 3. Nicht-funktionale Anforderungen
 
 > [WICHTIG:]
