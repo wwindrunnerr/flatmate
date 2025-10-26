@@ -16,8 +16,25 @@
 #### 1.3 Definitionen, Akronyme und Abkürzungen
 > Definitionen aller Begriffe, Akronyme und Abkürzungen, die für die ordnungsgemäße Interpretation dieses Dokuments erforderlich sind.
 
+| Abbrevation | Explanation                            |
+| ----------- | -------------------------------------- |
+| SRS         | Software Requirements Specification    |
+| UC          | Use Case                               |
+| n/a         | not applicable                         |
+| tbd         | to be determined                       |
+| UCD         | overall Use Case Diagram               |
+| FAQ         | Frequently asked Questions             |
+
+
 #### 1.4 Referenzen
 > Eine vollständige Liste aller referenzierten Dokumente. Jedes Dokument sollte anhand von Titel, Datum und Veröffentlichungsorganisation identifiziert werden. Sie können auch Hyperlinks einfügen, um die Referenzen bequem zu öffnen.
+
+
+
+| Title                                                                  | Date       |
+|------------------------------------------------------------------------|:----------:|
+| [FlatMate Blog](https://github.com/wwindrunnerr/flatmate/discussions/) | 02.10.2025 |
+| [GitHub](https://github.com/wwindrunnerr/flatmate)                     | 02.10.2025 |
 
 ### 2. Funktionale Anforderungen
 > Dieser Abschnitt enthält alle Softwareanforderungen in einem ausreichenden Detaillierungsgrad, damit Designer ein System entwerfen können, das diese Anforderungen erfüllt, und Tester testen können, ob das System diese Anforderungen erfüllt.
@@ -26,11 +43,35 @@
 > [HINWEIS:]
 > Sie können Links zu Ihren UML-Diagrammen und User Stories oder die Bezeichnungen der User Stories in dieses Dokument einfügen.
 
+
+
 #### 2.1 Übersicht
 > Eine kurze Beschreibung der Funktionalität Ihrer Anwendung.
 > Fügen Sie ein oder mehrere **UML-Anwendungsfalldiagramme** und die erforderliche Beschreibung hinzu, um die wichtigsten Anwendungsfälle Ihrer Anwendung wiederzugeben.
 
-#### 2.2 Name von Feature 1 / Anwendungsfall 1
+| ID  | Anforderung                            | Beschreibung                                                                                  | Priorität    |
+|-----|----------------------------------------|-----------------------------------------------------------------------------------------------|--------------|
+| F01 | Webapp                                 | Die Anwendung soll über den Browser zugänglich und responsiv gestaltet sein (Desktop & Mobil) | 🔴 Sehr hoch |
+| F02 | Putzplan                               | Erstellung, Zuweisung und Verwaltung von Reinigungsaufgaben für WG-Mitglieder                 | 🔴 Sehr hoch |
+| F03 | Budgetverwaltung                       | Erfassung und Aufteilung gemeinsamer Ausgaben, automatische Schuldenberechnung                | 🔴 Sehr hoch |
+| F04 | Einkaufsliste                          | Gemeinsame Liste zum Hinzufügen, Bearbeiten und Abhaken von Artikeln                          | 🔴 Sehr hoch |
+| F05 | Account erstellen / Login-System       | Nutzer*innen können persönliche und WG-Accounts erstellen und verwalten                       | 🔴 Sehr hoch |
+| F06 | WG-Account erstellen                   | Möglichkeit, WG-spezifische Gruppen zu verwalten und Mitglieder hinzuzufügen                  | 🟠 Hoch      |
+| F07 | Pinnwand / Kommentare                  | WG-Mitglieder können Ideen, Notizen oder Aufgabenkommentare posten                            | 🟠 Hoch      |
+| F08 | Kalender für WG-Events                 | Planung und Anzeige gemeinsamer Termine (Meetings, Geburtstage, Besucher)                     | 🟠 Hoch      |
+| F09 | Inventarverwaltung                     | Übersicht über gemeinsame Gegenstände und deren Zustand                                       | 🟠 Hoch      |
+| F10 | Benachrichtigungen                     | Automatische Erinnerungen bei Aufgaben, Terminen oder Budget-Updates                          | 🟠 Hoch      |
+| F11 | Nebenkostentracker                     | Verwaltung und Nachverfolgung von Nebenkostenabrechnungen                                     | 🟠 Hoch      |
+| F12 | Wunschliste                            | Sammlung gemeinsamer Anschaffungswünsche mit Abstimmungsfunktion                              | 🟡 Mittel    |
+| F13 | Besucher anmelden                      | Möglichkeit, Gäste zu registrieren oder Besuche zu planen                                     | 🟡 Mittel    |
+| F14 | WG-Challenges & Punktesystem           | Gamification-Elemente zur Motivation (z. B. Streaks, Sterne)                                  | 🟡 Mittel    |
+| F15 | Mietmanagement                         | Verwaltung von Mietzahlungen und Terminen                                                     | ⚪ Niedrig    |
+| F16 | WG-Playlist (Spotify/YouTube)          | Gemeinsame Playlist für Musik im Haushalt                                                     | ⚪ Niedrig    |
+| F17 | Rezepte / Kooperation mit Edens Gruppe | Integration von Rezeptideen oder Kochfunktionen                                               | ⚪ Niedrig    |
+| F18 | Werbung einbinden                      | Anzeigenplatzierung zur Monetarisierung                                                       | ⚪ Niedrig    |
+| F19 | Offline-Modus                          | Nutzung zentraler Funktionen auch ohne Internetverbindung                                     | ⚪ Niedrig    |
+
+#### F01 Webapp
 > Spezifizieren Sie diese Funktion/diesen Anwendungsfall durch:
 > - Relevante **User Stories**
 > - **UI-Mockups**
@@ -39,9 +80,21 @@
 > - **Nachbedingungen**. *Eine Nachbedingung eines Anwendungsfalls ist eine Liste möglicher Zustände, in denen sich das System unmittelbar nach Abschluss eines Anwendungsfalls befinden kann.*
 > - **Geschätzter Aufwand (hoch, mittel, niedrig)**
 
-#### 2.3 Name von Feature 2 / Anwendungsfall 2
-... ...
+![mainPage.png](docs/mocups/mainPage.png)
 
+#### F02 Putzplan
+
+![Putzplan.png](docs/mocups/Putzplan.png)
+
+#### F03 Budgetverwaltung
+
+![Budget.png](docs/mocups/Budget.png)
+#### F04 Einkaufsliste
+
+![Einkaufsliste.png](docs/mocups/Einkaufsliste.png)
+#### F05 Account erstellen / Login-System
+
+![User.png](docs/mocups/User.png)
 ### 3. Nicht-funktionale Anforderungen
 
 > [WICHTIG:]
