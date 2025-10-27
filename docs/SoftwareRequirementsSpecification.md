@@ -98,6 +98,10 @@
 >[Use Case 4: "Ausgabe erfassen und aufteilen"](./useCases/UC4_Ausgabe_erfassen_und_aufteilen.md)
 > 
 >[Use Case 5: "Salden anzeigen und ausgleichen"](./useCases/UC5_Salden_anzeigen_und_ausgleichen.md)
+> 
+>![Sequenzdiagramm 2](./UMLs/Sequenzdiagramme/SD2.png)
+> 
+>![Aktivitätsdiagramm 2](./UMLs/Aktivitätsdiagramme/AD2_UC4_UC5.png)
 
 #### F04 Einkaufsliste
 > Die Anwendung stellt eine gemeinsame Einkaufsliste zur Verfügung, in der WG-Mitglieder Artikel hinzufügen, bearbeiten und abhaken können. Änderungen sollen in Echtzeit für alle synchronisiert werden.
@@ -115,6 +119,10 @@
 > [Use Case 2: "Einladung erzeugen"](./useCases/UC2_Einladung_erzeugen.md)
 > 
 > [Use Case 3: "WG beitreten"](./useCases/UC3_WG_beitreten.md)
+> 
+> ![Sequenzdiagramm 1](./UMLs/Sequenzdiagramme/SD1.png)
+> 
+> ![Aktivitätsdiagramm 1](./UMLs/Aktivitätsdiagramme/AD1_UC1_UC2_UC3.png)
 
 ### 3. Nicht-funktionale Anforderungen
 
