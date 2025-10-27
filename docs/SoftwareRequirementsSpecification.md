@@ -49,27 +49,26 @@
 > Eine kurze Beschreibung der Funktionalität Ihrer Anwendung.
 > Fügen Sie ein oder mehrere **UML-Anwendungsfalldiagramme** und die erforderliche Beschreibung hinzu, um die wichtigsten Anwendungsfälle Ihrer Anwendung wiederzugeben.
 
-| ID  | Anforderung                            | Beschreibung                                                                                  | Priorität    |
-|-----|----------------------------------------|-----------------------------------------------------------------------------------------------|--------------|
-| F01 | Webapp                                 | Die Anwendung soll über den Browser zugänglich und responsiv gestaltet sein (Desktop & Mobil) | 🔴 Sehr hoch |
-| F02 | Putzplan                               | Erstellung, Zuweisung und Verwaltung von Reinigungsaufgaben für WG-Mitglieder                 | 🔴 Sehr hoch |
-| F03 | Budgetverwaltung                       | Erfassung und Aufteilung gemeinsamer Ausgaben, automatische Schuldenberechnung                | 🔴 Sehr hoch |
-| F04 | Einkaufsliste                          | Gemeinsame Liste zum Hinzufügen, Bearbeiten und Abhaken von Artikeln                          | 🔴 Sehr hoch |
-| F05 | Account erstellen / Login-System       | Nutzer*innen können persönliche und WG-Accounts erstellen und verwalten                       | 🔴 Sehr hoch |
-| F06 | WG-Account erstellen                   | Möglichkeit, WG-spezifische Gruppen zu verwalten und Mitglieder hinzuzufügen                  | 🟠 Hoch      |
-| F07 | Pinnwand / Kommentare                  | WG-Mitglieder können Ideen, Notizen oder Aufgabenkommentare posten                            | 🟠 Hoch      |
-| F08 | Kalender für WG-Events                 | Planung und Anzeige gemeinsamer Termine (Meetings, Geburtstage, Besucher)                     | 🟠 Hoch      |
-| F09 | Inventarverwaltung                     | Übersicht über gemeinsame Gegenstände und deren Zustand                                       | 🟠 Hoch      |
-| F10 | Benachrichtigungen                     | Automatische Erinnerungen bei Aufgaben, Terminen oder Budget-Updates                          | 🟠 Hoch      |
-| F11 | Nebenkostentracker                     | Verwaltung und Nachverfolgung von Nebenkostenabrechnungen                                     | 🟠 Hoch      |
-| F12 | Wunschliste                            | Sammlung gemeinsamer Anschaffungswünsche mit Abstimmungsfunktion                              | 🟡 Mittel    |
-| F13 | Besucher anmelden                      | Möglichkeit, Gäste zu registrieren oder Besuche zu planen                                     | 🟡 Mittel    |
-| F14 | WG-Challenges & Punktesystem           | Gamification-Elemente zur Motivation (z. B. Streaks, Sterne)                                  | 🟡 Mittel    |
-| F15 | Mietmanagement                         | Verwaltung von Mietzahlungen und Terminen                                                     | ⚪ Niedrig    |
-| F16 | WG-Playlist (Spotify/YouTube)          | Gemeinsame Playlist für Musik im Haushalt                                                     | ⚪ Niedrig    |
-| F17 | Rezepte / Kooperation mit Edens Gruppe | Integration von Rezeptideen oder Kochfunktionen                                               | ⚪ Niedrig    |
-| F18 | Werbung einbinden                      | Anzeigenplatzierung zur Monetarisierung                                                       | ⚪ Niedrig    |
-| F19 | Offline-Modus                          | Nutzung zentraler Funktionen auch ohne Internetverbindung                                     | ⚪ Niedrig    |
+| ID  | Anforderung                                               | Beschreibung                                                                                                                                            | Priorität    |
+|-----|-----------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------|--------------|
+| F01 | Webapp                                                    | Die Anwendung soll über den Browser zugänglich und responsiv gestaltet sein (Desktop & Mobil)                                                           | 🔴 Sehr hoch |
+| F02 | Putzplan                                                  | Erstellung, Zuweisung und Verwaltung von Reinigungsaufgaben für WG-Mitglieder                                                                           | 🔴 Sehr hoch |
+| F03 | Budgetverwaltung                                          | Erfassung und Aufteilung gemeinsamer Ausgaben, automatische Schuldenberechnung                                                                          | 🔴 Sehr hoch |
+| F04 | Einkaufsliste                                             | Gemeinsame Liste zum Hinzufügen, Bearbeiten und Abhaken von Artikeln                                                                                    | 🔴 Sehr hoch |
+| F05 | Account erstellen / Login-System / WG-Account erstellen   | Nutzer*innen können persönliche und WG-Accounts erstellen und verwalten, Möglichkeit, WG-spezifische Gruppen zu verwalten und Mitglieder hinzuzufügen   | 🔴 Sehr hoch |
+| F06 | Pinnwand / Kommentare                                     | WG-Mitglieder können Ideen, Notizen oder Aufgabenkommentare posten                                                                                      | 🟠 Hoch      |
+| F07 | Kalender für WG-Events                                    | Planung und Anzeige gemeinsamer Termine (Meetings, Geburtstage, Besucher)                                                                               | 🟠 Hoch      |
+| F08 | Inventarverwaltung                                        | Übersicht über gemeinsame Gegenstände und deren Zustand                                                                                                 | 🟠 Hoch      |
+| F09 | Benachrichtigungen                                        | Automatische Erinnerungen bei Aufgaben, Terminen oder Budget-Updates                                                                                    | 🟠 Hoch      |
+| F10 | Nebenkostentracker                                        | Verwaltung und Nachverfolgung von Nebenkostenabrechnungen                                                                                               | 🟠 Hoch      |
+| F11 | Wunschliste                                               | Sammlung gemeinsamer Anschaffungswünsche mit Abstimmungsfunktion                                                                                        | 🟡 Mittel    |
+| F12 | Besucher anmelden                                         | Möglichkeit, Gäste zu registrieren oder Besuche zu planen                                                                                               | 🟡 Mittel    |
+| F13 | WG-Challenges & Punktesystem                              | Gamification-Elemente zur Motivation (z. B. Streaks, Sterne)                                                                                            | 🟡 Mittel    |
+| F14 | Mietmanagement                                            | Verwaltung von Mietzahlungen und Terminen                                                                                                               | ⚪ Niedrig    |
+| F15 | WG-Playlist (Spotify/YouTube)                             | Gemeinsame Playlist für Musik im Haushalt                                                                                                               | ⚪ Niedrig    |
+| F16 | Rezepte / Kooperation mit Edens Gruppe                    | Integration von Rezeptideen oder Kochfunktionen                                                                                                         | ⚪ Niedrig    |
+| F17 | Werbung einbinden                                         | Anzeigenplatzierung zur Monetarisierung                                                                                                                 | ⚪ Niedrig    |
+| F18 | Offline-Modus                                             | Nutzung zentraler Funktionen auch ohne Internetverbindung                                                                                               | ⚪ Niedrig    |
 
 #### F01 Webapp
 > Spezifizieren Sie diese Funktion/diesen Anwendungsfall durch:
@@ -80,21 +79,23 @@
 > - **Nachbedingungen**. *Eine Nachbedingung eines Anwendungsfalls ist eine Liste möglicher Zustände, in denen sich das System unmittelbar nach Abschluss eines Anwendungsfalls befinden kann.*
 > - **Geschätzter Aufwand (hoch, mittel, niedrig)**
 
-![Mocup_mainPage.png](Mocup_mainPage.png)
+> Die Anwendung soll vollständig über den Browser bedienbar sein, ohne Installation zusätzlicher Software. Das Layout muss sich automatisch an verschiedene Bildschirmgrößen (Desktop-PCs, Smartphones) anpassen. Dabei soll die Benutzeroberfläche übersichtlich, intuitiv und performant bleiben. Wichtige Elemente wie Navigationsleiste, Buttons und Tabellen sollen sich dynamisch anpassen.
+
+![Mocup_mainPage.png](https://github.com/wwindrunnerr/flatmate/blob/main/docs/mocups/Mocup_mainPage.png)
 
 #### F02 Putzplan
 
-![Mocup_Putzplan.png](Mocup_Putzplan.png)
+![Mocup_Putzplan.png](https://github.com/wwindrunnerr/flatmate/blob/main/docs/mocups/Mocup_Putzplan.png)
 
 #### F03 Budgetverwaltung
 
-![Mocup_Budget.png](Mocup_Budget.png)
+![Mocup_Budget.png](https://github.com/wwindrunnerr/flatmate/blob/main/docs/mocups/Mocup_Budget.png)
 #### F04 Einkaufsliste
 
-![Mocup_Einkaufsliste.png](Mocup_Einkaufsliste.png)
+![Mocup_Einkaufsliste.png](https://github.com/wwindrunnerr/flatmate/blob/main/docs/mocups/Mocup_Einkaufsliste.png)
 #### F05 Account erstellen / Login-System
 
-![Mocup_User.png](Mocup_User.png)
+![Mocup_User.png](https://github.com/wwindrunnerr/flatmate/blob/main/docs/mocups/Mocup_User.png)
 ### 3. Nicht-funktionale Anforderungen
 
 > [WICHTIG:]
