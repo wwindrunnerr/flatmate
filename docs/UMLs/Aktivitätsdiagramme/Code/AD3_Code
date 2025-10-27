@@ -1,0 +1,24 @@
+@startuml
+title Aktivitätsdiagramm – Putzplan erstellen
+
+start
+
+:„Putzplan erstellen“ klicken;
+:Zeitraum festlegen;
+if (Zeitraum gültig?) then (ja)
+  :Aufgaben definieren;
+  if (Bewohner verfügbar?) then (ja)
+    :Bewohner zuweisen;
+    :Putzplan speichern;
+    :Putzplan ist sichtbar;
+  else (nein)
+    :Hinweis: Keine Bewohner verfügbar;
+    stop
+  endif
+else (nein)
+  :Fehlermeldung: Ungültiger Zeitraum;
+  stop
+endif
+
+stop
+@enduml

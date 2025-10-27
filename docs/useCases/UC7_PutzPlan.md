@@ -1,24 +1,33 @@
 # UC7 – Putzplan
 ## Akteur(e)
-> Bewohner
+> Admin
 
 ## Voraussetzungen (Precondition)
-> Mitgliedschaft in der WG
+> 1. WG existiert
+> 2. Admin ist Mitglied dieser WG
+
 
 ## Hauptablauf (inkludierte Teilschritte)
-> 1. Artikel hinzufügen 
-> 2. Artikel bearbeiten 
-> 3. Speichern
+> 1. „Putzplan erstellen“ klicken 
+> 2. Zeitraum festlegen (z.B. Woche, Monat)
+> 3. Aufgaben definieren (z.B. Bad putzen, Müll rausbringen)
+> 4. Bewohner zu Aufgaben zuweisen 
+> 5. Putzplan speichern
+
 
 
 ## Nachbedingungen (Postcondition)
-> Artikel ist in der Einkaufsliste gespeichert bzw. aktualisiert
+> 1. Putzplan ist gespeichert und sichtbar für alle WG-Mitglieder 
+> 2. Aufgaben sind Bewohnern zugewiesen
+
 
 
 ## Ausnahmen
-> Ungültiger Name → Fehlermeldung
+> 1. Keine Bewohner verfügbar → Hinweis 
+> 2. Zeitraum ungültig → Fehlermeldung, Vorgang wird abgebrochen
+
 
 
 
 ### UC7 Diagramm:
-![UCD7.png](https://github.com/wwindrunnerr/flatmate/blob/main/docs/UMLs/Anwendungsfalldiagramme/UCD7.png)
+![UCD7.png](./UMLs/Anwendungsfalldiagramme/UCD7.png)

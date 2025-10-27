@@ -88,6 +88,8 @@
 > 
 > ![Mocup_Putzplan.png](./mocups/Mocup_Putzplan.png)
 > 
+> ![Aktivitätsdiagramm 3](./UMLs/Aktivitätsdiagramme/AD3_UC7.png)
+> 
 > [Use Case 7: "Putzplan"](./useCases/UC7_PutzPlan.md)
 
 #### F03 Budgetverwaltung
