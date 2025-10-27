@@ -80,18 +80,20 @@
 > - **Geschätzter Aufwand (hoch, mittel, niedrig)**
 
 > Die Anwendung soll vollständig über den Browser bedienbar sein, ohne Installation zusätzlicher Software. Das Layout muss sich automatisch an verschiedene Bildschirmgrößen (Desktop-PCs, Smartphones) anpassen. Dabei soll die Benutzeroberfläche übersichtlich, intuitiv und performant bleiben. Wichtige Elemente wie Navigationsleiste, Buttons und Tabellen sollen sich dynamisch anpassen.
-
-![Mocup_mainPage.png](./mocups/Mocup_mainPage.png)
+>
+> ![Mocup_mainPage.png](./mocups/Mocup_mainPage.png)
 
 #### F02 Putzplan
 > Das System soll die Erstellung, Verwaltung und Zuweisung von Reinigungsaufgaben für WG-Mitglieder ermöglichen. Jede Aufgabe enthält Name, Beschreibung, Häufigkeit, verantwortliche Person und Status (offen, erledigt). Das System soll Benachrichtigungen oder Erinnerungen anzeigen, wenn Aufgaben fällig sind, sowie eine faire Aufgabenrotation zwischen den Mitgliedern unterstützen. Optional kann eine Kalenderansicht integriert werden.
-![Mocup_Putzplan.png](./mocups/Mocup_Putzplan.png)
+> 
+> ![Mocup_Putzplan.png](./mocups/Mocup_Putzplan.png)
 > 
 > [Use Case 7: "Putzplan"](./useCases/UC7_PutzPlan.md)
 
 #### F03 Budgetverwaltung
 > Die Anwendung soll die Erfassung und automatische Aufteilung gemeinsamer Ausgaben zwischen WG-Mitgliedern ermöglichen. Nutzer*innen können Ausgaben mit Betrag, Zahler, Datum, Kategorie und Notiz erfassen. Das System berechnet automatisch die individuellen Schulden und zeigt aktuelle Salden übersichtlich an.
-![Mocup_Budget.png](https://github.com/wwindrunnerr/flatmate/blob/main/docs/mocups/Mocup_Budget.png)
+> 
+> ![Mocup_Budget.png](./mocups/Mocup_Budget.png)
 > 
 >[Use Case 4: "Ausgabe erfassen und aufteilen"](./useCases/UC4_Ausgabe_erfassen_und_aufteilen.md)
 > 
@@ -99,13 +101,14 @@
 
 #### F04 Einkaufsliste
 > Die Anwendung stellt eine gemeinsame Einkaufsliste zur Verfügung, in der WG-Mitglieder Artikel hinzufügen, bearbeiten und abhaken können. Änderungen sollen in Echtzeit für alle synchronisiert werden.
-![Mocup_Einkaufsliste.png](./mocups/Mocup_Einkaufsliste.png)
+> 
+> ![Mocup_Einkaufsliste.png](./mocups/Mocup_Einkaufsliste.png)
 > 
 > [Use Case 6: "Einkaufsliste"](./useCases/UC6_Einkaufsliste.md)
 
 #### F05 Account erstellen / Login-System / WG-Account erstellen
 > Das System soll ein sicheres Nutzer- und WG-Account-System bereitstellen. Nutzerinnen können persönliche Accounts über E-Mail/Passwort (oder OAuth) erstellen und sich einloggen. Eine WG kann angelegt werden, um mehrere Mitglieder zu verwalten. Der/die Erstellerin fungiert als Admin und kann Einladungen verschicken, Mitglieder hinzufügen/entfernen und Berechtigungen festlegen. Passwörter sollen sicher gespeichert (z. B. gehasht) und Anmelde-Sessions geschützt werden.
-![Mocup_User.png](./mocups/Mocup_User.png)
+> ![Mocup_User.png](./mocups/Mocup_User.png)
 >
 > [Use Case 1: "WG anlegen"](./useCases/UC1_WG_anlegen.md)
 > 
