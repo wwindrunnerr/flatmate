@@ -1,24 +1,26 @@
-# UC4 – Ausgabe erfassen und aufteilen
+# UC5 – Salden anzeigen und ausgleichen
 ## Akteur(e)
 > Bewohner
 
 ## Voraussetzungen (Precondition)
-> Nutzer ist Mitglied der WG
+> Mindestens eine Ausgabe existiert
 
 ## Hauptablauf (inkludierte Teilschritte)
-> 1. Betrag, Zahler, Datum, Notiz (+ Belegfoto optional) eingeben 
-> 2. Gleich oder gewichtet aufteilen 
-> 3. Speichern
+> 1. Saldenübersicht öffnen 
+> 2. Ausgleichsvorschläge ansehen 
+> 3. Zahlung als „erledigt“ markieren
+
 
 
 ## Nachbedingungen (Postcondition)
-> 1. Ausgabe gespeichert 
-> 2. Anteile pro Person berechnet
+> 1. Salden aktualisiert 
+> 2. Zahlung protokolliert
+
 
 
 ## Ausnahmen
-> Ungültiger Betrag/fehlende Felder → Validierungsfehler
+> Unvollständige Daten → Hinweis
 
 
-## UC4 Diagramm:
-![UCD4.png](https://github.com/wwindrunnerr/flatmate/blob/main/docs/UMLs/Anwendungsfalldiagramme/UCD4.png)
+## UC5 Diagramm:
+![UCD5.png](https://github.com/wwindrunnerr/flatmate/blob/main/docs/UMLs/Anwendungsfalldiagramme/UCD5.png)

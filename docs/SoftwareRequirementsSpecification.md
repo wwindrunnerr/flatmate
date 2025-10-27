@@ -81,21 +81,38 @@
 
 > Die Anwendung soll vollständig über den Browser bedienbar sein, ohne Installation zusätzlicher Software. Das Layout muss sich automatisch an verschiedene Bildschirmgrößen (Desktop-PCs, Smartphones) anpassen. Dabei soll die Benutzeroberfläche übersichtlich, intuitiv und performant bleiben. Wichtige Elemente wie Navigationsleiste, Buttons und Tabellen sollen sich dynamisch anpassen.
 
-![Mocup_mainPage.png](https://github.com/wwindrunnerr/flatmate/blob/main/docs/mocups/Mocup_mainPage.png)
+![Mocup_mainPage.png](./mocups/Mocup_mainPage.png)
 
 #### F02 Putzplan
-
-![Mocup_Putzplan.png](https://github.com/wwindrunnerr/flatmate/blob/main/docs/mocups/Mocup_Putzplan.png)
+> Das System soll die Erstellung, Verwaltung und Zuweisung von Reinigungsaufgaben für WG-Mitglieder ermöglichen. Jede Aufgabe enthält Name, Beschreibung, Häufigkeit, verantwortliche Person und Status (offen, erledigt). Das System soll Benachrichtigungen oder Erinnerungen anzeigen, wenn Aufgaben fällig sind, sowie eine faire Aufgabenrotation zwischen den Mitgliedern unterstützen. Optional kann eine Kalenderansicht integriert werden.
+![Mocup_Putzplan.png](./mocups/Mocup_Putzplan.png)
+> 
+> [Use Case 7: "Putzplan"](./useCases/UC7_PutzPlan.md)
 
 #### F03 Budgetverwaltung
-
+> Die Anwendung soll die Erfassung und automatische Aufteilung gemeinsamer Ausgaben zwischen WG-Mitgliedern ermöglichen. Nutzer*innen können Ausgaben mit Betrag, Zahler, Datum, Kategorie und Notiz erfassen. Das System berechnet automatisch die individuellen Schulden und zeigt aktuelle Salden übersichtlich an.
 ![Mocup_Budget.png](https://github.com/wwindrunnerr/flatmate/blob/main/docs/mocups/Mocup_Budget.png)
+> 
+>[Use Case 4: "Ausgabe erfassen und aufteilen"](./useCases/UC4_Ausgabe_erfassen_und_aufteilen.md)
+> 
+>[Use Case 5: "Salden anzeigen und ausgleichen"](./useCases/UC5_Salden_anzeigen_und_ausgleichen.md)
+
 #### F04 Einkaufsliste
+> Die Anwendung stellt eine gemeinsame Einkaufsliste zur Verfügung, in der WG-Mitglieder Artikel hinzufügen, bearbeiten und abhaken können. Änderungen sollen in Echtzeit für alle synchronisiert werden.
+![Mocup_Einkaufsliste.png](./mocups/Mocup_Einkaufsliste.png)
+> 
+> [Use Case 6: "Einkaufsliste"](./useCases/UC6_Einkaufsliste.md)
 
-![Mocup_Einkaufsliste.png](https://github.com/wwindrunnerr/flatmate/blob/main/docs/mocups/Mocup_Einkaufsliste.png)
-#### F05 Account erstellen / Login-System
+#### F05 Account erstellen / Login-System / WG-Account erstellen
+> Das System soll ein sicheres Nutzer- und WG-Account-System bereitstellen. Nutzerinnen können persönliche Accounts über E-Mail/Passwort (oder OAuth) erstellen und sich einloggen. Eine WG kann angelegt werden, um mehrere Mitglieder zu verwalten. Der/die Erstellerin fungiert als Admin und kann Einladungen verschicken, Mitglieder hinzufügen/entfernen und Berechtigungen festlegen. Passwörter sollen sicher gespeichert (z. B. gehasht) und Anmelde-Sessions geschützt werden.
+![Mocup_User.png](./mocups/Mocup_User.png)
+>
+> [Use Case 1: "WG anlegen"](./useCases/UC1_WG_anlegen.md)
+> 
+> [Use Case 2: "Einladung erzeugen"](./useCases/UC2_Einladung_erzeugen.md)
+> 
+> [Use Case 3: "WG beitreten"](./useCases/UC3_WG_beitreten.md)
 
-![Mocup_User.png](https://github.com/wwindrunnerr/flatmate/blob/main/docs/mocups/Mocup_User.png)
 ### 3. Nicht-funktionale Anforderungen
 
 > [WICHTIG:]
@@ -104,6 +121,88 @@
 
 > Kategorien: Benutzerfreundlichkeit, Zuverlässigkeit, Leistung, Effizienz, Integrität, Wartbarkeit, Flexibilität, Testbarkeit, Wiederverwendbarkeit, Sicherheit.
 
+| ID   | Anforderung                       | Beschreibung                                                                                        |
+|------|-----------------------------------|-----------------------------------------------------------------------------------------------------|
+| NF01 | Benutzerfreundlichkeit            | Die App soll eine intuitive, moderne Oberfläche haben, leicht navigierbar für neue Nutzer*innen.    |
+| NF02 | Performance und Stabilität        | Seiten sollen in wenigen Sekunden laden; die App bleibt auch bei hoher Nutzerzahl reaktionsschnell. |
+| NF03 | Wartbarkeit                       | Modularer Aufbau, um neue Features (z. B. Werbung, Challenges) einfach integrieren zu können.       |
+| NF04 | Verfügbarkeit und Zuverlässigkeit | System soll 99 % Betriebszeit bieten; regelmäßige Backups und Offline-Fallback.                     |
+| NF05 | Plattformunabhängigkeit           | Funktioniert auf allen gängigen Browsern und Geräten (Laptop, Tablet, Smartphone)                   |
+                                                                          
 
 ### 4. Technische Einschränkungen
 > Geben Sie alle wichtigen Einschränkungen, Annahmen oder Abhängigkeiten an, z. B. alle Einschränkungen darüber, welcher Servertyp verwendet werden soll, welche Art von Open-Source-Lizenz eingehalten werden muss usw.
+
+#### 4.1 Zielplattform
+> Web-App. Ein Repo.
+
+#### 4.2 Architektur
+> Schlanker Monolith mit Next.js.
+
+#### 4.3 Präferierter Stack (änderbar nach Teamentscheid)
+> Frontend: React mit Next.js, TypeScript, UI: Tailwind odeк Material UI.
+>
+> Backend: Node.js (Next.js Node-Runtime).
+> 
+> Datenbank: PostgreSQL oder Prisma.
+
+#### 4.4 Frontend-Vorgaben
+> Sprache: TypeScript
+
+#### 4.5 Backend & API
+> Auth: Session-Cookie oder JWT (HS256/RS256); Refresh optional.
+> 
+> RBAC: Rollen „Admin“/„Bewohner“, serverseitig geprüft.
+> 
+> Validierung: serverseitig.
+> 
+> Zeit/Daten: UTC im Backend, Umwandlung im Client
+> 
+> Rate-Limiting:  x req/min pro IP (zur Absprache).
+> 
+> Fehlerformat: { code, message, details }.
+
+#### 4.6 Datenhaltung
+> PostgreSQL, Prisma?
+
+
+#### 4.7 Hosting & Betrieb
+> Cloud-Free-Tier (Staging/optional Prod). HTTPS erzwungen.
+
+#### 4.8 Zeit/Umfang (Scope)
+> Fokus MVP: WG erstellen/beitreten, Ausgaben erfassen/gleich aufteilen, Salden/Ausgleich, . Alles Weitere außerhalb des MVP.
+
+#### 4.9 Datenschutz & Sicherheit
+> Personenbezogene Daten minimal (Name, E-Mail, WG-Bezug).
+> 
+> Invite-Codes: kryptografisch sicher
+
+#### 4.10 Internationalisierung & Lokalisierung
+> Basissprache: Deutsch
+> 
+> Zeitzone: Europe/Berlin.
+> 
+> Währung: Euro 
+>
+> Beträge als Dezimal, kaufmännische Rundung auf zwei Nachkommastellen.
+
+#### 4.11 Browser-/OS-Support
+> Chrome/Edge/Firefox: letzte Hauptversionen.
+> 
+> Safari: letzte Hauptversion.
+> 
+> Mobil: aktuelle iOS-/Android-Browser.
+
+#### 4.12 Dateiuploads
+> Belegfotos: PNG/JPEG, max. x MB pro Datei, max. x Dateien pro Ausgabe. (wird zusammen entschieden)
+> 
+> Speicher: lokal im Dev, vllt. S3 in Zukunft?
+
+#### 4.13 Konfiguration (ENV)
+> Keine dotenv files im Repo; .env.example bereitstellen.
+
+#### 4.14 Teststrategie (kurz)
+> Unit-Tests für Kernlogik.
+
+#### 4.15 Grenzen & Quoten (MVP)
+> Max. Mitglieder pro WG, Max. Ausgaben pro WG (zur Absprache)

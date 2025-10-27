@@ -1,0 +1,69 @@
+@startuml
+title Aktivitätsdiagramm: UC4 (Ausgabe erfassen & aufteilen) + UC5 (Salden anzeigen & Ausgleich markieren)
+
+skinparam activityBackgroundColor #F8F8F8
+skinparam activityBorderColor #555
+skinparam shadowing false
+
+' --- UC4: Ausgabe erfassen & aufteilen ---
+partition "Bewohner" {
+  start
+  :Maske „Neue Ausgabe“ öffnen;
+  :Betrag, Zahler, Datum, Notiz eingeben;
+  if (Belegfoto hinzufügen?) then (ja)
+    :Belegfoto aufnehmen/anhängen;
+  else (nein)
+  endif
+  if (Aufteilung wählen) then (gleich)
+    :Gleich auf alle verteilen;
+  else (gewichtet)
+    :Gewichte/Anteile pro Person eingeben;
+  endif
+  :Speichern klicken;
+}
+
+partition "System" {
+  :Eingaben validieren;
+  if (Betrag > 0 \nund Pflichtfelder gefüllt?) then (ja)
+    :Anteile pro Person berechnen;
+    :Ausgabe + Anteile speichern;
+    :Bestätigung anzeigen;
+  else (nein)
+    :Validierungsfehler anzeigen\n(ungültiger Betrag/fehlende Felder);
+    --> [zurück] "Bewohner a";
+  endif
+}
+
+' --- Schleife bei Validierungsfehler ---
+partition "Bewohner a" {
+  :Eingaben korrigieren;
+  --> (Betrag, Zahler, Datum, Notiz eingeben);
+}
+
+' --- UC5: Salden anzeigen & Ausgleich markieren ---
+partition "Bewohner b" {
+  :Saldenübersicht öffnen;
+}
+
+partition "System" {
+  :Daten laden (Salden + Vorschläge);
+  if (Daten vollständig?) then (ja)
+    :Salden & Ausgleichsvorschläge anzeigen;
+  else (nein)
+    :Hinweis „Unvollständige Daten“ anzeigen;
+    stop
+  endif
+}
+
+partition "Bewohner b" {
+  :Vorschläge ansehen;
+  :Zahlung als „erledigt“ markieren;
+}
+
+partition "System" {
+  :Zahlung protokollieren;
+  :Salden aktualisieren;
+  :Bestätigung anzeigen;
+  stop
+}
+@enduml

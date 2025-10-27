@@ -1,46 +1,52 @@
 @startuml
 left to right direction
-skinparam usecaseBorderColor #555
-skinparam usecaseBackgroundColor #EFEFEF
 
-actor Admin
 actor Bewohner
 
 rectangle "WG-App" {
-  usecase "Umfrage erstellen" as UC6a
-  usecase "Abstimmen" as UC6b
+  ' Haupt-Use-Cases
+  usecase "Artikel hinzufügen & bearbeiten" as UC6a
+  usecase "Artikel abhaken" as UC6b
 
-  usecase "Frage & Optionen festlegen" as UC6a_S1
-  usecase "Deadline\nund Anonymität setzen" as UC6a_S2
-  usecase "Veröffentlichen" as UC6a_S3
+  ' Teil-Schritte: UC6a
+  usecase "Artikel hinzufügen" as UC6a_S1
+  usecase "Artikel bearbeiten" as UC6a_S2
+  usecase "Speichern" as UC6a_S3
 
-  usecase "Option(en) wählen" as UC6b_S1
-  usecase "Einmalig absenden" as UC6b_S2
-  usecase "Ergebnis nach\nDeadline einsehen" as UC6b_S3
+  ' Teil-Schritte: UC6b
+  usecase "Artikel auswählen" as UC6b_S1
+  usecase "Als erledigt markieren" as UC6b_S2
+  usecase "Liste aktualisieren" as UC6b_S3
 
+  ' Vor-/Nachbedingungen & Ausnahmen: UC6a
   usecase "Voraussetzung:\nMitgliedschaft in WG" as UC6a_PRE <<precondition>>
-  usecase "Nachbedingung:\nPoll aktiv und sichtbar" as UC6a_POST <<postcondition>>
+  usecase "Nachbedingung:\nArtikel gespeichert/aktualisiert" as UC6a_POST <<postcondition>>
+  usecase "Ausnahme:\nUngültiger Name -> Fehlermeldung" as UC6a_EXC <<exception>>
 
-  usecase "Voraussetzungen:\nPoll ist aktiv\nNutzer ist Mitglied der WG" as UC6b_PRE <<precondition>>
-  usecase "Nachbedingungen:\nStimme gespeichert\nErgebnis nach Frist sichtbar" as UC6b_POST <<postcondition>>
-  usecase "Ausnahmen:\nDoppelte Stimmabgabe -> abgelehnt\nDeadline abgelaufen -> schreibgeschützt" as UC6b_EXC <<exception>>
+  ' Vor-/Nachbedingungen & Ausnahmen: UC6b
+  usecase "Voraussetzung:\nMitgliedschaft in WG" as UC6b_PRE <<precondition>>
+  usecase "Nachbedingung:\nArtikel ist erledigt" as UC6b_POST <<postcondition>>
+  usecase "Ausnahme:\nBereits erledigt -> Hinweis" as UC6b_EXC <<exception>>
 }
 
-Admin --> UC6a
+' Akteur-Relationen
+Bewohner --> UC6a
 Bewohner --> UC6b
 
-UC6a ..> UC6b : nach Veröffentlichung
-
+' Include-Verknüpfungen (UC6a)
 UC6a .> UC6a_S1 : <<include>>
 UC6a .> UC6a_S2 : <<include>>
 UC6a .> UC6a_S3 : <<include>>
 
+' Include-Verknüpfungen (UC6b)
 UC6b .> UC6b_S1 : <<include>>
 UC6b .> UC6b_S2 : <<include>>
 UC6b .> UC6b_S3 : <<include>>
 
+' Vor-/Nachbedingungen & Ausnahmen
 UC6a_PRE ..> UC6a : <<pre>>
 UC6a ..> UC6a_POST : <<post>>
+UC6a ..> UC6a_EXC : <<extends>>
 
 UC6b_PRE ..> UC6b : <<pre>>
 UC6b ..> UC6b_POST : <<post>>

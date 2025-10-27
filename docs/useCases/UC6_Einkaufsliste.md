@@ -1,26 +1,44 @@
-# UC5 – Salden anzeigen und ausgleichen
-## Akteur(e)
+# UC6 – Einkaufsliste
+## UC6a – Artikel hinzufügen & bearbeiten
+### Akteur(e)
 > Bewohner
 
-## Voraussetzungen (Precondition)
-> Mindestens eine Ausgabe existiert
+### Voraussetzungen (Precondition)
+> Mitgliedschaft in der WG
 
-## Hauptablauf (inkludierte Teilschritte)
-> 1. Saldenübersicht öffnen 
-> 2. Ausgleichsvorschläge ansehen 
-> 3. Zahlung als „erledigt“ markieren
-
-
-
-## Nachbedingungen (Postcondition)
-> 1. Salden aktualisiert 
-> 2. Zahlung protokolliert
+### Hauptablauf (inkludierte Teilschritte)
+> 1. Artikel hinzufügen 
+> 2. Artikel bearbeiten 
+> 3. Speichern
 
 
+### Nachbedingungen (Postcondition)
+> Artikel ist in der Einkaufsliste gespeichert bzw. aktualisiert
 
-## Ausnahmen
-> Unvollständige Daten → Hinweis
+
+### Ausnahmen
+> Ungültiger Name → Fehlermeldung
+
+## UC6b – Artikel abhaken
+### Akteur(e)
+> Bewohner
+
+### Voraussetzungen (Precondition)
+> Mitgliedschaft in der WG
+
+### Hauptablauf (inkludierte Teilschritte)
+> 1. Artikel auswählen 
+> 2. Als erledigt markieren 
+> 3. Liste aktualisieren
 
 
-## UC5 Diagramm:
-![UCD5.png](https://github.com/wwindrunnerr/flatmate/blob/main/docs/UMLs/Anwendungsfalldiagramme/UCD5.png)
+
+### Nachbedingungen (Postcondition)
+> Artikel ist als erledigt markiert
+
+
+### Ausnahmen
+> Artikel bereits erledigt → Hinweis
+
+### UC6 Diagramm:
+![UCD6.png](https://github.com/wwindrunnerr/flatmate/blob/main/docs/UMLs/Anwendungsfalldiagramme/UCD6.png)

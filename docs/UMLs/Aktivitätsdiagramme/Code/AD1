@@ -1,0 +1,63 @@
+@startuml
+title Aktivitätsdiagramm: UC1 (WG anlegen) + UC2 (Einladung erzeugen) + UC3 (WG beitreten)
+
+' --- Partitionen (Swimlanes) ---
+partition "Admin" {
+  start
+  :WG anlegen öffnen;
+  :Name eingeben;
+}
+
+partition "System" {
+  if (Name gültig?) then (ja)
+    :WG erstellen;
+    :Admin-Rolle vergeben;
+  else (nein)
+    :Fehlermeldung „Name ungültig“ anzeigen;
+    stop
+  endif
+}
+
+' --- UC2: Einladung erzeugen ---
+partition "Admin" {
+  :„Einladen“ klicken;
+}
+
+partition "System" {
+  :Rechte & Limit prüfen;
+  if (Invite-Limit erreicht?) then (ja)
+    :Hinweis „Invite-Limit erreicht“ anzeigen;
+    stop
+  else (nein)
+    :Einladungslink / Code erzeugen;
+    :Einladung speichern;
+  endif
+}
+
+partition "Admin" {
+  :Link/Code anzeigen;
+  :Link/Code teilen;
+}
+
+partition "Messenger/Email" {
+  :Link/Code versenden;
+}
+
+' --- UC3: WG beitreten ---
+partition "Bewohner (Eingeladen)" {
+  :Link öffnen / Code eingeben;
+}
+
+partition "System" {
+  :Einladung prüfen;
+  if (Code gültig und aktiv?) then (ja)
+    :Mitgliedschaft anlegen (Rolle: Bewohner);
+    :Beitritt bestätigen;
+    stop
+  else (nein)
+    :Fehlermeldung „Code ungültig/abgelaufen“ anzeigen;
+    stop
+  endif
+}
+
+@enduml

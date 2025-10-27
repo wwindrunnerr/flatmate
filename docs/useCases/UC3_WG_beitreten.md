@@ -1,21 +1,25 @@
-# UC2 – Einladung erzeugen
+# UC3 – WG beitreten
 ## Akteur(e)
-> Admin
+> Bewohner
 
 ## Voraussetzungen (Precondition)
-> 1. WG existiert 
-> 2. Admin ist Mitglied dieser WG
+> Gültiger Invite-Code/Link
+
 
 ## Hauptablauf (inkludierte Teilschritte)
-> 1. „Einladen“ button klicken
-> 2. Code/Link generieren
-> 3. Link/Code teilen
+> 1. Code eingeben
+> 2. Beitritt bestätigen
+
+
 
 ## Nachbedingungen (Postcondition)
-> Gültiger Invite (TTL z. B. 7 Tage)
+> 1. Nutzer ist Mitglied der WG 
+> 2. Rolle: Bewohner
+
 
 ## Ausnahmen
-> Invite-Limit erreicht → Hinweis
+> Code abgelaufen/ungültig → Fehlermeldung
 
-## UC1 Diagramm:
-![UCD2.png](https://github.com/wwindrunnerr/flatmate/blob/main/docs/UMLs/Anwendungsfalldiagramme/UCD2.png)
+
+## UC3 Diagramm:
+![UCD3.png](https://github.com/wwindrunnerr/flatmate/blob/main/docs/UMLs/Anwendungsfalldiagramme/UCD3.png)

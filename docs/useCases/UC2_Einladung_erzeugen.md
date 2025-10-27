@@ -1,21 +1,21 @@
-# UC1 – WG anlegen
+# UC2 – Einladung erzeugen
 ## Akteur(e)
 > Admin
 
 ## Voraussetzungen (Precondition)
-> Benutzer ist eingeloggt.
+> 1. WG existiert 
+> 2. Admin ist Mitglied dieser WG
 
 ## Hauptablauf (inkludierte Teilschritte)
-1. Name eingeben
-2. WG erstellen
-3. Admin-Rolle vergeben
-
-## Alternativ-/Fehlerablauf (Exception)
-> Name ungültig → Fehlermeldung. Der Vorgang wird abgebrochen; keine WG wird erstellt. 
+> 1. „Einladen“ button klicken
+> 2. Code/Link generieren
+> 3. Link/Code teilen
 
 ## Nachbedingungen (Postcondition)
-> WG existiert. 
-> Ersteller ist Admin der WG.
+> Gültiger Invite (TTL z. B. 7 Tage)
 
-## UC1 Diagramm:
-![UCD1.png](https://github.com/wwindrunnerr/flatmate/blob/main/docs/UMLs/Anwendungsfalldiagramme/UCD1.png)
+## Ausnahmen
+> Invite-Limit erreicht → Hinweis
+
+## UC2 Diagramm:
+![UCD2.png](https://github.com/wwindrunnerr/flatmate/blob/main/docs/UMLs/Anwendungsfalldiagramme/UCD2.png)

@@ -1,25 +1,24 @@
-# UC3 – WG beitreten
+# UC4 – Ausgabe erfassen und aufteilen
 ## Akteur(e)
 > Bewohner
 
 ## Voraussetzungen (Precondition)
-> Gültiger Invite-Code/Link
-
+> Nutzer ist Mitglied der WG
 
 ## Hauptablauf (inkludierte Teilschritte)
-> 1. Code eingeben
-> 2. Beitritt bestätigen
-
+> 1. Betrag, Zahler, Datum, Notiz (+ Belegfoto optional) eingeben 
+> 2. Gleich oder gewichtet aufteilen 
+> 3. Speichern
 
 
 ## Nachbedingungen (Postcondition)
-> 1. Nutzer ist Mitglied der WG 
-> 2. Rolle: Bewohner
+> 1. Ausgabe gespeichert 
+> 2. Anteile pro Person berechnet
 
 
 ## Ausnahmen
-> Code abgelaufen/ungültig → Fehlermeldung
+> Ungültiger Betrag/fehlende Felder → Validierungsfehler
 
 
-## UC3 Diagramm:
-![UCD2.png](https://github.com/wwindrunnerr/flatmate/blob/main/docs/UMLs/Anwendungsfalldiagramme/UCD2.png)
+## UC4 Diagramm:
+![UCD4.png](https://github.com/wwindrunnerr/flatmate/blob/main/docs/UMLs/Anwendungsfalldiagramme/UCD4.png)

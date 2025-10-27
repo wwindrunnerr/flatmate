@@ -1,0 +1,63 @@
+@startuml
+title Sequenzdiagramme: Ausgabe erfassen -> aufteilen -> Salden anzeigen -> Ausgleich markieren
+
+actor Bewohner
+participant "Browser" as B
+participant "WGApp (Server)" as S
+database "PostgreSQL" as DB
+collections "Dateispeicher (z. B. S3)" as ST
+
+== Ausgabe erfassen ==
+Bewohner -> B : Formular ausfüllen\n(Betrag, Zahler, Datum, Notiz, Foto?)
+B -> S : Daten senden (Ausgabe anlegen)
+S -> S : Eingaben prüfen
+alt Eingabe ist gültig
+  opt Belegfoto vorhanden
+    S -> ST : Bild hochladen
+    ST --> S : Link zum Bild
+  end
+  S -> DB : Ausgabe speichern
+  DB --> S : ID der Ausgabe
+  opt Aufteilung: gewichtet
+    S -> S : Gewichtsbasierte Anteile berechnen
+  else Aufteilung: gleich
+    S -> S : Gleiche Anteile berechnen
+  end
+  loop für jeden Teilnehmer
+    S -> DB : Anteil speichern
+    DB --> S : OK
+  end
+  par Antwort & Protokoll
+    S --> B : Bestätigung mit Ausgaben-ID und Anteilen
+    S -> DB : Protokolleintrag „Ausgabe erstellt“
+  end
+else Eingabe ungültig
+  S --> B : Hinweis „Bitte Eingaben korrigieren“
+end
+
+== Salden anzeigen ==
+Bewohner -> B : Ansicht „Salden“ öffnen
+B -> S : Salden anfordern
+S -> DB : Ausgaben, Anteile, Mitglieder lesen
+DB --> S : Daten
+S -> S : Salden berechnen
+S --> B : Salden und Ausgleichsvorschläge anzeigen
+
+== Ausgleich markieren ==
+Bewohner -> B : Zahlung als „erledigt“ markieren
+B -> S : Zahlungsdaten übermitteln
+S -> S : Angaben prüfen
+alt Zahlung gültig
+  S -> DB : Zahlung speichern
+  DB --> S : OK
+  S -> S : Salden neu berechnen
+  S --> B : Aktualisierte Salden anzeigen
+else Zahlung ungültig
+  S --> B : Hinweis „Angaben prüfen“
+end
+
+== Optional: Fehlerfälle ==
+opt Daten lückenhaft
+  S --> B : Hinweis „Berechnung aktuell nicht möglich“
+end
+@enduml

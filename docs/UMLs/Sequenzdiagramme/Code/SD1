@@ -1,0 +1,68 @@
+@startuml
+title Sequenzdiagramm WG anlegen -> Einladung erzeugen -> WG beitreten
+
+actor Admin
+actor "Bewohner (Eingeladen)" as Guest
+participant "Browser(Admin)" as BA
+participant "Browser(Guest)" as BG
+participant "WGApp (Server)" as S
+database "PostgreSQL" as DB
+collections "Messenger/Email" as MSG
+
+== WG anlegen ==
+Admin -> BA : Seite „WG anlegen“ öffnen
+BA -> S : Seite anfordern
+S --> BA : Formular anzeigen
+
+Admin -> BA : Name eingeben + absenden
+BA -> S : Daten senden (Name der WG)
+S -> S : Eingabe prüfen
+alt Name gültig
+  S -> DB : WG in Datenbank speichern
+  DB --> S : ID zurück
+  S -> DB : Admin-Mitgliedschaft anlegen
+  DB --> S : OK
+  S --> BA : Bestätigung mit WG-ID
+else Name ungültig
+  S --> BA : Fehlermeldung „Name ungültig“
+  return
+end
+
+== Einladung erzeugen ==
+Admin -> BA : „Einladen“ klicken
+BA -> S : Einladungsfunktion aufrufen
+S -> S : Rechte & Limit prüfen
+alt Invite-Limit erreicht
+  S --> BA : Hinweis „Invite-Limit erreicht“
+else OK
+  S -> S : Einladungslink erzeugen
+  S -> DB : Einladung speichern
+  DB --> S : OK
+  S --> BA : Link anzeigen (mit Ablaufdatum)
+  opt Link teilen
+    BA -> MSG : Link senden
+  end
+end
+
+== WG beitreten per Code ==
+Guest -> BG : Link öffnen / Code eingeben
+BG -> S : Beitritt mit Code anfragen
+S -> DB : Einladung nachschlagen
+DB --> S : gefunden / nicht gefunden
+alt Einladung gültig und aktiv
+  S -> DB : Mitgliedschaft für Gast speichern
+  DB --> S : OK
+  par Bestätigung & Protokoll
+    S --> BG : Beitritt bestätigen
+    S -> DB : Eintrag im Protokoll
+  end
+else Ungültig / abgelaufen / widerrufen
+  S --> BG : Fehlermeldung „Code ungültig oder abgelaufen“
+end
+
+== Abschluss ==
+note over BA,BG
+Admin sieht die WG-Übersicht mit Mitgliedern.
+Gast sieht die WG-Übersicht als Bewohner.
+end note
+@enduml
