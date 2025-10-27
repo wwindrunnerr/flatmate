@@ -41,4 +41,4 @@
 > Artikel bereits erledigt → Hinweis
 
 ### UC6 Diagramm:
-![UCD6.png](./UMLs/Anwendungsfalldiagramme/UCD6.png)
+![UCD6.png](docs/UMLs/Anwendungsfalldiagramme/UCD6.png)

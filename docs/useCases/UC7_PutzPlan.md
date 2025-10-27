@@ -30,4 +30,4 @@
 
 
 ### UC7 Diagramm:
-![UCD7.png](./UMLs/Anwendungsfalldiagramme/UCD7.png)
+![UCD7.png](docs/UMLs/Anwendungsfalldiagramme/UCD7.png)
