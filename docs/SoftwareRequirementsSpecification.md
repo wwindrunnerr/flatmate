@@ -14,20 +14,26 @@
 > 
 > 1. [Einleitung](#1-einleitung)
 > 2. [Funktionale Anforderungen](#2-funktionale-anforderungen)
+>     * [F01 Webapp](#f01-webapp)
+>     * [F02 Putzplan](#f02-putzplan)
+>     * [F03 Budgetverwaltung](#f03-budgetverwaltung)
+>     * [F04 Einkaufsliste](#f04-einkaufsliste)
+>     * [F05 Account erstellen / Login-System / WG-Account erstellen](#f05-account-erstellen--login-system--wg-account-erstellen)
 > 3. [Nicht funktionale Anforderungen](#3-nicht-funktionale-anforderungen)
 > 4. [Technische Einschränkungen](#4-technische-einschränkungen)
+
 
 #### 1.3 Definitionen, Akronyme und Abkürzungen
 > Definitionen aller Begriffe, Akronyme und Abkürzungen, die für die ordnungsgemäße Interpretation dieses Dokuments erforderlich sind.
 
-| Abbrevation | Explanation                            |
-| ----------- | -------------------------------------- |
-| SRS         | Software Requirements Specification    |
-| UC          | Use Case                               |
-| n/a         | not applicable                         |
-| tbd         | to be determined                       |
-| UCD         | overall Use Case Diagram               |
-| FAQ         | Frequently asked Questions             |
+| Abbrevation | Explanation                         |
+|-------------|-------------------------------------|
+| SRS         | Software Requirements Specification |
+| UC          | Use Case                            |
+| F0          | Funktionale Anforderung             |
+| NF0         | Nicht-funktionale Anforderung       |
+| UCD         | overall Use Case Diagram            |
+| FAQ         | Frequently asked Questions          |
 
 
 #### 1.4 Referenzen
