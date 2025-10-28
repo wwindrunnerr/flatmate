@@ -7,11 +7,15 @@
 #### 1.1 Übersicht
 > Was sind die Verkaufsargumente bzw. Alleinstellungsmerkmale Ihrer Software?
 >
-
 > Die App bietet eine Vielzahl von Funktionen in einer einzigen Anwendung, die für die komfortable Verwaltung einer Wohngemeinschaft erforderlich sind, wie z. B. die Erstellung eines Reinigungsplans, die Erfassung von Ausgaben und Schulden, einen Kalender für wichtige gemeinsame Veranstaltungen und die Erstellung einer Einkaufsliste, die für alle Mitglieder der Gruppe sichtbar ist.
 
 #### 1.2 Geltungsbereich
 > Was wird in diesem Dokument behandelt (nicht behandelt)? Ist es für Ihr gesamtes System oder ein Subsystem? Deckt es sowohl funktionale als auch nicht-funktionale Anforderungen ab? (Werden Sie einige Anforderungen in ein anderes Dokument auslagern?)
+> 
+> 1. [Einleitung](#1-einleitung)
+> 2. [Funktionale Anforderungen](#2-funktionale-anforderungen)
+> 3. [Nicht funktionale Anforderungen](#3-nicht-funktionale-anforderungen)
+> 4. [Technische Einschränkungen](#4-technische-einschränkungen)
 
 #### 1.3 Definitionen, Akronyme und Abkürzungen
 > Definitionen aller Begriffe, Akronyme und Abkürzungen, die für die ordnungsgemäße Interpretation dieses Dokuments erforderlich sind.
