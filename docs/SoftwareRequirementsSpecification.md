@@ -80,6 +80,8 @@
 | F17 | Werbung einbinden                                         | Anzeigenplatzierung zur Monetarisierung                                                                                                                 | ⚪ Niedrig    |
 | F18 | Offline-Modus                                             | Nutzung zentraler Funktionen auch ohne Internetverbindung                                                                                               | ⚪ Niedrig    |
 
+> ![Klassen_nach_SRP.png](./UMLs/Klassendiagramme/nach_SRP.jpg)
+
 #### F01 Webapp
 > Spezifizieren Sie diese Funktion/diesen Anwendungsfall durch:
 > - Relevante **User Stories**
