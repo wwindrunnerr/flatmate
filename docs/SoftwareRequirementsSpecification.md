@@ -113,7 +113,7 @@
 > 
 >[Use Case 5: "Salden anzeigen und ausgleichen"](./useCases/UC5_Salden_anzeigen_und_ausgleichen.md)
 > 
->![Sequenzdiagramm 2](./UMLs/Sequenzdiagramme/SD2.png)
+>![Sequenzdiagramm 2](UMLs/Sequenzdiagramme/SD2.2.png)
 > 
 >![Aktivitätsdiagramm 2](./UMLs/Aktivitätsdiagramme/AD2_UC4_UC5.png)
 
@@ -134,7 +134,7 @@
 > 
 > [Use Case 3: "WG beitreten"](./useCases/UC3_WG_beitreten.md)
 > 
-> ![Sequenzdiagramm 1](./UMLs/Sequenzdiagramme/SD1.png)
+> ![Sequenzdiagramm 1](UMLs/Sequenzdiagramme/SD1.2.png)
 > 
 > ![Aktivitätsdiagramm 1](./UMLs/Aktivitätsdiagramme/AD1_UC1_UC2_UC3.png)
 

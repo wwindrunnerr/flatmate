@@ -1,0 +1,56 @@
+@startuml
+title Sequenz: Transaktion erfassen -> Salden anzeigen -> Ausgleich markieren
+
+actor Bewohner
+participant "Browser" as B
+participant "WGApp (Server)" as S
+database "DB (Transaktion, User, WG, Anteile)" as DB
+collections "Belegspeicher" as ST
+
+== Transaktion erfassen ==
+Bewohner -> B : Formular (name, preis, datum, User=Zahler, Notiz?, Foto?)
+B -> S : POST /wg/{wgId}/transaktionen {...}
+S -> S : Validierung (preis>0, User∈WG)
+opt Belegfoto vorhanden
+  S -> ST : Upload(Foto)
+  ST --> S : url
+end
+alt gültig
+  S -> DB : INSERT Transaktion(wgId, name, preis, datum, userId, belegUrl?)
+  DB --> S : transaktionId
+  opt Aufteilung
+    S -> S : Anteile berechnen (gleich/gewichtet)
+  end
+  loop je Teilnehmer
+    S -> DB : INSERT Anteil(transaktionId, schuldnerId, betrag)
+    DB --> S : OK
+  end
+  par Antwort & Protokoll
+    S --> B : 201 Created (transaktionId, Anteile)
+    S -> DB : INSERT Log("txn_created")
+  end
+else ungültig
+  S --> B : 400 „Eingaben prüfen“
+end
+
+== Salden anzeigen ==
+Bewohner -> B : „Salden“ öffnen
+B -> S : GET /wg/{wgId}/salden
+S -> DB : SELECT Mitglieder, Transaktionen, Anteile
+DB --> S : Daten
+S -> S : Saldoberechnung
+S --> B : Salden + Ausgleichsvorschläge
+
+== Ausgleich markieren ==
+Bewohner -> B : Zahlung als „erledigt“ markieren
+B -> S : POST /wg/{wgId}/ausgleich {von, an, betrag, datum}
+S -> S : Plausibilität prüfen
+alt gültig
+  S -> DB : INSERT Zahlung(...)
+  DB --> S : OK
+  S -> S : Salden neu berechnen
+  S --> B : 200 aktualisierte Salden
+else ungültig
+  S --> B : 400 „Angaben prüfen“
+end
+@enduml
