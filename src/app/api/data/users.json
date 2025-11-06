@@ -1,0 +1,30 @@
+[
+  {
+    "name": "Denis",
+    "age": 22,
+    "gender": "mann",
+    "email": "www@gmail.com",
+    "password": "1234"
+  },
+  {
+    "name": "Jarik",
+    "age": 20,
+    "gender": "Mann",
+    "email": "jarik_krut@gmail.com",
+    "password": "1234"
+  },
+  {
+    "name": "Mykyta",
+    "age": 21,
+    "gender": "Mann",
+    "email": "mykyta@gmail.com",
+    "password": "1234"
+  },
+  {
+    "name": "Leon",
+    "age": 45,
+    "gender": "Mann",
+    "email": "leon@gmail.com",
+    "password": "1234"
+  }
+]

@@ -1,26 +1,37 @@
-@import "tailwindcss";
-
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+    --bg-blur: rgba(255, 255, 255, 0.65);
+    --border: rgba(255, 255, 255, 0.3);
+    --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    --radius: 20px;
+    --accent: #007aff; /* Apple-blau */
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+html, body {
+    margin: 0;
+    padding: 10px 10px;
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+    background: linear-gradient(135deg, #f0f0f5, #e6e9ef);
+    color: #111;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+
+
+* {
+    box-sizing: border-box;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+input, button {
+    border: none;
+    outline: none;
+    font-family: inherit;
+}
+
+button {
+    cursor: pointer;
+    transition: 0.2s all ease;
+}
+
+button:hover {
+    transform: scale(1.03);
 }
