@@ -8,7 +8,6 @@
 
 html, body {
     margin: 0;
-    padding: 10px 10px;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
     background: linear-gradient(135deg, #f0f0f5, #e6e9ef);
@@ -34,4 +33,67 @@ button {
 
 button:hover {
     transform: scale(1.03);
+}
+
+.layout-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 240px;
+    background: #d9d9d9;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-height: 100vh;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar li {
+    margin-bottom: 12px;
+}
+
+.sidebar a {
+    text-decoration: none;
+    font-size: 18px;
+    color: black;
+}
+
+.nav-btn {
+    width: 192px;
+    min-height: 40px;
+    background: #ededed;
+    border: 1px solid #cfcfcf;
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: black;
+    font-size: 16px;
+}
+
+.nav-btn.active {
+    background: #3c3c3c;
+    color: white;
+    border: none;
+}
+
+.nav-btn .icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    flex-shrink: 0;
+}
+
+.content {
+    flex: 1;
+    padding: 24px;
 }
