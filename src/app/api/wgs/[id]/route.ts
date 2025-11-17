@@ -3,21 +3,24 @@ import fs from "fs";
 import path from "path";
 
 const wgsPath = path.join(process.cwd(), "app/api/data/wgs.json");
-const usersPath = path.join(process.cwd(), "app/api/data/users.json");
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
-    const { id } = params;
+export async function GET(
+    req: Request,
+    context: { params: Promise<{ id: string }> }
+) {
+    // ⬅️ params MUST be awaited
+    const { id } = await context.params;
 
-    // Get email from cookie
-    const cookie = req.headers.get("cookie") || "";
-    let email = cookie.match(/user=([^;]+)/)?.[1];
+    // Get cookie
+    const cookieHeader = req.headers.get("cookie") || "";
+    let email = cookieHeader.match(/user=([^;]+)/)?.[1];
     if (email) email = decodeURIComponent(email);
 
     if (!email) {
         return NextResponse.json({ error: "Not logged in" }, { status: 401 });
     }
 
-    // Load data
+    // Load WGs
     const wgs = JSON.parse(fs.readFileSync(wgsPath, "utf8"));
     const wg = wgs.find((w: any) => w.id === id);
 
@@ -25,7 +28,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
         return NextResponse.json({ error: "WG not found" }, { status: 404 });
     }
 
-    // 🔥 Security check: is user a member?
+    // Security: Check membership
     if (!wg.members.includes(email)) {
         return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }

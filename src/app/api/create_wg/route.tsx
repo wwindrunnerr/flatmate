@@ -26,7 +26,7 @@ export async function POST(req: Request) {
     const cookieHeader = req.headers.get("cookie") || "";
     let email = cookieHeader.match(/user=([^;]+)/)?.[1];
     if (email) {
-        email = decodeURIComponent(email);  // ← FIX!
+        email = decodeURIComponent(email);
     }
 
 
