@@ -1,30 +1,27 @@
 [
   {
+    "id": "31b99cbb-3e08-49bd-8aa0-f081920f4d33",
     "name": "Denis",
     "age": 22,
     "gender": "mann",
-    "email": "www@gmail.com",
-    "password": "1234"
+    "email": "ww@gmail.com",
+    "password": "123",
+    "wgIds": [
+      "5f733107-d989-46a3-9682-7c67d33e35a7",
+      "03dbe224-a77f-45ea-b9e6-bfb2fa9f8fe9"
+    ],
+    "invitations": []
   },
   {
-    "name": "Jarik",
-    "age": 20,
+    "id": "a1055231-178d-4b80-8947-f4be3bd4318a",
+    "name": "Yarik",
+    "age": 22,
     "gender": "Mann",
-    "email": "jarik_krut@gmail.com",
-    "password": "1234"
-  },
-  {
-    "name": "Mykyta",
-    "age": 21,
-    "gender": "Mann",
-    "email": "mykyta@gmail.com",
-    "password": "1234"
-  },
-  {
-    "name": "Leon",
-    "age": 45,
-    "gender": "Mann",
-    "email": "leon@gmail.com",
-    "password": "1234"
+    "email": "yar@gmail.com",
+    "password": "123",
+    "wgIds": [
+      "4ac4030c-de35-4219-9bd0-14bd9f9978d5"
+    ],
+    "invitations": []
   }
 ]

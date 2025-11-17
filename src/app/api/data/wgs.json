@@ -1,0 +1,32 @@
+[
+  {
+    "id": "5f733107-d989-46a3-9682-7c67d33e35a7",
+    "title": "Test",
+    "description": "Test",
+    "admin": "ww@gmail.com",
+    "members": [
+      "ww@gmail.com"
+    ],
+    "createdAt": 1763381210771
+  },
+  {
+    "id": "03dbe224-a77f-45ea-b9e6-bfb2fa9f8fe9",
+    "title": "WG 2",
+    "description": "dkwekfjwenkjf",
+    "admin": "ww@gmail.com",
+    "members": [
+      "ww@gmail.com"
+    ],
+    "createdAt": 1763383800987
+  },
+  {
+    "id": "4ac4030c-de35-4219-9bd0-14bd9f9978d5",
+    "title": "WG mit Mykyta and Andrii",
+    "description": "popa",
+    "admin": "yar@gmail.com",
+    "members": [
+      "yar@gmail.com"
+    ],
+    "createdAt": 1763386398885
+  }
+]

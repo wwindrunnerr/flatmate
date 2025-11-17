@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useParams } from "next/navigation";
 import { HomeIcon } from "@/components/icons/HomeIcon";
 import { DollarSignIcon } from "@/components/icons/DollarSignIcon";
 import { ClipboardIcon } from "@/components/icons/ClipboardIcon";
@@ -15,27 +15,37 @@ type Props = {
 
 export default function AppShell({ children }: Props) {
     const pathname = usePathname();
+    const params = useParams<{ id: string }>();
 
-    const navClass = (href: string) =>
-        `nav-btn ${pathname === href ? "active" : ""}`;
+    const id = params.id; // current WG id from /wg/[id]/...
+
+    const base = `/wg/${id}`; // e.g. /wg/123
+
+    const isActive = (subPath: string) => {
+        const target = base + subPath;   // "" | "/kosten" | "/putzplan" | "/einkaufsliste"
+        return pathname === target;
+    };
+
+    const navClass = (subPath: string) =>
+        `nav-btn ${isActive(subPath) ? "active" : ""}`;
 
     let headerIcon: ReactNode;
     let headerTitle: string;
 
-    switch (pathname) {
-        case "/":
+    switch (true) {
+        case isActive(""):
             headerIcon = <HomeIcon className="icon" />;
             headerTitle = "Hallo User!";
             break;
-        case "/kosten":
+        case isActive("/kosten"):
             headerIcon = <DollarSignIcon className="icon" />;
             headerTitle = "Deine Kosten im Überblick";
             break;
-        case "/putzplan":
+        case isActive("/putzplan"):
             headerIcon = <ClipboardIcon className="icon" />;
             headerTitle = "Putzplan für deine WG";
             break;
-        case "/einkaufsliste":
+        case isActive("/einkaufsliste"):
             headerIcon = <ShoppingCartIcon className="icon" />;
             headerTitle = "Einkaufsliste";
             break;
@@ -47,22 +57,25 @@ export default function AppShell({ children }: Props) {
     return (
         <div className="layout-container">
             <nav className="sidebar">
-                <Link href="/" className={navClass("/")}>
+                <Link href={base} className={navClass("")}>
                     <HomeIcon className="icon" />
                     <span>Home</span>
                 </Link>
 
-                <Link href="/kosten" className={navClass("/kosten")}>
+                <Link href={`${base}/kosten`} className={navClass("/kosten")}>
                     <DollarSignIcon className="icon" />
                     <span>Kosten</span>
                 </Link>
 
-                <Link href="/putzplan" className={navClass("/putzplan")}>
+                <Link href={`${base}/putzplan`} className={navClass("/putzplan")}>
                     <ClipboardIcon className="icon" />
                     <span>Putzplan</span>
                 </Link>
 
-                <Link href="/einkaufsliste" className={navClass("/einkaufsliste")}>
+                <Link
+                    href={`${base}/einkaufsliste`}
+                    className={navClass("/einkaufsliste")}
+                >
                     <ShoppingCartIcon className="icon" />
                     <span>Einkaufsliste</span>
                 </Link>
@@ -72,7 +85,7 @@ export default function AppShell({ children }: Props) {
                 <div className="header">
                     {headerIcon}
                     <h1 className="title">{headerTitle}</h1>
-                    <Link href="/dashboard">
+                    <Link href="/user">
                         <ProfileIcon className="avatar" />
                     </Link>
                 </div>

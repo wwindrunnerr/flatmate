@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import Card from "@/components/Card";
 
 export default function RegisterPage() {
     const [form, setForm] = useState({
@@ -27,14 +26,15 @@ export default function RegisterPage() {
                 password: form.password,
             }),
         });
+
         const data = await response.json();
         setMessage(data.message || data.error || "OK");
+
         if (data.success) {
-            setTimeout(() => (window.location.href = "/dashboard"), 1000);
+            setTimeout(() => (window.location.href = "/"), 1000);
         }
     }
 
-    // HTML
     return (
         <main>
             <h2>Registrierung</h2>
@@ -55,7 +55,7 @@ export default function RegisterPage() {
             />
             <br/>
 
-            <button onClick={handleRegister}> Registrieren </button>
+            <button onClick={handleRegister}>Registrieren</button>
 
             <p>{message}</p>
         </main>

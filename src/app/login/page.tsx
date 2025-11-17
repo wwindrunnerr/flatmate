@@ -19,7 +19,7 @@ export default function LoginPage() {
 
         if (data.success) {
             localStorage.setItem("user", JSON.stringify(data.user));
-            window.location.href = "/dashboard";
+            window.location.href = "/user";
         } else {
             setMsg(data.error || "Fehler beim Login");
         }
