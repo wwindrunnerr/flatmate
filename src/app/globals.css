@@ -97,6 +97,7 @@ button:hover {
     display: flex;
     flex-direction: column;
     flex: 1;
+    margin: 24px auto;
 }
 
 .header{
