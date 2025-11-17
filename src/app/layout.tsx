@@ -6,6 +6,7 @@ import { HomeIcon } from "@/components/icons/HomeIcon";
 import { DollarSignIcon } from "@/components/icons/DollarSignIcon";
 import { ClipboardIcon } from "@/components/icons/ClipboardIcon";
 import { ShoppingCartIcon } from "@/components/icons/ShoppingCartIcon";
+import {ProfileIcon} from "@/components/icons/ProfileIcon";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -54,9 +55,16 @@ export default function RootLayout({
                       <span>Einkaufsliste</span>
                   </Link>
               </nav>
-              <main className="content">
-                  {children}
-              </main>
+              <div className="page">
+                  <div className="header">
+                      <HomeIcon className="icon"></HomeIcon>
+                      <h1 className="title">Hallo User!</h1>
+                      <Link href={"/dashboard"}><ProfileIcon className="avatar"></ProfileIcon></Link>
+                  </div>
+                  <main className="content">
+                      {children}
+                  </main>
+              </div>
           </div>
       </body>
     </html>

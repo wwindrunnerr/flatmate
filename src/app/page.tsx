@@ -1,8 +1,6 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { HomeIcon } from "@/components/icons/HomeIcon";
-import {ProfileIcon} from "@/components/icons/ProfileIcon";
 
 export default function MainPage() {
     // eine Variable, die am Anfang false ist
@@ -19,10 +17,7 @@ export default function MainPage() {
     return (
         <div className="page">
 
-            <div className="icon-container">
-                <h1 className="title"><HomeIcon className={"home"}></HomeIcon> Hallo User!</h1>
-                <Link href={"/dashboard"}><h1 className="title"><ProfileIcon className={"home"}></ProfileIcon></h1></Link>
-            </div>
+
 
             <div className="grid">
                 {/* --------- BUDGET --------- */}
@@ -90,25 +85,6 @@ export default function MainPage() {
                 .page {
                     padding: 20px 40px;
                     font-family: sans-serif;
-                }
-                
-                .icon-container {
-                    display: flex;
-                    gap: 110vh;
-                }
-                
-                .home {
-                    width: 48px;
-                    height: 48px;
-                    
-                }
-
-                .title {
-                    font-size: 48px;
-                    margin-bottom: 20px;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
                 }
 
                 .grid {

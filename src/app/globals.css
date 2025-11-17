@@ -93,6 +93,41 @@ button:hover {
     flex-shrink: 0;
 }
 
+.page {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.header{
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 24px;
+    height: 88px;
+    width: 100%;
+}
+
+.header .icon {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+}
+
+.header .title {
+    flex-grow: 1;
+    font-size: 48px;
+    font-weight: 500;
+    margin: 0;
+}
+
+.header .avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 999px;
+    flex-shrink: 0;
+}
+
 .content {
     flex: 1;
     padding: 24px;
