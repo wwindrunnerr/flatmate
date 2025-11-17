@@ -1,0 +1,120 @@
+.user-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f7f7f7;
+}
+
+/* Карточка профиля */
+.user-card {
+    background: #ffffff;
+    padding: 40px 50px;
+    width: 450px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.05);
+    text-align: left;
+}
+
+/* Заголовки */
+.user-title {
+    font-size: 26px;
+    margin-bottom: 6px;
+}
+
+.user-subtitle {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+/* Инфо-блок пользователя */
+.user-info {
+    padding: 15px 0 20px;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 20px;
+}
+
+.user-info p {
+    margin: 4px 0;
+}
+
+.info-label {
+    font-weight: 600;
+    margin-right: 6px;
+}
+
+/* Секции */
+.section {
+    margin-bottom: 25px;
+}
+
+.section-title {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.muted-text {
+    color: #777;
+    font-size: 14px;
+}
+
+/* Список WGs */
+.wg-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 15px 0;
+}
+
+.wg-item {
+    margin-bottom: 10px;
+}
+
+/* Кнопки – те же цвета, что и на других страницах */
+.btn-primary {
+    padding: 8px 15px;
+    border-radius: 6px;
+    border: none;
+    background: #ba1ed5;
+    color: #fff;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-primary:hover {
+    background: #e404ec;
+}
+
+.btn-secondary {
+    padding: 10px 20px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background: #ffffff;
+    color: #333;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-secondary:hover {
+    background: #f1f1f1;
+}
+
+.full-width {
+    width: 100%;
+    text-align: center;
+}
+
+/* Logout-кнопка внизу */
+.logout-btn {
+    margin-top: 5px;
+    border: none;
+    background: transparent;
+    color: #d22;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 0;
+}
+
+.logout-btn:hover {
+    text-decoration: underline;
+}

@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import "./register.css";
 
 export default function RegisterPage() {
     const [form, setForm] = useState({
@@ -20,7 +21,7 @@ export default function RegisterPage() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 name: form.name,
-                age: form.age ? Number(form.age) : 0,
+                age: form.age ? (form.age) : 0,
                 gender: form.gender || "unbekannt",
                 email: form.email,
                 password: form.password,
@@ -36,28 +37,98 @@ export default function RegisterPage() {
     }
 
     return (
-        <main>
-            <h2>Registrierung</h2>
+        <main className="reg-page">
+            <div className="register-card">
 
-            <input name="name" placeholder="Name" onChange={handleChange} />
-            <br/>
-            <input name="age" placeholder="Alter" onChange={handleChange} />
-            <br/>
-            <input name="gender" placeholder="Geschlecht" onChange={handleChange} />
-            <br/>
-            <input name="email" type="email" placeholder="E-Mail" onChange={handleChange} />
-            <br/>
-            <input
-                name="password"
-                type="password"
-                placeholder="Passwort"
-                onChange={handleChange}
-            />
-            <br/>
+                {/* ----- HEADER ----- */}
+                <h1 className="title">Sign up</h1>
+                <p className="subtitle">Sign up, um fortzufahren</p>
 
-            <button onClick={handleRegister}>Registrieren</button>
+                {/* ----- FORM ----- */}
+                <input
+                    name="name"
+                    placeholder="Name"
+                    onChange={handleChange}
+                    className="input"
+                />
 
-            <p>{message}</p>
+                <input
+                    name="email"
+                    type="email"
+                    placeholder="Email"
+                    onChange={handleChange}
+                    className="input"
+                />
+
+                <input
+                    name="password"
+                    type="password"
+                    placeholder="Passwort"
+                    onChange={handleChange}
+                    className="input"
+                />
+                <label style={{ color: "gray", fontSize: "16px"}}>
+                    Geburtsdatum (Optional)
+                <input
+                    name="age"
+                    type="date"
+                    onChange={handleChange}
+                    className="input"
+                />
+                </label>
+                {/* ----- GENDER ----- */}
+                <div className="gender-block">
+                    <label className="gender-label">Gender:</label>
+
+                    <label className="radio-row">
+                        <input type="radio" name="gender" value="männlich" onChange={handleChange}/>
+                        Männlich
+                    </label>
+
+                    <label className="radio-row">
+                        <input type="radio" name="gender" value="weiblich" onChange={handleChange}/>
+                        Weiblich
+                    </label>
+
+                    <label className="radio-row">
+                        <input type="radio" name="gender" value="divers" onChange={handleChange}/>
+                        Divers
+                    </label>
+
+                    <label className="radio-row">
+                        <input type="radio" name="gender" value="keine angabe" onChange={handleChange}/>
+                        Keine Angabe
+                    </label>
+                </div>
+
+                {/* ----- SIGN UP BUTTON ----- */}
+                <button className="signup-btn" onClick={handleRegister}>Sign up</button>
+
+                {/* ----- REMEMBER ME ----- */}
+                <label className="remember-row">
+                    <input type="checkbox" name="remember"/>
+                    Angemeldet bleiben
+                </label>
+
+                {/* ----- DIVIDER ----- */}
+                <div className="divider">
+                    <span>Quick Access</span>
+                </div>
+
+                {/* ----- SOCIAL BUTTONS ----- */}
+                <div className="social-row">
+                    <button className="social-btn">Google</button>
+                    <button className="social-btn">LinkedIn</button>
+                    <button className="social-btn">SSO</button>
+                </div>
+
+                {/* ----- ALREADY HAVE ACCOUNT ----- */}
+                <p className="signin-text">
+                    Sie haben bereits ein Konto? <a href="/login">Sign in</a>
+                </p>
+
+                <p>{message}</p>
+            </div>
         </main>
     );
 }

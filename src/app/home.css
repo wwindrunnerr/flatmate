@@ -1,0 +1,64 @@
+.home-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f7f7f7;
+}
+
+.home-card {
+    background: #ffffff;
+    padding: 40px 50px;
+    width: 420px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.05);
+    text-align: center;
+}
+
+.home-title {
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+.home-subtitle {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 30px;
+}
+
+/* блок с кнопками */
+.home-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+/* главная синяя кнопка */
+.btn-primary {
+    padding: 10px 20px;
+    border-radius: 6px;
+    border: none;
+    background:#ba1ed5;
+    color: #fff;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-primary:hover {
+    background: #e404ec;
+}
+
+/* вторичная светлая кнопка */
+.btn-secondary {
+    padding: 10px 20px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background: #ffffff;
+    color: #333;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-secondary:hover {
+    background: #f1f1f1;
+}

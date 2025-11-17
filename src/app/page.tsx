@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import "./home.css";
 
 export default function LandingPage() {
     const [loggedIn, setLoggedIn] = useState(false);
@@ -10,28 +11,33 @@ export default function LandingPage() {
     }, []);
 
     return (
-        <main>
-            <h1>Willkommen zur WG-App</h1>
+        <main className="home-page">
+            <div className="home-card">
+                <h1 className="home-title">Willkommen in der WG-App</h1>
+                <p className="home-subtitle">
+                    Verwalte Budget, Einkaufsliste und Putzplan an einem Ort.
+                </p>
 
-            {!loggedIn && (
-                <div>
-                    <Link href="/login">
-                        <button>Login</button>
-                    </Link>
+                {!loggedIn && (
+                    <div className="home-actions">
+                        <Link href="/login">
+                            <button className="btn-primary">Anmelden</button>
+                        </Link>
 
-                    <Link href="/register">
-                        <button>Registrieren</button>
-                    </Link>
-                </div>
-            )}
+                        <Link href="/register">
+                            <button className="btn-secondary">Registrieren</button>
+                        </Link>
+                    </div>
+                )}
 
-            {loggedIn && (
-                <div>
-                    <Link href="/user">
-                        <button>Zum User</button>
-                    </Link>
-                </div>
-            )}
+                {loggedIn && (
+                    <div className="home-actions">
+                        <Link href="/user">
+                            <button className="btn-primary">Zu deinem Profil</button>
+                        </Link>
+                    </div>
+                )}
+            </div>
         </main>
     );
 }

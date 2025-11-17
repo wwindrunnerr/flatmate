@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import "./user.css";
 
 interface WG {
     id: string;
@@ -64,44 +65,55 @@ export default function DashboardPage() {
     };
 
     return (
-        <main>
-            <h1>Willkommen, {user.name}!</h1>
+        <main className="user-page">
+            <div className="user-card">
+                {/* HEADER */}
+                <h1 className="user-title">Willkommen, {user.name}!</h1>
+                <p className="user-subtitle">
+                    Hier findest du eine Übersicht über dein Profil und deine WGs.
+                </p>
 
-            <p><b>E-Mail:</b> {user.email}</p>
-            <p><b>Alter:</b> {user.age}</p>
-            <p><b>Geschlecht:</b> {user.gender}</p>
+                {/* USER INFOS */}
+                <div className="user-info">
+                    <p><span className="info-label">E-Mail:</span> {user.email}</p>
+                    <p><span className="info-label">Geburtsdatum:</span> {user.age}</p>
+                    <p><span className="info-label">Geschlecht:</span> {user.gender}</p>
+                </div>
 
-            <hr style={{ margin: "20px 0" }} />
+                {/* WGs */}
+                <div className="section">
+                    <h2 className="section-title">Deine WGs</h2>
 
-            <h2>Deine WGs</h2>
+                    {wgs.length === 0 && (
+                        <p className="muted-text">Du bist noch in keiner WG.</p>
+                    )}
 
-            {wgs.length === 0 && (
-                <p>Du bist noch in keiner WG.</p>
-            )}
+                    {wgs.length > 0 && (
+                        <ul className="wg-list">
+                            {wgs.map((wg) => (
+                                <li key={wg.id} className="wg-item">
+                                    <Link href={`/wg/${wg.id}`}>
+                                        <button className="btn-primary">
+                                            {wg.title}
+                                        </button>
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
 
-            {wgs.length > 0 && (
-                <ul style={{ listStyle: "none", padding: 0 }}>
-                    {wgs.map((wg) => (
-                        <li key={wg.id} style={{ marginBottom: "10px" }}>
-                            <Link href={`/wg/${wg.id}`}>
-                                <button style={{ padding: "8px 15px" }}>
-                                    {wg.title}
-                                </button>
-                            </Link>
-                        </li>
-                    ))}
-                </ul>
-            )}
+                    <Link href="/create_wg">
+                        <button className="btn-secondary full-width">
+                            Neue WG erstellen
+                        </button>
+                    </Link>
+                </div>
 
-            <Link href="/create_wg">
-                <button style={{ marginTop: "20px", padding: "10px 20px" }}>
-                    Neue WG erstellen
+                {/* LOGOUT */}
+                <button className="logout-btn" onClick={handleLogout}>
+                    Abmelden
                 </button>
-            </Link>
-
-            <hr style={{ margin: "20px 0" }} />
-
-            <button onClick={handleLogout}>Abmelden</button>
+            </div>
         </main>
     );
 }

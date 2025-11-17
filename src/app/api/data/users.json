@@ -23,5 +23,54 @@
       "4ac4030c-de35-4219-9bd0-14bd9f9978d5"
     ],
     "invitations": []
+  },
+  {
+    "id": "ac62844e-4d78-47ad-a5c1-cfd46d849f70",
+    "name": "Mykyta",
+    "age": 3,
+    "gender": "MI-24",
+    "email": "hihi@haha@gmail.com",
+    "password": "123",
+    "wgIds": [
+      "1297ac3a-cf59-4d5b-b8a7-e4445df09641"
+    ],
+    "invitations": []
+  },
+  {
+    "id": "fb66d7d1-a691-44db-8634-d1fbe9cc941e",
+    "name": "mykyta",
+    "age": 0,
+    "gender": "männlich",
+    "email": "hihi@haha.com",
+    "password": "123",
+    "wgIds": [
+      "a36164c8-5bea-4a7e-a2d6-eb1558c29865",
+      "376ad116-0397-48c2-8c7e-ed0a14d2c03a",
+      "05305960-a4e0-4526-a55a-9dc78c8e437d"
+    ],
+    "invitations": []
+  },
+  {
+    "id": "7c22f060-6db0-40f7-8bfe-7ede2224618c",
+    "name": "DeniskaPipiska",
+    "age": null,
+    "gender": "männlich",
+    "email": "test@example.com",
+    "password": "123",
+    "wgIds": [
+      "760ccb3a-7fce-43e2-81fc-c50e82a23af8",
+      "5dfb79a0-6224-4e25-baf5-113e81564fe5"
+    ],
+    "invitations": []
+  },
+  {
+    "id": "c3b3338d-99c5-49ac-8261-9563d07df05c",
+    "name": "test",
+    "age": "2003-12-04",
+    "gender": "männlich",
+    "email": "test@test.com",
+    "password": "123",
+    "wgIds": [],
+    "invitations": []
   }
 ]
