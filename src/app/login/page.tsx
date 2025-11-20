@@ -55,24 +55,6 @@ export default function LoginPage() {
                     Anmelden
                 </button>
 
-                {/* ----- REMEMBER ME ----- */}
-                <label className="remember-row">
-                    <input type="checkbox" name="remember" />
-                    Angemeldet bleiben
-                </label>
-
-                {/* ----- DIVIDER ----- */}
-                <div className="divider">
-                    <span>SCHNELLER ZUGRIFF</span>
-                </div>
-
-                {/* ----- SOCIAL BUTTONS ----- */}
-                <div className="social-row">
-                    <button className="social-btn">Google</button>
-                    <button className="social-btn">LinkedIn</button>
-                    <button className="social-btn">SSO</button>
-                </div>
-
                 {/* ----- SWITCH TO REGISTER ----- */}
                 <p className="signin-text">
                     Noch kein Konto?{" "}

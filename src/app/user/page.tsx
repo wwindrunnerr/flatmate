@@ -77,7 +77,6 @@ export default function DashboardPage() {
                 <div className="user-info">
                     <p><span className="info-label">E-Mail:</span> {user.email}</p>
                     <p><span className="info-label">Geburtsdatum:</span> {user.age}</p>
-                    <p><span className="info-label">Geschlecht:</span> {user.gender}</p>
                 </div>
 
                 {/* WGs */}

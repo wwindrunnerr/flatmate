@@ -51,7 +51,6 @@ export default function RegisterPage() {
                     onChange={handleChange}
                     className="input"
                 />
-
                 <input
                     name="email"
                     type="email"
@@ -59,7 +58,6 @@ export default function RegisterPage() {
                     onChange={handleChange}
                     className="input"
                 />
-
                 <input
                     name="password"
                     type="password"
@@ -67,15 +65,13 @@ export default function RegisterPage() {
                     onChange={handleChange}
                     className="input"
                 />
-                <label style={{ color: "gray", fontSize: "16px"}}>
-                    Geburtsdatum (Optional)
                 <input
                     name="age"
                     type="date"
                     onChange={handleChange}
                     className="input"
                 />
-                </label>
+
                 {/* ----- GENDER ----- */}
                 <div className="gender-block">
                     <label className="gender-label">Gender:</label>
@@ -104,23 +100,6 @@ export default function RegisterPage() {
                 {/* ----- SIGN UP BUTTON ----- */}
                 <button className="signup-btn" onClick={handleRegister}>Sign up</button>
 
-                {/* ----- REMEMBER ME ----- */}
-                <label className="remember-row">
-                    <input type="checkbox" name="remember"/>
-                    Angemeldet bleiben
-                </label>
-
-                {/* ----- DIVIDER ----- */}
-                <div className="divider">
-                    <span>Quick Access</span>
-                </div>
-
-                {/* ----- SOCIAL BUTTONS ----- */}
-                <div className="social-row">
-                    <button className="social-btn">Google</button>
-                    <button className="social-btn">LinkedIn</button>
-                    <button className="social-btn">SSO</button>
-                </div>
 
                 {/* ----- ALREADY HAVE ACCOUNT ----- */}
                 <p className="signin-text">

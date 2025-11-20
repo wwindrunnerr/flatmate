@@ -125,7 +125,6 @@ button:hover {
 .header .avatar {
     width: 48px;
     height: 48px;
-    border-radius: 999px;
     flex-shrink: 0;
 }
 

@@ -10,7 +10,7 @@
 .user-card {
     background: #ffffff;
     padding: 40px 50px;
-    width: 450px;
+    width: 550px;
     border-radius: 10px;
     box-shadow: 0 0 20px rgba(0,0,0,0.05);
     text-align: left;
@@ -61,13 +61,14 @@
 
 /* Список WGs */
 .wg-list {
+    display: flex;
     list-style: none;
     padding: 0;
     margin: 0 0 15px 0;
 }
 
 .wg-item {
-    margin-bottom: 10px;
+    margin-right: 10px;
 }
 
 /* Кнопки – те же цвета, что и на других страницах */
