@@ -1,4 +1,4 @@
-name: Next.js CI/CD
+name: CI/CD Pipeline
 
 on:
   push:
@@ -30,7 +30,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: next-build
-          path: ${{ github.workspace }}/src/.next/standalone
+          path: src/.next/standalone
           if-no-files-found: error
 
 

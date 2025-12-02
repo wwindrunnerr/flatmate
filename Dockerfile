@@ -1,7 +1,6 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-# Копируем только нужное
 COPY src/package*.json ./src/
 WORKDIR /app/src
 RUN npm install
