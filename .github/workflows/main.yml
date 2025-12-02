@@ -3,36 +3,51 @@ name: Next.js CI/CD
 on:
   push:
     branches: ["main"]
+  pull_request:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
+          cache: 'npm'
           cache-dependency-path: src/package-lock.json
 
-      - name: Install deps
+      - name: Debug root
+        run: pwd && ls -la
+
+      - name: Install dependencies
         run: npm ci
+        working-directory: ./src
+
+      - name: Debug src content before build
+        run: pwd && ls -la
         working-directory: ./src
 
       - name: Build Next.js
         run: npm run build
         working-directory: ./src
 
-      - name: Upload artifact (.next)
+      - name: Debug src content after build
+        run: pwd && ls -la
+        working-directory: ./src
+
+      - name: Search for .next folder
+        run: find ${{ github.workspace }} -maxdepth 5 -type d -name ".next"
+
+      - name: Upload .next as artifact
         uses: actions/upload-artifact@v4
         with:
           name: next-build
           path: ${{ github.workspace }}/src/.next
           if-no-files-found: error
-          retention-days: 1
 
 
   deploy:
@@ -40,13 +55,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-      - name: Download artifact
+      - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
           name: next-build
           path: src/.next
+
+      - name: Debug downloaded artifact
+        run: pwd && ls -la src/.next
 
       - name: Build Docker image
         run: docker build -t nextjs-test .
