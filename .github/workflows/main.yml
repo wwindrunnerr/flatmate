@@ -1,0 +1,58 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+jobs:
+  build:
+    name: Build Next.js App
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Next.js project
+        run: npm run build
+
+      - name: Upload build artifacts (.next)
+        uses: actions/upload-artifact@v4
+        with:
+          name: next-build
+          path: .next
+
+  deploy:
+    name: Docker Test Deployment
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: next-build
+          path: .next
+
+      - name: Build Docker image
+        run: docker build -t nextjs-test .
+
+      - name: Run container
+        run: |
+          docker run -d -p 3000:3000 --name nextjs-app nextjs-test
+
+      - name: Show running containers
+        run: docker ps
