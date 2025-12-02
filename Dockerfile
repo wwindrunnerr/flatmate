@@ -1,26 +1,18 @@
-# Erstes Stage – Dependencies installieren und builden
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-# package.json kopieren
-COPY package*.json ./
+# Копируем только нужное
+COPY src/package*.json ./src/
+WORKDIR /app/src
 RUN npm install
 
-# Rest des Codes
-COPY . .
-
-# Next.js build
+COPY src/ ./
 RUN npm run build
 
-# Zweites Stage – production image
 FROM node:20-alpine
-WORKDIR /app
+WORKDIR /app/src
 
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
+COPY --from=builder /app/src ./
 
 EXPOSE 3000
-
 CMD ["npm", "start"]

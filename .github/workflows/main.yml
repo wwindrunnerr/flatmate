@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: Next.js CI/CD
 
 on:
   push:
@@ -7,52 +7,49 @@ on:
 
 jobs:
   build:
-    name: Build Next.js App
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: ./src   # <<< ВАЖНО: все `run:` теперь из src
+
     steps:
-      - name: Checkout code
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
+          cache-dependency-path: src/package-lock.json  # <<< lockfile в src
 
-      - name: Install dependencies
-        run: npm install
+      - name: Install deps
+        run: npm ci   # или npm install
 
-      - name: Build Next.js project
+      - name: Build Next.js
         run: npm run build
 
-      - name: Upload build artifacts (.next)
+      - name: Upload .next as artifact
         uses: actions/upload-artifact@v4
         with:
           name: next-build
-          path: .next
-
+          path: src/.next   # .next тоже внутри src
   deploy:
-    name: Docker Test Deployment
     needs: build
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
           name: next-build
-          path: .next
+          path: src/.next  # кладём туда же
 
       - name: Build Docker image
         run: docker build -t nextjs-test .
 
       - name: Run container
-        run: |
-          docker run -d -p 3000:3000 --name nextjs-app nextjs-test
-
-      - name: Show running containers
-        run: docker ps
+        run: docker run -d -p 3000:3000 --name nextjs-app nextjs-test
