@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 import { randomUUID } from "crypto";
 
-const filePath = path.join(process.cwd(), "app/api/data/users.json");
+const filePath = path.join(process.cwd(), "src/app/api/data/users.json");
 
 export async function POST(req: Request) {
     const { name, age, gender, email, password } = await req.json();

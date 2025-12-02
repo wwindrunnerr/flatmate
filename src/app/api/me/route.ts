@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 
-const usersPath = path.join(process.cwd(), "app/api/data/users.json");
+const usersPath = path.join(process.cwd(), "src/app/api/data/users.json");
 
 export async function GET(req: Request) {
     const cookie = req.headers.get("cookie") || "";

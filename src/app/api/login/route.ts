@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 
-const filePath = path.join(process.cwd(), "app/api/data/users.json"); // <--- FIXED PATH
+const filePath = path.join(process.cwd(), "src/app/api/data/users.json"); // <--- FIXED PATH
 
 export async function POST(request: Request) {
     const { email, password } = await request.json();

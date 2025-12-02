@@ -6,8 +6,8 @@ import { randomUUID } from "crypto";
 //
 //  PATHS
 //
-const wgsPath = path.join(process.cwd(), "app/api/data/wgs.json");
-const usersPath = path.join(process.cwd(), "app/api/data/users.json");
+const wgsPath = path.join(process.cwd(), "src/app/api/data/wgs.json");
+const usersPath = path.join(process.cwd(), "src/app/api/data/users.json");
 
 //
 //  HELPERS
