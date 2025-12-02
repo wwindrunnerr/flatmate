@@ -2,7 +2,7 @@ name: Next.js CI/CD
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
 
 jobs:
@@ -11,7 +11,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./src
+        working-directory: ./src    # npm запускаем в src
 
     steps:
       - name: Checkout repo
@@ -21,11 +21,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
-          cache-dependency-path: src/package-lock.json  # <<< lockfile в src
+          cache: "npm"
+          cache-dependency-path: src/package-lock.json
 
       - name: Install deps
-        run: npm ci   # или npm install
+        run: npm ci
 
       - name: Build Next.js
         run: npm run build
@@ -34,16 +34,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: next-build
-          path: .next
+          path: .next              # <-- .next находится внутри src, working-dir уже src!
 
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: ./src
 
     steps:
       - uses: actions/checkout@v4
@@ -52,7 +48,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: next-build
-          path: .next
+          path: src/.next          # <-- кладём .next обратно в src
 
       - name: Build Docker image
         run: docker build -t nextjs-test .
