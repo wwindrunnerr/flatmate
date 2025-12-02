@@ -34,7 +34,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: next-build
-          path: src/.next   # .next тоже внутри src
+          path: .next
 
 
   deploy:
@@ -52,7 +52,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: next-build
-          path: src/.next
+          path: .next
 
       - name: Build Docker image
         run: docker build -t nextjs-test .
