@@ -11,7 +11,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./src   # <<< ВАЖНО: все `run:` теперь из src
+        working-directory: ./src
 
     steps:
       - name: Checkout repo
@@ -35,9 +35,15 @@ jobs:
         with:
           name: next-build
           path: src/.next   # .next тоже внутри src
+
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./src
 
     steps:
       - uses: actions/checkout@v4
@@ -46,7 +52,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: next-build
-          path: src/.next  # кладём туда же
+          path: src/.next
 
       - name: Build Docker image
         run: docker build -t nextjs-test .
