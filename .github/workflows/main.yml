@@ -3,19 +3,13 @@ name: Next.js CI/CD
 on:
   push:
     branches: ["main"]
-  pull_request:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: ./src    # npm запускаем в src
-
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up Node
         uses: actions/setup-node@v4
@@ -26,15 +20,17 @@ jobs:
 
       - name: Install deps
         run: npm ci
+        working-directory: ./src
 
       - name: Build Next.js
         run: npm run build
+        working-directory: ./src
 
       - name: Upload .next as artifact
         uses: actions/upload-artifact@v4
         with:
           name: next-build
-          path: .next              # <-- .next находится внутри src, working-dir уже src!
+          path: src/.next   # путь из корня!
 
 
   deploy:
@@ -44,11 +40,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download build artifact
+      - name: Download artifact
         uses: actions/download-artifact@v4
         with:
           name: next-build
-          path: src/.next          # <-- кладём .next обратно в src
+          path: src/.next
 
       - name: Build Docker image
         run: docker build -t nextjs-test .
