@@ -31,7 +31,11 @@ jobs:
         with:
           name: next-build
           path: src/.next   # путь из корня!
+      - name: Check working directory
+        run: pwd && ls -la
 
+      - name: Find .next folder
+        run: find . -maxdepth 3 -type d -name ".next"
 
   deploy:
     needs: build
