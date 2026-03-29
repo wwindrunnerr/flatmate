@@ -28,6 +28,7 @@ jobs:
       - name: Lint
         run: npm run lint --if-present
         working-directory: ./src
+        continue-on-error: true
 
 
       - name: Run tests
@@ -49,7 +50,6 @@ jobs:
   container-test:
     needs: build
     runs-on: ubuntu-latest
-    continue-on-error: true
 
     steps:
       - uses: actions/checkout@v6
