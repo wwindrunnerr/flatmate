@@ -1,25 +1,35 @@
-name: CI/CD Pipeline
+name: Next.js Build and Runtime Check
 
 on:
   push:
     branches: ["main"]
+
+
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 20
-          cache: "npm"
+          cache: npm
           cache-dependency-path: src/package-lock.json
 
       - name: Install dependencies
         run: npm ci
+        working-directory: ./src
+
+      - name: Lint
+        run: npm run lint --if-present
+        working-directory: ./src
+
+      - name: Run tests
+        run: npm test --if-present
         working-directory: ./src
 
       - name: Build Next.js
@@ -27,22 +37,22 @@ jobs:
         working-directory: ./src
 
       - name: Upload standalone build
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: next-build
           path: src/.next/standalone
           if-no-files-found: error
 
 
-  deploy:
+  validate-container:
     needs: build
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Download standalone build
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: next-build
           path: src/.next/standalone
@@ -52,3 +62,15 @@ jobs:
 
       - name: Run container
         run: docker run -d -p 3000:3000 --name nextjs-app nextjs-test
+
+      - name: Wait and test app
+        run: |
+          sleep 10
+          curl --fail http://localhost:3000
+
+      - name: Cleanup container
+        if: always()
+        run: docker rm -f nextjs-app || true
+
+
+
