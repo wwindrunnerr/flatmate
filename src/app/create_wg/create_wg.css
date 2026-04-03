@@ -1,0 +1,208 @@
+.create-wg-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+    background:
+            radial-gradient(circle at top left, rgba(186, 30, 213, 0.08), transparent 28%),
+            radial-gradient(circle at bottom right, rgba(228, 4, 236, 0.08), transparent 30%),
+            linear-gradient(180deg, #faf7fc 0%, #f6f6f8 100%);
+}
+
+.create-wg-card {
+    width: min(100%, 560px);
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(186, 30, 213, 0.08);
+    border-radius: 24px;
+    box-shadow:
+            0 18px 50px rgba(28, 18, 38, 0.08),
+            0 4px 18px rgba(28, 18, 38, 0.04);
+    padding: 36px 32px;
+}
+
+.create-wg-title {
+    margin: 0 0 8px;
+    font-size: 30px;
+    line-height: 1.15;
+    font-weight: 700;
+    color: #1f1726;
+}
+
+.create-wg-subtitle {
+    margin: 0 0 28px;
+    font-size: 15px;
+    line-height: 1.5;
+    color: #6e6478;
+}
+
+.create-wg-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2f2439;
+}
+
+.form-input,
+.form-textarea {
+    width: 100%;
+    border: 1px solid #ddd6e3;
+    background: #fff;
+    color: #241b2b;
+    border-radius: 14px;
+    padding: 13px 15px;
+    font-size: 15px;
+    outline: none;
+    transition:
+            border-color 0.2s ease,
+            box-shadow 0.2s ease,
+            transform 0.12s ease;
+    box-sizing: border-box;
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder {
+    color: #a195ab;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+    border-color: #ba1ed5;
+    box-shadow: 0 0 0 4px rgba(186, 30, 213, 0.12);
+}
+
+.form-textarea {
+    min-height: 120px;
+    resize: vertical;
+    line-height: 1.45;
+}
+
+.form-help {
+    margin: -2px 0 0;
+    font-size: 13px;
+    color: #8b8196;
+}
+
+.form-error {
+    margin: 0;
+    font-size: 13px;
+    color: #c62828;
+}
+
+.form-success {
+    margin: 0;
+    font-size: 14px;
+    color: #1f7a35;
+}
+
+.create-wg-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.create-wg-btn-primary,
+.create-wg-btn-secondary {
+    appearance: none;
+    border: none;
+    border-radius: 14px;
+    padding: 13px 18px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+            transform 0.14s ease,
+            box-shadow 0.18s ease,
+            background 0.18s ease,
+            border-color 0.18s ease,
+            color 0.18s ease;
+}
+
+.create-wg-btn-primary {
+    flex: 1;
+    background: linear-gradient(135deg, #ba1ed5 0%, #e404ec 100%);
+    color: #fff;
+    box-shadow: 0 10px 24px rgba(186, 30, 213, 0.22);
+}
+
+.create-wg-btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 28px rgba(186, 30, 213, 0.28);
+}
+
+.create-wg-btn-primary:active {
+    transform: translateY(0);
+}
+
+.create-wg-btn-secondary {
+    background: #fff;
+    color: #35293f;
+    border: 1px solid #ddd6e3;
+}
+
+.create-wg-btn-secondary:hover {
+    background: #f8f5fb;
+    border-color: #cdbfd9;
+}
+
+.create-wg-btn-primary:disabled,
+.create-wg-btn-secondary:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.create-wg-footer {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #7a7085;
+    text-align: center;
+}
+
+.create-wg-footer a {
+    color: #a10cc1;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.create-wg-footer a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+    .create-wg-page {
+        padding: 20px 12px;
+        align-items: flex-start;
+    }
+
+    .create-wg-card {
+        padding: 24px 18px;
+        border-radius: 20px;
+    }
+
+    .create-wg-title {
+        font-size: 25px;
+    }
+
+    .create-wg-actions {
+        flex-direction: column;
+    }
+
+    .create-wg-btn-primary,
+    .create-wg-btn-secondary {
+        width: 100%;
+    }
+}

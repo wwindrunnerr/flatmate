@@ -1,78 +1,71 @@
 import { NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
-import { randomUUID } from "crypto";
+import { prisma } from "@/lib/prisma";
+import { getSessionUser } from "@/lib/auth/session";
+import { createWGSchema } from "@/lib/validation/wg";
 
-//
-//  PATHS
-//
-const wgsPath = path.join(process.cwd(), "app/api/data/wgs.json");
-const usersPath = path.join(process.cwd(), "app/api/data/users.json");
-
-//
-//  HELPERS
-//
-const readJSON = (p: string) => JSON.parse(fs.readFileSync(p, "utf8"));
-const writeJSON = (p: string, data: any) =>
-    fs.writeFileSync(p, JSON.stringify(data, null, 2), "utf8");
-
-//
-//  CREATE WG ROUTE
-//
 export async function POST(req: Request) {
-    const body = await req.json();
+    try {
+        const user = await getSessionUser();
 
-    // 🔐 GET USER IDENTIFIER FROM COOKIE
-    const cookieHeader = req.headers.get("cookie") || "";
-    let email = cookieHeader.match(/user=([^;]+)/)?.[1];
-    if (email) {
-        email = decodeURIComponent(email);
-    }
+        if (!user) {
+            return NextResponse.json(
+                { error: "Nicht eingeloggt" },
+                { status: 401 }
+            );
+        }
 
+        const body = await req.json();
+        const parsed = createWGSchema.safeParse(body);
 
-    if (!email) {
+        if (!parsed.success) {
+            return NextResponse.json(
+                {
+                    error: "Ungültige Eingaben",
+                    fields: parsed.error.flatten().fieldErrors,
+                },
+                { status: 400 }
+            );
+        }
+
+        const { title, description } = parsed.data;
+
+        const wg = await prisma.$transaction(async (tx) => {
+            const createdWG = await tx.wG.create({
+                data: {
+                    title,
+                    description: description || null,
+                },
+            });
+
+            await tx.membership.create({
+                data: {
+                    userId: user.id,
+                    wgId: createdWG.id,
+                    role: "ADMIN",
+                },
+            });
+
+            return createdWG;
+        });
+
         return NextResponse.json(
-            { success: false, error: "Not logged in" },
-            { status: 401 }
+            {
+                success: true,
+                wg: {
+                    id: wg.id,
+                    title: wg.title,
+                    description: wg.description,
+                    createdAt: wg.createdAt,
+                    updatedAt: wg.updatedAt,
+                },
+            },
+            { status: 201 }
+        );
+    } catch (error) {
+        console.error("CREATE_WG_ERROR", error);
+        return NextResponse.json(
+            { error: "Interner Serverfehler" },
+            { status: 500 }
         );
     }
-
-    // LOAD DATA
-    const wgs = readJSON(wgsPath);
-    const users = readJSON(usersPath);
-
-    // FIND USER
-    const user = users.find((u: any) => u.email === email);
-    if (!user) {
-        return NextResponse.json(
-            { success: false, error: "User not found" },
-            { status: 404 }
-        );
-    }
-
-    //
-    //  CREATE NEW WG
-    //
-    const newWG = {
-        id: randomUUID(),
-        title: body.title,
-        description: body.description,
-        admin: email,
-        members: [email],
-        createdAt: Date.now(),
-    };
-
-    // SAVE WG
-    wgs.push(newWG);
-    writeJSON(wgsPath, wgs);
-
-    //
-    //  UPDATE USER → ADD WG ID
-    //
-    user.wgIds = user.wgIds || [];
-    user.wgIds.push(newWG.id);
-
-    writeJSON(usersPath, users);
-
-    return NextResponse.json({ success: true, wg: newWG });
 }
