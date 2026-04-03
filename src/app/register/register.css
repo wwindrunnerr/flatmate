@@ -133,4 +133,14 @@
     text-decoration: none;
 }
 
+.error-text {
+    color: #b42318;
+    font-size: 14px;
+    margin: 6px 0 0;
+}
 
+.success-text {
+    color: #1f7a35;
+    font-size: 14px;
+    margin: 10px 0 0;
+}

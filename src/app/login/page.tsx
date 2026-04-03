@@ -1,45 +1,60 @@
 "use client";
+
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
 import "../register/register.css";
 
-
 export default function LoginPage() {
-    // 3 Variablen, die am Anfang "" sind
+    const searchParams = useSearchParams();
+    const nextUrl = searchParams.get("next");
+
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [message, setMsg] = useState("");
+    const [message, setMessage] = useState("");
+    const [loading, setLoading] = useState(false);
 
     async function handleLogin() {
-        const response = await fetch("/api/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password }),
-        });
-        const data = await response.json();
+        setMessage("");
+        setLoading(true);
 
-        if (data.success) {
-            localStorage.setItem("user", JSON.stringify(data.user));
-            window.location.href = "/user";
-        } else {
-            setMsg(data.error || "Fehler beim Login");
+        try {
+            const response = await fetch("/api/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({ email, password }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                setMessage(data.error || "Fehler beim Login");
+                return;
+            }
+
+            window.location.href = nextUrl || "/user";
+        } catch (error) {
+            console.error("LOGIN_PAGE_ERROR", error);
+            setMessage("Netzwerkfehler beim Login");
+        } finally {
+            setLoading(false);
         }
     }
 
     return (
         <main className="reg-page">
             <div className="register-card">
-                {/* ----- HEADER ----- */}
                 <h1 className="title">Sign In</h1>
                 <p className="subtitle">Melde dich an, um fortzufahren</p>
 
-                {/* ----- FORM ----- */}
                 <input
                     className="input"
                     placeholder="E-Mail"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    disabled={loading}
                 />
 
                 <input
@@ -48,20 +63,21 @@ export default function LoginPage() {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    disabled={loading}
                 />
 
-                {/* ----- LOGIN BUTTON ----- */}
-                <button className="signup-btn" onClick={handleLogin}>
-                    Anmelden
+                <button className="signup-btn" onClick={handleLogin} disabled={loading}>
+                    {loading ? "Anmelden..." : "Anmelden"}
                 </button>
 
-                {/* ----- SWITCH TO REGISTER ----- */}
                 <p className="signin-text">
                     Noch kein Konto?{" "}
-                    <Link href="/register">Jetzt registrieren</Link>
+                    <Link href={nextUrl ? `/register?next=${encodeURIComponent(nextUrl)}` : "/register"}>
+                        Jetzt registrieren
+                    </Link>
                 </p>
 
-                <p>{message}</p>
+                {message && <p>{message}</p>}
             </div>
         </main>
     );

@@ -1,39 +1,69 @@
 import { NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import bcrypt from "bcryptjs";
+import { prisma } from "@/lib/prisma";
+import { createSession } from "@/lib/auth/session";
+import { z } from "zod";
 
-const filePath = path.join(process.cwd(), "app/api/data/users.json"); // <--- FIXED PATH
+const loginSchema = z.object({
+    email: z.string().trim().toLowerCase().email(),
+    password: z.string().min(1),
+});
 
-export async function POST(request: Request) {
-    const { email, password } = await request.json();
+export async function POST(req: Request) {
+    try {
+        const body = await req.json();
+        const parsed = loginSchema.safeParse(body);
 
-    if (!email || !password) {
-        return NextResponse.json({ error: "Fehlende Felder" }, { status: 400 });
+        if (!parsed.success) {
+            return NextResponse.json(
+                {
+                    error: "Ungültige Eingaben",
+                    fields: parsed.error.flatten().fieldErrors,
+                },
+                { status: 400 }
+            );
+        }
+
+        const { email, password } = parsed.data;
+
+        const user = await prisma.user.findUnique({
+            where: { email },
+        });
+
+        if (!user) {
+            return NextResponse.json(
+                { error: "Ungültige E-Mail oder Passwort" },
+                { status: 401 }
+            );
+        }
+
+        const passwordMatches = await bcrypt.compare(password, user.passwordHash);
+
+        if (!passwordMatches) {
+            return NextResponse.json(
+                { error: "Ungültige E-Mail oder Passwort" },
+                { status: 401 }
+            );
+        }
+
+        await createSession(user.id);
+
+        return NextResponse.json({
+            success: true,
+            user: {
+                id: user.id,
+                email: user.email,
+                name: user.name,
+                birthDate: user.birthDate,
+                avatarUrl: user.avatarUrl,
+                createdAt: user.createdAt,
+            },
+        });
+    } catch (error) {
+        console.error("LOGIN_ERROR", error);
+        return NextResponse.json(
+            { error: "Interner Serverfehler" },
+            { status: 500 }
+        );
     }
-
-    if (!fs.existsSync(filePath)) {
-        return NextResponse.json({ error: "Keine Nutzer" }, { status: 404 });
-    }
-
-    const users = JSON.parse(fs.readFileSync(filePath, "utf8"));
-    const found = users.find(
-        (user: any) => user.email === email && user.password === password
-    );
-
-    if (!found) {
-        return NextResponse.json({ error: "Falsche Daten" }, { status: 401 });
-    }
-
-    // -------------------------------
-    //     FIX: SET SESSION COOKIE
-    // -------------------------------
-    const response = NextResponse.json({ success: true });
-
-    response.cookies.set("user", found.email, {
-        httpOnly: false,        // for now, so frontend can read it
-        path: "/",
-        sameSite: "lax",
-    });
-
-    return response;
 }
