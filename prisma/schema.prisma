@@ -20,6 +20,7 @@ model User {
   memberships  Membership[]
   invitesSent  Invite[]     @relation("InviteCreator")
   sessions Session[]
+  eventsCreated Event[]
 }
 
 model Session {
@@ -42,6 +43,7 @@ model WG {
 
   memberships Membership[]
   invites     Invite[]
+  events Event[]
 }
 
 model Membership {
@@ -69,6 +71,20 @@ model Invite {
 
   wg        WG   @relation(fields: [wgId], references: [id], onDelete: Cascade)
   createdBy User @relation("InviteCreator", fields: [createdById], references: [id], onDelete: Cascade)
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  startsAt    DateTime
+  createdAt   DateTime @default(now())
+
+  wgId        String
+  createdById String
+
+  wg        WG   @relation(fields: [wgId], references: [id], onDelete: Cascade)
+  createdBy User @relation(fields: [createdById], references: [id], onDelete: Cascade)
 }
 
 enum WGRole {
