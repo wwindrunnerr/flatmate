@@ -1,30 +1,53 @@
-## *Conventional Commits
-[https://www.conventionalcommits.org/en/v1.0.0/]
-
-> [type][optional scope]: [description]
+## Getting Started
 
 
+1. Install dependencies
+```bash
+npm install
+```
 
-- **fix**: a commit of the type fix patches a bug in your codebase (this correlates with PATCH in Semantic Versioning).
-- **feat**: a commit of the type feat introduces a new feature to the codebase (this correlates with MINOR in Semantic Versioning).
-- **BREAKING CHANGE**: a commit that has a footer BREAKING CHANGE:, or appends a ! after the type/scope, introduces a breaking API change (correlating with MAJOR in Semantic Versioning). A BREAKING CHANGE can be part of commits of any type.
+2. Create a file named .env in the project root /flatmate, NOT /flatmate/src and add:
+
+> DATABASE_URL="file:./dev.db"
+
+3. Generate the Prisma client
+```bash
+npx prisma generate
+```
+4. Apply the database schema
+```bash
+npx prisma migrate dev
+```
 
 
-### types other than fix: and feat: are allowed, for example @commitlint/config-conventional (based on the Angular convention) recommends
-- build:,
-- chore:,
-- ci:,
-- docs:,s
-- style:,
-- refactor:,
-- perf:,
-- test:,
-- and others.
+Notes
+* The database is local and not shared. Each developer has their own dev.db.
+* Do not commit dev.db.
+* If Prisma schema changes after a future pull, run:
+```bash
+npx prisma migrate dev
+npx prisma generate
+```
+
+If something does not work, try:
+```bash
+rm -rf node_modules .next
+npm install
+npx prisma generate
+npx prisma migrate dev
+```
+
+To run the app:
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result
 
 
-### Examples
-- feat: allow provided config object to extend other configs
-- feat(parser): add ability to parse arrays
-- feat!: send an email to the customer when a product is shipped
-- feat(lang): add Polish language
-- fix: prevent racing of requests
+To open the Prisma Studio:
+```bash
+npx prisma studio
+```
+
+
