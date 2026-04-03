@@ -17,12 +17,11 @@ export default function AppShell({ children }: Props) {
     const pathname = usePathname();
     const params = useParams<{ id: string }>();
 
-    const id = params.id; // current WG id from /wg/[id]/...
-
-    const base = `/wg/${id}`; // e.g. /wg/123
+    const id = params.id;
+    const base = `/wg/${id}`;
 
     const isActive = (subPath: string) => {
-        const target = base + subPath;   // "" | "/kosten" | "/putzplan" | "/einkaufsliste"
+        const target = base + subPath;
         return pathname === target;
     };
 
@@ -31,23 +30,28 @@ export default function AppShell({ children }: Props) {
 
     let headerIcon: ReactNode;
     let headerTitle: string;
+    let headerSubtitle = "Verwalte deine WG zentral an einem Ort.";
 
     switch (true) {
         case isActive(""):
             headerIcon = <HomeIcon className="icon" />;
-            headerTitle = "Hallo User!";
+            headerTitle = "Hallo in deiner WG!";
+            headerSubtitle = "Hier findest du Übersicht, Mitglieder und Einladungen.";
             break;
         case isActive("/kosten"):
             headerIcon = <DollarSignIcon className="icon" />;
-            headerTitle = "Deine Kosten im Überblick";
+            headerTitle = "Kosten";
+            headerSubtitle = "Behalte Ausgaben, Schulden und Ausgleich im Blick.";
             break;
         case isActive("/putzplan"):
             headerIcon = <ClipboardIcon className="icon" />;
-            headerTitle = "Putzplan für deine WG";
+            headerTitle = "Putzplan";
+            headerSubtitle = "Organisiere Aufgaben fair und nachvollziehbar.";
             break;
         case isActive("/einkaufsliste"):
             headerIcon = <ShoppingCartIcon className="icon" />;
             headerTitle = "Einkaufsliste";
+            headerSubtitle = "Plane Einkäufe gemeinsam mit deiner WG.";
             break;
         default:
             headerIcon = <HomeIcon className="icon" />;
@@ -55,8 +59,10 @@ export default function AppShell({ children }: Props) {
     }
 
     return (
-        <div className="layout-container">
-            <nav className="sidebar">
+        <div className="wg-layout">
+            <nav className="wg-sidebar">
+                <div className="wg-sidebar-title">Navigation</div>
+
                 <Link href={base} className={navClass("")}>
                     <HomeIcon className="icon" />
                     <span>Home</span>
@@ -81,16 +87,26 @@ export default function AppShell({ children }: Props) {
                 </Link>
             </nav>
 
-            <div className="page">
-                <div className="header">
-                    {headerIcon}
-                    <h1 className="title">{headerTitle}</h1>
-                    <Link href="/user">
-                        <ProfileIcon className="avatar" />
-                    </Link>
-                </div>
+            <div className="wg-page">
+                <header className="wg-header">
+                    <div className="wg-header-main">
+                        {headerIcon}
+                        <div>
+                            <h1 className="wg-title">{headerTitle}</h1>
+                            <p className="wg-subtitle">{headerSubtitle}</p>
+                        </div>
+                    </div>
 
-                <main className="content">{children}</main>
+                    <div className="wg-header-actions">
+                        <Link href="/user" className="wg-profile-link">
+                            <div className="wg-avatar">
+                                <ProfileIcon className="avatar" />
+                            </div>
+                        </Link>
+                    </div>
+                </header>
+
+                <main className="wg-content">{children}</main>
             </div>
         </div>
     );

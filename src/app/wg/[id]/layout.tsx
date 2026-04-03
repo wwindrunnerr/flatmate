@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import AppShell from "./AppShell"; // новый компонент
+import AppShell from "./AppShell";
+import "./wg.css";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -17,10 +18,14 @@ export const metadata: Metadata = {
     description: "WG Management",
 };
 
-export default function RootLayout({children}: Readonly<{
+export default function RootLayout({
+                                       children,
+                                   }: Readonly<{
     children: React.ReactNode;
 }>) {
     return (
-        <AppShell>{children}</AppShell>
+        <div className={`${geistSans.variable} ${geistMono.variable}`}>
+            <AppShell>{children}</AppShell>
+        </div>
     );
 }
