@@ -1,0 +1,77 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id           String       @id @default(cuid())
+  email        String       @unique
+  passwordHash String
+  name         String
+  birthDate    DateTime?
+  avatarUrl    String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  memberships  Membership[]
+  invitesSent  Invite[]     @relation("InviteCreator")
+  sessions Session[]
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  token        String   @unique
+  userId       String
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model WG {
+  id          String       @id @default(cuid())
+  title       String
+  description String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  deletedAt   DateTime?
+
+  memberships Membership[]
+  invites     Invite[]
+}
+
+model Membership {
+  id        String   @id @default(cuid())
+  userId    String
+  wgId      String
+  role      WGRole   @default(MEMBER)
+  joinedAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  wg   WG   @relation(fields: [wgId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, wgId])
+}
+
+model Invite {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  wgId        String
+  createdById String
+  expiresAt   DateTime?
+  createdAt   DateTime @default(now())
+  usedCount   Int      @default(0)
+  maxUses     Int?
+
+  wg        WG   @relation(fields: [wgId], references: [id], onDelete: Cascade)
+  createdBy User @relation("InviteCreator", fields: [createdById], references: [id], onDelete: Cascade)
+}
+
+enum WGRole {
+  ADMIN
+  MEMBER
+}
