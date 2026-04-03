@@ -1,0 +1,165 @@
+.invite-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+    background:
+            radial-gradient(circle at top left, rgba(186, 30, 213, 0.08), transparent 28%),
+            radial-gradient(circle at bottom right, rgba(228, 4, 236, 0.08), transparent 30%),
+            linear-gradient(180deg, #faf7fc 0%, #f4f5f8 100%);
+}
+
+.invite-card {
+    width: min(100%, 560px);
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(186, 30, 213, 0.08);
+    border-radius: 24px;
+    box-shadow:
+            0 18px 48px rgba(28, 18, 38, 0.08),
+            0 6px 18px rgba(28, 18, 38, 0.04);
+    padding: 34px 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.invite-title {
+    margin: 0;
+    font-size: 42px;
+    line-height: 1.05;
+    font-weight: 800;
+    color: #241b2b;
+    letter-spacing: -0.03em;
+}
+
+.invite-subtitle {
+    margin: 0;
+    font-size: 16px;
+    color: #6f647b;
+    line-height: 1.5;
+}
+
+.invite-code-box {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: linear-gradient(180deg, #f8f4fc 0%, #f3ecf9 100%);
+    border: 1px solid rgba(186, 30, 213, 0.1);
+    border-radius: 18px;
+    padding: 16px;
+}
+
+.invite-code-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #8e14aa;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.invite-code {
+    font-size: 15px;
+    color: #2b2133;
+    word-break: break-all;
+}
+
+.invite-note {
+    margin: 0;
+    font-size: 15px;
+    color: #6f647b;
+    line-height: 1.45;
+}
+
+.invite-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.invite-btn-primary,
+.invite-btn-secondary,
+.invite-link-btn {
+    appearance: none;
+    border: none;
+    border-radius: 14px;
+    padding: 13px 18px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    transition:
+            transform 0.14s ease,
+            box-shadow 0.18s ease,
+            background 0.18s ease,
+            border-color 0.18s ease,
+            color 0.18s ease;
+}
+
+.invite-btn-primary {
+    background: linear-gradient(135deg, #ba1ed5 0%, #e404ec 100%);
+    color: white;
+    box-shadow: 0 10px 24px rgba(186, 30, 213, 0.22);
+}
+
+.invite-btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 28px rgba(186, 30, 213, 0.28);
+}
+
+.invite-btn-secondary {
+    background: white;
+    color: #33273d;
+    border: 1px solid #ddd6e3;
+}
+
+.invite-btn-secondary:hover {
+    background: #f8f5fb;
+}
+
+.invite-btn-primary:disabled,
+.invite-btn-secondary:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.invite-link-btn {
+    min-width: 150px;
+}
+
+.invite-success {
+    margin: 0;
+    color: #1f7a35;
+    font-size: 14px;
+}
+
+.invite-error {
+    margin: 0;
+    color: #b42318;
+    font-size: 14px;
+}
+
+@media (max-width: 560px) {
+    .invite-card {
+        padding: 24px 18px;
+        border-radius: 20px;
+    }
+
+    .invite-title {
+        font-size: 32px;
+    }
+
+    .invite-actions {
+        flex-direction: column;
+    }
+
+    .invite-link-btn,
+    .invite-btn-primary,
+    .invite-btn-secondary {
+        width: 100%;
+    }
+}
