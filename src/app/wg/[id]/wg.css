@@ -9,7 +9,6 @@
     color: #241b2b;
 }
 
-/* SIDEBAR */
 .wg-sidebar {
     position: sticky;
     top: 0;
@@ -66,7 +65,6 @@
     flex-shrink: 0;
 }
 
-/* MAIN AREA */
 .wg-page {
     min-width: 0;
     display: flex;
@@ -130,14 +128,12 @@
     box-shadow: 0 6px 18px rgba(30, 18, 38, 0.06);
 }
 
-/* CONTENT */
 .wg-content {
     flex: 1;
     padding: 18px 36px 36px;
     min-width: 0;
 }
 
-/* GENERIC GRID */
 .wg-dashboard-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -150,7 +146,6 @@
     margin-top: 24px;
 }
 
-/* CARD */
 .wg-card {
     background: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(10px);
@@ -204,7 +199,6 @@
     transform: translateY(-1px);
 }
 
-/* ROWS / LISTS */
 .wg-row {
     display: flex;
     align-items: center;
@@ -252,7 +246,6 @@
     text-decoration: underline;
 }
 
-/* MEMBERS */
 .wg-members-list {
     list-style: none;
     padding: 0;
@@ -319,7 +312,6 @@
     color: #5d5367;
 }
 
-/* INVITE */
 .wg-invite-box {
     display: grid;
     gap: 12px;
@@ -391,7 +383,6 @@
     background: #ffe9e9;
 }
 
-/* STATUS / ERROR */
 .wg-note {
     margin: 0;
     color: #796f84;
@@ -420,14 +411,92 @@
     box-shadow: 0 16px 40px rgba(28, 18, 38, 0.05);
 }
 
-/* CHECKBOX */
 .wg-checkbox {
     width: 20px;
     height: 20px;
     accent-color: #ba1ed5;
 }
 
-/* RESPONSIVE */
+.wg-events-list {
+    display: grid;
+    gap: 12px;
+}
+
+.wg-event-item {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    background: linear-gradient(180deg, #f8f4fc 0%, #f3ecf9 100%);
+    border: 1px solid rgba(186, 30, 213, 0.08);
+    border-radius: 16px;
+    padding: 14px 16px;
+}
+
+.wg-event-main {
+    min-width: 0;
+}
+
+.wg-event-title {
+    margin: 0 0 4px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #261d2d;
+}
+
+.wg-event-date {
+    margin: 0 0 6px;
+    font-size: 14px;
+    color: #8d13aa;
+    font-weight: 600;
+}
+
+.wg-event-description {
+    margin: 0 0 6px;
+    font-size: 14px;
+    color: #5c5167;
+    line-height: 1.45;
+}
+
+.wg-event-meta {
+    margin: 0;
+    font-size: 13px;
+    color: #84788f;
+}
+
+.wg-event-form {
+    display: grid;
+    gap: 10px;
+    margin-top: 6px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(70, 48, 88, 0.08);
+}
+
+.wg-input,
+.wg-textarea {
+    width: 100%;
+    border: 1px solid #ddd6e3;
+    background: #fff;
+    color: #241b2b;
+    border-radius: 14px;
+    padding: 12px 14px;
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.wg-input:focus,
+.wg-textarea:focus {
+    border-color: #ba1ed5;
+    box-shadow: 0 0 0 4px rgba(186, 30, 213, 0.12);
+}
+
+.wg-textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
 @media (max-width: 1100px) {
     .wg-layout {
         grid-template-columns: 220px 1fr;
@@ -472,7 +541,8 @@
         padding: 14px 18px 24px;
     }
 
-    .wg-member-item {
+    .wg-member-item,
+    .wg-event-item {
         flex-direction: column;
         align-items: flex-start;
     }
