@@ -86,127 +86,50 @@ der online-Dokumentation (auf Englisch!).
 
 ## Qualitätsziele
 
-<div class="formalpara-title">
+Die folgenden Qualitätsziele fassen jene nicht-funktionalen Anforderungen zusammen, die aus architektonischer Sicht für FlatMate besonders relevant sind.  
+Sie priorisieren die Qualitätsaspekte, die die wesentlichen Architekturentscheidungen des Systems beeinflussen.  
+Die Ziele sind möglichst konkret formuliert und durch Szenarien operationalisiert, damit ihre Bedeutung für Entwurf, Implementierung und Bewertung der Architektur nachvollziehbar bleibt.
 
-**Inhalt**
-
-</div>
-
-Die Top-3 bis Top-5 der Qualitätsanforderungen für die Architektur,
-deren Erfüllung oder Einhaltung den maßgeblichen Stakeholdern besonders
-wichtig sind. Gemeint sind hier wirklich Qualitätsziele, die nicht
-unbedingt mit den Zielen des Projekts übereinstimmen. Beachten Sie den
-Unterschied.
-
-Hier ein Überblick möglicher Themen (basierend auf dem ISO 25010
-Standard):
-
-<figure>
-<img src="images/01_2_iso-25010-topics-DE.drawio.png"
-alt="Kategorien von Qualitätsanforderungen" />
-</figure>
-
-<div class="formalpara-title">
-
-**Motivation**
-
-</div>
-
-Weil Qualitätsziele grundlegende Architekturentscheidungen oft
-maßgeblich beeinflussen, sollten Sie die für Ihre Stakeholder relevanten
-Qualitätsziele kennen, möglichst konkret und operationalisierbar.
-
-<div class="formalpara-title">
-
-**Form**
-
-</div>
-
-Tabellarische Darstellung der Qualitätsziele mit möglichst konkreten
-Szenarien, geordnet nach Prioritäten.
+| Priorität | Qualitätsziel | Bedeutung für die Architektur | Konkretes Szenario / Operationalisierung |
+|----------:|---------------|-------------------------------|------------------------------------------|
+| 1 | Korrekte und schnelle Verarbeitung fachlicher Kernprozesse | Das System muss zentrale WG-Prozesse, insbesondere Budgetvorgänge, korrekt und ohne spürbare Verzögerung verarbeiten. Dies beeinflusst insbesondere Datenmodell, Transaktionslogik und Datenbankwahl. | Ein Bewohner speichert eine neue Ausgabe. Das System speichert die Transaktion korrekt, berechnet die Anteile bzw. Schulden neu und aktualisiert die Übersicht in unter 1–2 Sekunden. |
+| 2 | Sicherheit und Schutz sensibler WG-Daten | Da FlatMate mit Accounts, Einladungslinks bzw. -codes, Rollen und personenbezogenen Daten arbeitet, muss die Architektur sichere Authentifizierung, geschützte Sessions und serverseitige Rechteprüfungen gewährleisten. | Ein Nutzer meldet sich an oder tritt einer WG per Invite bei. Die Session darf nicht clientseitig auslesbar sein, Rollen müssen serverseitig geprüft werden, und ungültige oder abgelaufene Einladungen dürfen keinen Zugriff erzeugen. |
+| 3 | Hohe Usability und unmittelbares Feedback | Die Web-App richtet sich an Alltagsnutzer in einer WG. Viele Kerninteraktionen müssen ohne Reload, verständlich und unmittelbar wirken. Dies beeinflusst UI-Design, Validierungslogik und Reaktionsverhalten der Anwendung. | Bei fehlerhafter Registrierung erhält der Nutzer in unter 0,5 Sekunden eine klare Fehlermeldung, ohne dass Eingaben verloren gehen. Beim Hinzufügen eines Artikels in der Einkaufsliste ist der neue Eintrag in unter 0,5 Sekunden sichtbar. |
+| 4 | Wartbarkeit und Erweiterbarkeit des Systems | FlatMate besitzt bereits viele geplante Funktionen über den MVP hinaus. Die Architektur muss deshalb neue Module integrierbar machen, ohne den bestehenden Kern stark zu beeinträchtigen. Dies beeinflusst insbesondere die Modularisierung und die Struktur der Codebasis. | Ein neues Feature soll in die Codebasis integriert werden können, ohne bestehende Module wesentlich umzubauen; Ziel ist eine Erweiterung mit minimalen Änderungen außerhalb des betroffenen Fachmoduls. |
+| 5 | Verfügbarkeit und zuverlässiger Zugriff | Als Alltagswerkzeug für eine WG muss die Anwendung im normalen Betrieb erreichbar und stabil sein. Dieses Ziel beeinflusst Hosting, Error Handling, Betriebskonzept und Backup-Strategie. | Ein WG-Mitglied öffnet die Web-App. Frontend, Backend und Datenbank müssen im Normalbetrieb verfügbar sein; angestrebtes Ziel ist eine Verfügbarkeit von 99 %. |
 
 ## Stakeholder
 
-<div class="formalpara-title">
+Die nachfolgende Tabelle gibt einen Überblick über die wichtigsten Stakeholder von FlatMate.  
+Sie zeigt, welche Personen, Rollen oder Nutzergruppen ein berechtigtes Interesse an der Architektur und ihrer Dokumentation haben und welche Erwartungen sie damit verbinden.  
+Die Stakeholder dienen als Orientierung dafür, welche Aspekte der Architektur besonders verständlich, nachvollziehbar und dokumentiert sein müssen.
 
-**Inhalt**
-
-</div>
-
-Expliziter Überblick über die Stakeholder des Systems – über alle
-Personen, Rollen oder Organisationen –, die
-
-- die Architektur kennen sollten oder
-
-- von der Architektur überzeugt werden müssen,
-
-- mit der Architektur oder dem Code arbeiten (z.B. Schnittstellen
-  nutzen),
-
-- die Dokumentation der Architektur für ihre eigene Arbeit benötigen,
-
-- Entscheidungen über das System und dessen Entwicklung treffen.
-
-<div class="formalpara-title">
-
-**Motivation**
-
-</div>
-
-Sie sollten die Projektbeteiligten und -betroffenen kennen, sonst
-erleben Sie später im Entwicklungsprozess Überraschungen. Diese
-Stakeholder bestimmen unter anderem Umfang und Detaillierungsgrad der
-von Ihnen zu leistenden Arbeit und Ergebnisse.
-
-<div class="formalpara-title">
-
-**Form**
-
-</div>
-
-Tabelle mit Rollen- oder Personennamen, sowie deren Erwartungshaltung
-bezüglich der Architektur und deren Dokumentation.
-
-| Rolle         | Kontakt         | Erwartungshaltung |
-|---------------|-----------------|-------------------|
-| *\<Rolle-1\>* | *\<Kontakt-1\>* | *\<Erwartung-1\>* |
-| *\<Rolle-2\>* | *\<Kontakt-2\>* | *\<Erwartung-2\>* |
+| Rolle / Stakeholder | Kontakt | Erwartungshaltung bezüglich Architektur und Dokumentation |
+|---------------------|---------|-----------------------------------------------------------|
+| Projektleitung / Product-Verantwortliche im Team | Leon | Erwartet eine nachvollziehbare, begründete Architektur, die im Projektkontext realistisch umsetzbar ist, das MVP unterstützt und im Bericht bzw. in Präsentationen sauber argumentiert werden kann. |
+| Entwicklerteam | Denis, Yaroslav, Mykyta | Benötigt eine klar strukturierte, wartbare Architektur mit verständlicher Modulaufteilung, dokumentierten Entscheidungen und eindeutigen technischen Leitplanken, damit Features parallel entwickelt werden können. |
+| Endnutzer: WG-Bewohner | spätere Nutzergruppe | Erwarten eine einfache Bedienung, transparente Verwaltung von Ausgaben, Aufgaben, Terminen und Einladungen sowie ein zuverlässiges und verständliches Verhalten der Anwendung. |
+| WG-Admins / Organisatoren | spätere Nutzergruppe | Erwarten Rechteverwaltung, sichere Einladungsmechanismen, Kontrolle über Mitglieder und eine verlässliche Durchsetzung von Rollen und Berechtigungen. |
+| Tester / Reviewende im Team | Denis, Yaroslav, Mykyta, Kim, Leon | Benötigen klare Anforderungen, nachvollziehbare Use Cases, konsistente Fehlerfälle und dokumentierte Qualitätsziele, damit Verhalten und Architektur überprüfbar sind. |
 
 # Randbedingungen
 
-<div class="formalpara-title">
+Die folgenden Randbedingungen beschreiben wesentliche technische, organisatorische, fachliche und konventionelle Vorgaben, die den Entwurf und die Umsetzung der Architektur von FlatMate beeinflussen.  
+Sie schränken den Lösungsraum bewusst ein und bilden damit einen verbindlichen Rahmen für Architektur- und Implementierungsentscheidungen.  
+Die Berücksichtigung dieser Randbedingungen ist notwendig, um eine realistische und im Projektkontext tragfähige Architektur zu entwickeln.
 
-**Inhalt**
-
-</div>
-
-Randbedingungen und Vorgaben, die ihre Freiheiten bezüglich Entwurf,
-Implementierung oder Ihres Entwicklungsprozesses einschränken. Diese
-Randbedingungen gelten manchmal organisations- oder firmenweit über die
-Grenzen einzelner Systeme hinweg.
-
-<div class="formalpara-title">
-
-**Motivation**
-
-</div>
-
-Für eine tragfähige Architektur sollten Sie genau wissen, wo Ihre
-Freiheitsgrade bezüglich der Entwurfsentscheidungen liegen und wo Sie
-Randbedingungen beachten müssen. Sie können Randbedingungen vielleicht
-noch verhandeln, zunächst sind sie aber da.
-
-<div class="formalpara-title">
-
-**Form**
-
-</div>
-
-Einfache Tabellen der Randbedingungen mit Erläuterungen. Bei Bedarf
-unterscheiden Sie technische, organisatorische und politische
-Randbedingungen oder übergreifende Konventionen (beispielsweise
-Programmier- oder Versionierungsrichtlinien, Dokumentations- oder
-Namenskonvention).
+| Kategorie | Randbedingung | Erläuterung |
+|-----------|---------------|-------------|
+| Technisch | Web-App als Zielplattform | FlatMate wird als browserbasierte Webanwendung entwickelt, nicht als native Mobile- oder Desktop-Anwendung. Dadurch ergeben sich Anforderungen an Responsive Design und Browser-Kompatibilität. |
+| Technisch | Schlanker Monolith mit Next.js | Die Architektur ist nicht frei offen, sondern bereits auf einen modularen Monolithen mit Next.js festgelegt. Das schließt Microservices für den aktuellen Projektkontext explizit aus. |
+| Technisch | TypeScript im Frontend | Die Frontend-Entwicklung soll in TypeScript erfolgen. Das beeinflusst Tooling, Build-Prozess und Codekonventionen. |
+| Technisch | Browser-/Gerätesupport | Die Anwendung soll auf aktuellen Versionen von Chrome, Edge, Firefox, Safari sowie mobilen Browsern funktionieren. Daraus folgen Einschränkungen für UI- und API-Verhalten. |
+| Organisatorisch | MVP-Fokus | Im Projektumfang stehen zunächst WG erstellen/beitreten, Ausgaben erfassen und aufteilen sowie Salden/Ausgleich im Vordergrund. Viele weitere Features sind bewusst nachrangig oder außerhalb des MVP. |
+| Organisatorisch | Scrum-Setup mit Sprints und Teamarbeit | Der Entwicklungsprozess ist durch Sprintarbeit, Meetings und Aufgabenaufteilung geprägt. Die Architektur muss daher arbeitsteilige Entwicklung unterstützen. |
+| Sicherheits-/fachlich | Minimierung personenbezogener Daten | Es sollen nur notwendige personenbezogene Daten wie Name, E-Mail und WG-Bezug verarbeitet werden. Das beeinflusst Datenmodell und Sicherheitsmaßnahmen. |
+| Sicherheits-/fachlich | Kryptografisch sichere Invite-Codes | Einladungsmechanismen dürfen nicht trivial erratbar sein; daraus ergibt sich eine klare Vorgabe an Erzeugung und Verwaltung von Einladungen. |
+| Konvention | Keine dotenv-Dateien im Repository | Konfigurationsdaten sollen nicht direkt im Repository abgelegt werden; stattdessen ist eine `.env.example` vorgesehen. Das beeinflusst Build, Setup und Dokumentation. |
+| Konvention | Einheitliches Fehlerformat | API-Fehler sollen einer einheitlichen Struktur `{ code, message, details }` folgen. Das ist eine technische und dokumentarische Vorgabe für Backend und Schnittstellen. |
 
 <div class="formalpara-title">
 
