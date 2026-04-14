@@ -1,25 +1,12 @@
----
-date: Juli 2025
-title: "![arc42](images/arc42-logo.png) Template"
----
-
-# 
-
-**Über arc42**
-
-arc42, das Template zur Dokumentation von Software- und
-Systemarchitekturen.
-
-Template Version 9.0-DE. (basiert auf der AsciiDoc Version), Juli 2025
-
-Created, maintained and © by Dr. Peter Hruschka, Dr. Gernot Starke and
-contributors. Siehe <https://arc42.org>.
-
-> [!NOTE]
-> Diese Version des Templates enthält Hilfen und Erläuterungen. Sie
-> dient der Einarbeitung in arc42 sowie dem Verständnis der Konzepte.
-> Für die Dokumentation eigener System verwenden Sie besser die *plain*
-> Version.
+## Navigation
+> * [Qualitätsziele](#qualitätsziele)
+> * [Technische Randbedingen](#randbedingungen)
+> * [Bausteinsicht](#bausteinsicht)
+> * [Laufzeitsicht](#laufzeitsicht)
+> * [Verteilungssicht](#verteilungssicht)
+> * [Querschnittliche Konzepte](#querschnittliche-konzepte)
+> * [Architekturentscheidungen](#architekturentscheidungen)
+> * [Qualitätsanforderungen](#qualitätsanforderungen)
 
 # Einführung und Ziele
 
@@ -414,8 +401,10 @@ Bibliotheken, Frameworks, Schichten, Partitionen, Tiers, Funktionen,
 Makros, Operationen, Datenstrukturen, …​) sowie deren Abhängigkeiten
 (Beziehungen, Assoziationen, …​)
 
-Diese Sicht sollte in jeder Architekturdokumentation vorhanden sein. In
-der Analogie zum Hausbau bildet die Bausteinsicht den *Grundrissplan*.
+> * [Ebene 1](#ebene-1)
+> * [Ebene 2](#ebene-2)
+> * [Ebene 3](#ebene-3)
+
 
 <div class="formalpara-title">
 
@@ -423,11 +412,10 @@ der Analogie zum Hausbau bildet die Bausteinsicht den *Grundrissplan*.
 
 </div>
 
-Behalten Sie den Überblick über den Quellcode, indem Sie die statische
-Struktur des Systems durch Abstraktion verständlich machen.
-
-Damit ermöglichen Sie Kommunikation auf abstrakterer Ebene, ohne zu
-viele Implementierungsdetails offenlegen zu müssen.
+Die Anwendung besteht aus mehreren funktionalen und technischen Teilbereichen. Ohne geeignete Strukturierung würde der Quellcode schnell unübersichtlich werden. Die Bausteinsicht hilft dabei,
+* die Zuständigkeiten der einzelnen Module zu verstehen,
+* die Trennung zwischen UI, API, Geschäftslogik und Hilfsbausteinen nachvollziehbar zu machen,
+* die Erweiterbarkeit und Wartbarkeit des Systems sicherzustellen.
 
 <div class="formalpara-title">
 
@@ -435,184 +423,138 @@ viele Implementierungsdetails offenlegen zu müssen.
 
 </div>
 
-Die Bausteinsicht ist eine hierarchische Sammlung von Blackboxen und
-Whiteboxen (siehe Abbildung unten) und deren Beschreibungen.
+Die Bausteinsicht ist als hierarchische Sammlung von Whiteboxen
+aufgebaut:
 
-<figure>
-<img src="images/05_building_blocks-DE.png"
-alt="Hierarchie in der Bausteinsicht" />
-</figure>
+- **Ebene 1** beschreibt das Gesamtsystem.
+- **Ebene 2** beschreibt den inneren Aufbau des Bausteins `app`.
+- **Ebene 3** beschreibt den inneren Aufbau des Bausteins `app/api/wgs`.
 
-**Ebene 1** ist die Whitebox-Beschreibung des Gesamtsystems, zusammen
-mit Blackbox-Beschreibungen der darin enthaltenen Bausteine.
 
-**Ebene 2** zoomt in einige Bausteine der Ebene 1 hinein. Sie enthält
-somit die Whitebox-Beschreibungen ausgewählter Bausteine der Ebene 1,
-jeweils zusammen mit Blackbox-Beschreibungen darin enthaltener
-Bausteine.
+## Ebene 1
 
-**Ebene 3** zoomt in einige Bausteine der Ebene 2 hinein, usw.
+### Übersichtsdiagramm
 
-<div class="formalpara-title">
+![Ebene 1 – Whitebox Gesamtsystem](docs/UMLs/Komponentendiagramme/Ebene_1.png)
 
-**Weiterführende Informationen**
+### Begründung
 
-</div>
+Auf oberster Ebene wird FlatMate in kleinere Bausteine zerlegt. Dadurch wird die grundlegende Architektur des Systems
+sichtbar. Die Zerlegung orientiert sich an den wesentlichen Verantwortungsbereichen
+des Projekts:
 
-Siehe [Bausteinsicht](https://docs.arc42.org/section-5/) in der
-online-Dokumentation (auf Englisch!).
+### Enthaltene Bausteine
 
-## Whitebox Gesamtsystem
+| **Name** | **Verantwortung** |
+|----------|-------------------|
+| `app` | Enthält die sichtbaren Seiten der Anwendung, Layouts, WG-Bereiche sowie die serverseitigen API-Route-Handler |
+| `components` | Beinhaltet wiederverwendbare UI-Komponenten und Icons |
+| `lib` | Stellt technische Hilfsbausteine wie Authentifizierung, Zugriffsprüfung, Validierung und Infrastrukturzugriff bereit |
+| `models` | Enthält fachliche Datenmodelle des Systems |
+| `public` | Beinhaltet statische Dateien und Assets, die von der Präsentationsschicht genutzt werden |
 
-An dieser Stelle beschreiben Sie die Zerlegung des Gesamtsystems anhand
-des nachfolgenden Whitebox-Templates. Dieses enthält:
+### Wichtige Schnittstellen
 
-- Ein Übersichtsdiagramm
+Die wichtigste Abhängigkeitsrichtung auf dieser Ebene verläuft von
+`app` zu den unterstützenden Bausteinen:
 
-- die Begründung dieser Zerlegung
+- `app` nutzt `components` für wiederverwendbare UI-Bausteine,
+- `app` nutzt `lib` für Authentifizierung, Validierung und technische
+  Hilfslogik,
+- `app` nutzt `models` für fachliche Datenstrukturen,
+- `app` nutzt `public` für statische Ressourcen.
 
-- Blackbox-Beschreibungen der hier enthaltenen Bausteine. Dafür haben
-  Sie verschiedene Optionen:
-
-  - in *einer* Tabelle, gibt einen kurzen und pragmatischen Überblick
-    über die enthaltenen Bausteine sowie deren Schnittstellen.
-
-  - als Liste von Blackbox-Beschreibungen der Bausteine, gemäß dem
-    Blackbox-Template (siehe unten). Diese Liste können Sie, je nach
-    Werkzeug, etwa in Form von Unterkapiteln (Text), Unter-Seiten (Wiki)
-    oder geschachtelten Elementen (Modellierungswerkzeug) darstellen.
-
-- (optional:) wichtige Schnittstellen, die nicht bereits im
-  Blackbox-Template eines der Bausteine erläutert werden, aber für das
-  Verständnis der Whitebox von zentraler Bedeutung sind. Aufgrund der
-  vielfältigen Möglichkeiten oder Ausprägungen von Schnittstellen geben
-  wir hierzu kein weiteres Template vor. Im schlimmsten Fall müssen Sie
-  Syntax, Semantik, Protokolle, Fehlerverhalten, Restriktionen,
-  Versionen, Qualitätseigenschaften, notwendige Kompatibilitäten und
-  vieles mehr spezifizieren oder beschreiben. Im besten Fall kommen Sie
-  mit Beispielen oder einfachen Signaturen zurecht.
-
-***\<Übersichtsdiagramm\>***
-
-Begründung  
-*\<Erläuternder Text\>*
-
-Enthaltene Bausteine  
-*\<Beschreibung der enthaltenen Bausteine (Blackboxen)\>*
-
-Wichtige Schnittstellen  
-*\<Beschreibung wichtiger Schnittstellen\>*
-
-Hier folgen jetzt Erläuterungen zu Blackboxen der Ebene 1.
-
-Falls Sie die tabellarische Beschreibung wählen, so werden Blackboxen
-darin nur mit Name und Verantwortung nach folgendem Muster beschrieben:
-
-| **Name**         | **Verantwortung** |
-|------------------|-------------------|
-| *\<Blackbox 1\>* |  *\<Text\>*       |
-| *\<Blackbox 2\>* |  *\<Text\>*       |
-
-Falls Sie die ausführliche Liste von Blackbox-Beschreibungen wählen,
-beschreiben Sie jede wichtige Blackbox in einem eigenen
-Blackbox-Template. Dessen Überschrift ist jeweils der Namen dieser
-Blackbox.
-
-### \<Name Blackbox 1\>
-
-Beschreiben Sie die \<Blackbox 1\> anhand des folgenden
-Blackbox-Templates:
-
-- Zweck/Verantwortung
-
-- Schnittstelle(n), sofern diese nicht als eigenständige Beschreibungen
-  herausgezogen sind. Hierzu gehören eventuell auch Qualitäts- und
-  Leistungsmerkmale dieser Schnittstelle.
-
-- (Optional) Qualitäts-/Leistungsmerkmale der Blackbox, beispielsweise
-  Verfügbarkeit, Laufzeitverhalten o. Ä.
-
-- (Optional) Ablageort/Datei(en)
-
-- (Optional) Erfüllte Anforderungen, falls Sie Traceability zu
-  Anforderungen benötigen.
-
-- (Optional) Offene Punkte/Probleme/Risiken
-
-*\<Zweck/Verantwortung\>*
-
-*\<Schnittstelle(n)\>*
-
-*\<(Optional) Qualitäts-/Leistungsmerkmale\>*
-
-*\<(Optional) Ablageort/Datei(en)\>*
-
-*\<(Optional) Erfüllte Anforderungen\>*
-
-*\<(optional) Offene Punkte/Probleme/Risiken\>*
-
-### \<Name Blackbox 2\>
-
-*\<Blackbox-Template\>*
-
-### \<Name Blackbox n\>
-
-*\<Blackbox-Template\>*
-
-### \<Name Schnittstelle 1\>
-
-…​
-
-### \<Name Schnittstelle m\>
 
 ## Ebene 2
 
-Beschreiben Sie den inneren Aufbau (einiger) Bausteine aus Ebene 1 als
-Whitebox.
+### Whitebox `app`
 
-Welche Bausteine Ihres Systems Sie hier beschreiben, müssen Sie selbst
-entscheiden. Bitte stellen Sie dabei Relevanz vor Vollständigkeit.
-Skizzieren Sie wichtige, überraschende, riskante, komplexe oder
-besonders volatile Bausteine. Normale, einfache oder standardisierte
-Teile sollten Sie weglassen.
+Die zweite Ebene beschreibt den inneren Aufbau des Bausteins `app`, da
+dieser den zentralen fachlichen und technischen Kern der Anwendung
+enthält.
 
-### Whitebox *\<Baustein 1\>*
+### Übersichtsdiagramm
 
-…​zeigt das Innenleben von *Baustein 1*.
+![Ebene 2 – Whitebox app](docs/UMLs/Komponentendiagramme/Ebene_2.png)
 
-*\<Whitebox-Template\>*
+### Begründung
 
-### Whitebox *\<Baustein 2\>*
+Der Baustein `app` ist für FlatMate besonders relevant, da hier sowohl
+die Benutzerinteraktion als auch die serverseitige Anwendungslogik
+zusammenlaufen. Gleichzeitig ist `app` der Bereich mit den meisten
+Unterstrukturen und damit architektonisch besonders wichtig.
 
-*\<Whitebox-Template\>*
+### Enthaltene Bausteine
 
-…​
+| **Name** | **Verantwortung** |
+|----------|-------------------|
+| Öffentliche Seiten | Einstieg in das System für nicht eingeloggte Nutzer, insbesondere Landing Page, Login, Registrierung, Invite-Einstieg und WG-Erstellung |
+| Benutzerbereich | Darstellung der benutzerspezifischen Übersicht, insbesondere Profil und WG-Liste |
+| WG-Bereich | Interner Bereich einer konkreten WG mit eigenem Layout, Dashboard und den Modulen Kosten, Putzplan und Einkaufsliste |
+| API-Endpunkte | Serverseitige Route-Handler für Authentifizierung, WG-Verwaltung, Einladungen und weitere Fachfunktionen |
+| Styles / Layouts | CSS-Dateien und Layout-Strukturen zur konsistenten Gestaltung der Anwendung |
 
-### Whitebox *\<Baustein m\>*
+### Wichtige Schnittstellen
 
-*\<Whitebox-Template\>*
+Die wichtigsten Beziehungen innerhalb von `app` sind:
+
+- Öffentliche Seiten, Benutzerbereich und WG-Bereich rufen die
+  API-Endpunkte über HTTP auf.
+- Die sichtbaren Bereiche verwenden gemeinsame Styles und Layouts.
+- Im WG-Bereich sorgt ein gemeinsames Layout mit `AppShell` für eine
+  einheitliche interne Navigation und Darstellung.
+
 
 ## Ebene 3
 
-Beschreiben Sie den inneren Aufbau (einiger) Bausteine aus Ebene 2 als
-Whitebox.
+### Whitebox `app/api/wgs`
 
-Bei tieferen Gliederungen der Architektur kopieren Sie diesen Teil von
-arc42 für die weiteren Ebenen.
+Die dritte Ebene beschreibt den inneren Aufbau des Bausteins
+`app/api/wgs`, da dieser ein besonders relevanter Teil der Anwendung ist.  
+Hier befinden sich zentrale Endpunkte für das Laden von WGs, das
+Verlassen einer WG, das Erzeugen von Einladungen und die Verwaltung von
+WG-Events.
 
-### Whitebox \<\_Baustein x.1\_\>
+### Übersichtsdiagramm
 
-…​zeigt das Innenleben von *Baustein x.1*.
+![Ebene 3 – Whitebox app/api/wgs](docs/UMLs/Komponentendiagramme/Ebene_3.png)
 
-*\<Whitebox-Template\>*
+### Begründung
 
-### Whitebox \<\_Baustein x.2\_\>
+Der Baustein `app/api/wgs` wurde für Ebene 3 ausgewählt, weil er eine
+hohe fachliche Bedeutung besitzt und mehrere sicherheits- und
+zustandsrelevante Operationen bündelt.  
+Insbesondere die Verarbeitung von WG-Zugriffen, Rollen, Leave-Logik,
+Invite-Erzeugung und Event-Handling macht diesen Bereich architektonisch
+wichtiger als einfache Standardbausteine.
 
-*\<Whitebox-Template\>*
 
-### Whitebox \<\_Baustein y.1\_\>
+### Enthaltene Bausteine
 
-*\<Whitebox-Template\>*
+| **Name** | **Verantwortung** |
+|----------|-------------------|
+| WGs Collection | Lädt alle WGs des aktuell eingeloggten Benutzers |
+| WG by ID | Lädt Details einer konkreten WG und verarbeitet Operationen auf WG-Ebene |
+| Leave WG | Verarbeitet das Verlassen einer WG, einschließlich rollenbezogener Folgelogik |
+| Invites | Erzeugt Einladungscodes bzw. Links für eine WG |
+| Events | Lädt, erstellt und löscht Events innerhalb einer WG |
+| Gemeinsame Infrastruktur | Stellt Session-Verwaltung, WG-Zugriffsprüfung, Validierung und Persistenzzugriff bereit |
+
+### Wichtige Schnittstellen
+
+Die Teilbausteine von `app/api/wgs` verwenden gemeinsame technische
+Hilfsbausteine:
+
+- **Session Management** zur Ermittlung des aktuell eingeloggten
+  Benutzers,
+- **WG Access Control** zur Prüfung von Mitgliedschaft und Rechten,
+- **Validation** zur Prüfung von Eingabedaten,
+- **Persistence Layer** für den Zugriff auf die Datenhaltung.
+
+Diese Schnittstellen sind für das Verständnis der Sicherheits- und
+Geschäftslogik in diesem Bereich zentral.
+
+
 
 # Laufzeitsicht
 
@@ -622,23 +564,21 @@ arc42 für die weiteren Ebenen.
 
 </div>
 
-Diese Sicht erklärt konkrete Abläufe und Beziehungen zwischen Bausteinen
-in Form von Szenarien aus den folgenden Bereichen:
+Die Laufzeitsicht beschreibt das Verhalten von FlatMate zur Ausführungszeit.
+Für FlatMate wurden insbesondere solche Szenarien ausgewählt, die
 
-- Wichtige Abläufe oder *Features*: Wie führen die Bausteine der
-  Architektur die wichtigsten Abläufe durch?
+- zentrale Benutzerinteraktionen abbilden,
+- sicherheitsrelevante Prüfungen enthalten,
+- fachlich wichtige Kernprozesse beschreiben,
+- sowie nicht triviale Sonderlogik sichtbar machen.
 
-- Interaktionen an kritischen externen Schnittstellen: Wie arbeiten
-  Bausteine mit Nutzern und Nachbarsystemen zusammen?
-
-- Betrieb und Administration: Inbetriebnahme, Start, Stop.
-
-- Fehler- und Ausnahmeszenarien
-
-Anmerkung: Das Kriterium für die Auswahl der möglichen Szenarien (d.h.
-Abläufe) des Systems ist deren Architekturrelevanz. Es geht nicht darum,
-möglichst viele Abläufe darzustellen, sondern eine angemessene Auswahl
-zu dokumentieren.
+Die dargestellten Abläufe betreffen insbesondere 
+> * [Registrierung](#registrierung)
+> * [Login](#login)
+> * [WG-Erstellung](#wg-anlegen)
+> * [Invite-Erzeugung](#einladung-erzeugen)
+> * [WG-Beitritt](#wg-beitreten)
+> * [Verlassen einer WG](#wg-verlassen)
 
 <div class="formalpara-title">
 
@@ -646,14 +586,13 @@ zu dokumentieren.
 
 </div>
 
-Sie sollten verstehen, wie (Instanzen von) Bausteine(n) Ihres Systems
-ihre jeweiligen Aufgaben erfüllen und zur Laufzeit miteinander
-kommunizieren.
+Die Laufzeitsicht macht nachvollziehbar, wie die Bausteine des Systems zur Laufzeit zusammenarbeiten.  
+Sie zeigt insbesondere,
 
-Nutzen Sie diese Szenarien in der Dokumentation hauptsächlich für eine
-verständlichere Kommunikation mit denjenigen Stakeholdern, die die
-statischen Modelle (z.B. Bausteinsicht, Verteilungssicht) weniger
-verständlich finden.
+- wie Benutzeraktionen durch Frontend und Backend verarbeitet werden,
+- an welchen Stellen Validierung, Session-Prüfung und Autorisierung stattfinden,
+- wie fachliche Regeln umgesetzt werden,
+- und wie FlatMate auf Sonder- und Fehlerfälle reagiert.
 
 <div class="formalpara-title">
 
@@ -661,45 +600,146 @@ verständlich finden.
 
 </div>
 
-Für die Beschreibung von Szenarien gibt es zahlreiche
-Ausdrucksmöglichkeiten. Nutzen Sie beispielsweise:
+Die Abläufe werden durch Sequenzdiagramme auf Komponentenebene beschrieben.  
+Ergänzend wird jeder Ablauf durch kurze textuelle Erläuterungen präzisiert.
 
-- Nummerierte Schrittfolgen oder Aufzählungen in Umgangssprache
 
-- Aktivitäts- oder Flussdiagramme
+## Registrierung
 
-- Sequenzdiagramme
+![Sequenzdiagramm Registrierung](docs/UMLs/Sequenzdiagramme/SD_register.png)
 
-- BPMN (Geschäftsprozessmodell und -notation) oder EPKs
-  (Ereignis-Prozessketten)
+### Beschreibung
 
-- Zustandsautomaten
+Dieses Szenario beschreibt die Registrierung eines neuen Benutzers
 
-- …​
+1. Der Benutzer öffnet die Registrierungsseite und gibt seine Daten ein.
+2. Das Frontend sendet die Eingaben an den Registrierungs-Endpunkt.
+3. Die Eingaben werden serverseitig validiert.
+4. Bei ungültigen Eingaben werden strukturierte Fehlermeldungen
+   zurückgegeben und im Formular angezeigt.
+5. Bei gültigen Eingaben wird ein neuer Benutzer in der Datenhaltung
+   angelegt.
+6. Direkt im Anschluss wird serverseitig eine Session erzeugt und als
+   Cookie gesetzt.
+7. Das Frontend leitet den Benutzer danach in den Benutzerbereich oder
+   zum ursprünglich angefragten Ziel weiter.
 
-<div class="formalpara-title">
 
-**Weiterführende Informationen**
+## Login
 
-</div>
+![Sequenzdiagramm Login](docs/UMLs/Sequenzdiagramme/SD_login.png)
 
-Siehe [Laufzeitsicht](https://docs.arc42.org/section-6/) in der
-online-Dokumentation (auf Englisch!).
+### Beschreibung
 
-## *\<Bezeichnung Laufzeitszenario 1\>*
+Dieses Szenario beschreibt die Anmeldung eines bestehenden Benutzers.
 
-- \<hier Laufzeitdiagramm oder Ablaufbeschreibung einfügen\>
+1. Der Benutzer öffnet die Login-Seite und gibt E-Mail und Passwort ein.
+2. Das Frontend sendet die Login-Daten an den Login-Endpunkt.
+3. Der Endpunkt lädt den Benutzer anhand der E-Mail-Adresse.
+4. Anschließend wird das Passwort geprüft.
+5. Bei fehlerhaften Zugangsdaten wird eine Fehlermeldung zurückgegeben.
+6. Bei erfolgreicher Authentifizierung wird serverseitig eine Session
+   erzeugt und als Cookie gesetzt.
+7. Danach erfolgt die Weiterleitung in den Benutzerbereich oder auf ein
+   per `next` übergebenes Ziel.
 
-- \<hier Besonderheiten bei dem Zusammenspiel der Bausteine in diesem
-  Szenario erläutern\>
 
-## *\<Bezeichnung Laufzeitszenario 2\>*
 
-…​
+## WG anlegen
 
-## *\<Bezeichnung Laufzeitszenario n\>*
+![Sequenzdiagramm WG anlegen](docs/UMLs/Sequenzdiagramme/SD_wg_anlegen.png)
 
-…​
+### Beschreibung
+
+Dieses Szenario beschreibt das Anlegen einer neuen WG durch einen
+eingeloggten Benutzer.
+
+1. Der Benutzer öffnet die Seite zur Erstellung einer WG.
+2. Das Frontend sendet den WG-Namen an den Endpunkt zur WG-Erstellung.
+3. Der Endpunkt bestimmt zunächst über die Session den aktuellen
+   Benutzer.
+4. Anschließend werden die Eingaben validiert.
+5. Bei ungültigen Eingaben werden Fehlermeldungen zurückgegeben.
+6. Bei gültigen Eingaben wird die WG gespeichert.
+7. Danach wird für den Ersteller automatisch eine Membership mit der
+   Rolle `ADMIN` angelegt.
+8. Die Oberfläche aktualisiert anschließend die Benutzerübersicht bzw.
+   leitet in den WG-Bereich weiter.
+
+
+
+## Einladung erzeugen
+
+![Sequenzdiagramm Einladung erzeugen](docs/UMLs/Sequenzdiagramme/SD_invite.png)
+
+### Beschreibung
+
+Dieses Szenario beschreibt das Erzeugen eines Invite-Links für eine
+bestehende WG.
+
+1. Ein Admin der WG löst im WG-Bereich die Erstellung eines Invite-Links aus.
+2. Der Browser ruft den WG-spezifischen Invite-Endpunkt auf.
+3. Der Endpunkt ermittelt den aktuellen Benutzer über die Session.
+4. Danach wird geprüft, ob der Benutzer Mitglied der WG ist und über
+   ausreichende Rechte verfügt.
+5. Bei fehlender Berechtigung wird die Anfrage abgewiesen.
+6. Bei erfolgreicher Prüfung wird ein neuer Invite-Code erzeugt und mit
+   Metadaten wie Ablaufzeit oder Nutzungsgrenzen gespeichert.
+7. Der fertige Invite-Link wird an das Frontend zurückgegeben und kann
+   anschließend geteilt werden.
+
+
+## WG beitreten
+
+![Sequenzdiagramm WG beitreten](docs/UMLs/Sequenzdiagramme/SD_join_wg.png)
+
+### Beschreibung
+
+Dieses Szenario beschreibt den Beitritt eines Benutzers zu einer WG über
+einen Einladungslink.
+
+1. Ein Benutzer öffnet einen Invite-Link.
+2. Die Invite-Seite prüft zunächst, ob bereits eine gültige Session
+   existiert.
+3. Ist der Benutzer nicht eingeloggt, wird er auf Login bzw.
+   Registrierung vorbereitet und anschließend zurückgeführt.
+4. Beim Klick auf „WG beitreten“ wird der Join-Endpunkt aufgerufen.
+5. Dort wird erneut serverseitig geprüft, welcher Benutzer aktuell
+   angemeldet ist.
+6. Anschließend wird der Invite geladen und auf Gültigkeit, Ablauf und
+   Nutzbarkeit geprüft.
+7. Zusätzlich wird geprüft, ob der Benutzer bereits Mitglied der WG ist.
+8. Ist alles gültig, wird eine neue Membership für die WG angelegt und
+   die Invite-Nutzung aktualisiert.
+9. Danach wird der Benutzer in den WG-Bereich weitergeleitet.
+
+
+
+## WG verlassen
+
+![Sequenzdiagramm WG verlassen](docs/UMLs/Sequenzdiagramme/SD_leave_wg.png)
+
+### Beschreibung
+
+Dieses Szenario beschreibt das Verlassen einer WG durch ein Mitglied,
+einschließlich der Sonderlogik für den Fall, dass der letzte Admin die
+WG verlässt.
+
+1. Der Benutzer löst im Frontend die Aktion „WG verlassen“ aus.
+2. Der Leave-Endpunkt ermittelt zunächst den aktuellen Benutzer über die
+   Session.
+3. Danach wird geprüft, ob der Benutzer tatsächlich Mitglied der
+   betreffenden WG ist.
+4. Die aktuelle Membership-Situation der WG wird geladen.
+5. Falls der Benutzer das letzte Mitglied ist, kann die WG vollständig
+   entfernt werden.
+6. Falls weitere Mitglieder existieren, aber kein weiterer Admin
+   vorhanden ist, wird die Admin-Rolle automatisch auf das am längsten
+   verbleibende Mitglied übertragen.
+7. Anschließend wird die Membership des austretenden Benutzers entfernt.
+8. Das Frontend entfernt die WG aus der Benutzerübersicht.
+
+
 
 # Verteilungssicht
 
