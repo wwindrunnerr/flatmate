@@ -1,6 +1,7 @@
 ## Navigation
 > * [Qualitätsziele](#qualitätsziele)
-> * [Technische Randbedingen](#randbedingungen)
+> * [Stakeholder](#stakeholder)
+> * [Randbedingen](#randbedingungen)
 > * [Bausteinsicht](#bausteinsicht)
 > * [Laufzeitsicht](#laufzeitsicht)
 > * [Verteilungssicht](#verteilungssicht)
@@ -62,16 +63,9 @@ entsprechenden Anforderungsdokumente enthalten.
 Halten Sie diese Auszüge so knapp wie möglich und wägen Sie Lesbarkeit
 und Redundanzfreiheit gegeneinander ab.
 
-<div class="formalpara-title">
 
-**Weiterführende Informationen**
 
-</div>
-
-Siehe [Anforderungen und Ziele](https://docs.arc42.org/section-1/) in
-der online-Dokumentation (auf Englisch!).
-
-## Qualitätsziele
+# Qualitätsziele
 
 Die folgenden Qualitätsziele fassen jene nicht-funktionalen Anforderungen zusammen, die aus architektonischer Sicht für FlatMate besonders relevant sind.  
 Sie priorisieren die Qualitätsaspekte, die die wesentlichen Architekturentscheidungen des Systems beeinflussen.  
@@ -85,7 +79,7 @@ Die Ziele sind möglichst konkret formuliert und durch Szenarien operationalisie
 | 4 | Wartbarkeit und Erweiterbarkeit des Systems | FlatMate besitzt bereits viele geplante Funktionen über den MVP hinaus. Die Architektur muss deshalb neue Module integrierbar machen, ohne den bestehenden Kern stark zu beeinträchtigen. Dies beeinflusst insbesondere die Modularisierung und die Struktur der Codebasis. | Ein neues Feature soll in die Codebasis integriert werden können, ohne bestehende Module wesentlich umzubauen; Ziel ist eine Erweiterung mit minimalen Änderungen außerhalb des betroffenen Fachmoduls. |
 | 5 | Verfügbarkeit und zuverlässiger Zugriff | Als Alltagswerkzeug für eine WG muss die Anwendung im normalen Betrieb erreichbar und stabil sein. Dieses Ziel beeinflusst Hosting, Error Handling, Betriebskonzept und Backup-Strategie. | Ein WG-Mitglied öffnet die Web-App. Frontend, Backend und Datenbank müssen im Normalbetrieb verfügbar sein; angestrebtes Ziel ist eine Verfügbarkeit von 99 %. |
 
-## Stakeholder
+# Stakeholder
 
 Die nachfolgende Tabelle gibt einen Überblick über die wichtigsten Stakeholder von FlatMate.  
 Sie zeigt, welche Personen, Rollen oder Nutzergruppen ein berechtigtes Interesse an der Architektur und ihrer Dokumentation haben und welche Erwartungen sie damit verbinden.  
@@ -118,14 +112,7 @@ Die Berücksichtigung dieser Randbedingungen ist notwendig, um eine realistische
 | Konvention | Keine dotenv-Dateien im Repository | Konfigurationsdaten sollen nicht direkt im Repository abgelegt werden; stattdessen ist eine `.env.example` vorgesehen. Das beeinflusst Build, Setup und Dokumentation. |
 | Konvention | Einheitliches Fehlerformat | API-Fehler sollen einer einheitlichen Struktur `{ code, message, details }` folgen. Das ist eine technische und dokumentarische Vorgabe für Backend und Schnittstellen. |
 
-<div class="formalpara-title">
 
-**Weiterführende Informationen**
-
-</div>
-
-Siehe [Randbedingungen](https://docs.arc42.org/section-2/) in der
-online-Dokumentation (auf Englisch!).
 
 # Kontextabgrenzung
 
