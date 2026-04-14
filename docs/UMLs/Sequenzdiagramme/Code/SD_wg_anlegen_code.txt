@@ -1,0 +1,41 @@
+@startuml
+title Sequenz: WG anlegen
+
+actor Admin
+participant "Browser(Admin)\nCreate-WG-Seite" as BA
+participant "Create WG API\n/api/create_wg" as CreateWGAPI
+participant "Session Management\nlib/auth/session.ts" as Session
+participant "Validation\nlib/validation/wg.ts" as WGValidation
+participant "Prisma / Persistence" as DB
+
+Admin -> BA : Create-WG-Seite öffnen
+BA --> Admin : Formular anzeigen
+
+Admin -> BA : WG-Name eingeben + absenden
+BA -> CreateWGAPI : POST /api/create_wg
+CreateWGAPI -> Session : aktuellen Benutzer bestimmen
+
+alt keine gültige Session
+  Session --> CreateWGAPI : kein Benutzer
+  CreateWGAPI --> BA : 401 Nicht eingeloggt
+  BA --> Admin : Weiterleitung / Fehlermeldung
+else gültige Session
+  Session --> CreateWGAPI : Benutzer vorhanden
+  CreateWGAPI -> WGValidation : Eingaben validieren
+
+  alt Eingaben ungültig
+    WGValidation --> CreateWGAPI : Fehler
+    CreateWGAPI --> BA : 400 + fieldErrors
+    BA --> Admin : Fehlermeldung anzeigen
+  else Eingaben gültig
+    WGValidation --> CreateWGAPI : OK
+    CreateWGAPI -> DB : WG anlegen
+    DB --> CreateWGAPI : wgId
+    CreateWGAPI -> DB : Membership(userId=Admin,\nwgId, role=ADMIN) anlegen
+    DB --> CreateWGAPI : OK
+    CreateWGAPI --> BA : 201 Erfolg + WG
+    BA --> Admin : Weiterleitung zu /user oder WG
+  end
+end
+
+@enduml
