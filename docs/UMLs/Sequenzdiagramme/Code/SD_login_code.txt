@@ -1,0 +1,37 @@
+@startuml
+title Sequenz: Login
+
+actor Benutzer
+participant "Browser\nLogin-Seite" as UI
+participant "Login API\n/api/login" as LoginAPI
+participant "Prisma / Persistence" as DB
+participant "Session Management\nlib/auth/session.ts" as Session
+
+Benutzer -> UI : Login-Seite öffnen
+UI --> Benutzer : Formular anzeigen
+
+Benutzer -> UI : E-Mail + Passwort eingeben
+Benutzer -> UI : „Anmelden“ klicken
+UI -> LoginAPI : POST /api/login
+
+LoginAPI -> DB : Benutzer per E-Mail laden
+DB --> LoginAPI : Benutzer gefunden / nicht gefunden
+
+alt Benutzer nicht gefunden
+  LoginAPI --> UI : 401 Fehler
+  UI --> Benutzer : Fehlermeldung anzeigen
+else Benutzer gefunden
+  LoginAPI -> LoginAPI : Passwort prüfen
+
+  alt Passwort ungültig
+    LoginAPI --> UI : 401 Fehler
+    UI --> Benutzer : Fehlermeldung anzeigen
+  else Passwort gültig
+    LoginAPI -> Session : Session erzeugen
+    Session --> LoginAPI : Session-Cookie gesetzt
+    LoginAPI --> UI : 200 Erfolg
+    UI --> Benutzer : Weiterleitung zu /user oder next-Ziel
+  end
+end
+
+@enduml

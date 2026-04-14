@@ -1,0 +1,41 @@
+@startuml
+title Sequenz: Einladung erzeugen
+
+actor Admin
+participant "Browser(Admin)\nWG-Dashboard" as BA
+participant "Invite API\n/api/wgs/[id]/invites" as InviteAPI
+participant "Session Management\nlib/auth/session.ts" as Session
+participant "WG Access Control\nlib/auth/wg-access.ts" as WGAccess
+participant "Prisma / Persistence" as DB
+collections "Messenger / Email" as MSG
+
+Admin -> BA : „Einladungslink erstellen“ klicken
+BA -> InviteAPI : POST /api/wgs/{id}/invites
+InviteAPI -> Session : aktuellen Benutzer bestimmen
+
+alt keine gültige Session
+  Session --> InviteAPI : kein Benutzer
+  InviteAPI --> BA : 401 Nicht eingeloggt
+  BA --> Admin : Fehlermeldung anzeigen
+else gültige Session
+  Session --> InviteAPI : Benutzer vorhanden
+  InviteAPI -> WGAccess : Admin-Rechte prüfen
+
+  alt kein Zugriff / kein Admin
+    WGAccess --> InviteAPI : Zugriff verweigert
+    InviteAPI --> BA : 403 Fehler
+    BA --> Admin : Fehlermeldung anzeigen
+  else Zugriff erlaubt
+    WGAccess --> InviteAPI : OK
+    InviteAPI -> DB : Invite(code, expiresAt, maxUses) speichern
+    DB --> InviteAPI : OK
+    InviteAPI --> BA : 200 Erfolg + Invite-Link
+    BA --> Admin : Link anzeigen
+
+    opt Link teilen
+      BA -> MSG : Invite-Link senden
+    end
+  end
+end
+
+@enduml

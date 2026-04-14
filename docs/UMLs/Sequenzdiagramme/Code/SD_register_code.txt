@@ -1,0 +1,30 @@
+@startuml
+title Sequenz – Registrierung
+
+actor Benutzer
+participant "Register-Seite" as RegisterPage
+participant "Register API\n/api/register" as RegisterAPI
+participant "Validation\nlib/validation/auth.ts" as Validation
+participant "Persistence Layer\nlib/prisma.ts" as Persistence
+participant "Session Management\nlib/auth/session.ts" as Session
+
+Benutzer -> RegisterPage : Registrierungsformular ausfüllen
+Benutzer -> RegisterPage : "Registrieren" auslösen
+RegisterPage -> RegisterAPI : POST Registrierungsdaten
+RegisterAPI -> Validation : Eingaben validieren
+
+alt Eingaben ungültig
+  Validation --> RegisterAPI : Fehler
+  RegisterAPI --> RegisterPage : 400 + Fehlermeldungen
+  RegisterPage --> Benutzer : Formularfehler anzeigen
+else Eingaben gültig
+  Validation --> RegisterAPI : OK
+  RegisterAPI -> Persistence : Benutzer speichern
+  Persistence --> RegisterAPI : Benutzer angelegt
+  RegisterAPI -> Session : Session erzeugen
+  Session --> RegisterAPI : Session-Cookie gesetzt
+  RegisterAPI --> RegisterPage : 201 Erfolg
+  RegisterPage --> Benutzer : Weiterleitung auf /user oder next-Ziel
+end
+
+@enduml

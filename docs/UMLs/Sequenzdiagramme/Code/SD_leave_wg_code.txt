@@ -1,0 +1,54 @@
+@startuml
+title Sequenz – WG verlassen
+
+actor Benutzer
+participant "Benutzerbereich / WG-UI" as UI
+participant "Leave API\n/api/wgs/[id]/leave" as LeaveAPI
+participant "Session Management\nlib/auth/session.ts" as Session
+participant "WG Access Control\nlib/auth/wg-access.ts" as WGAccess
+participant "Persistence Layer\nlib/prisma.ts" as Persistence
+
+Benutzer -> UI : "WG verlassen" auslösen
+UI -> LeaveAPI : POST /api/wgs/[id]/leave
+LeaveAPI -> Session : aktuellen Benutzer bestimmen
+
+alt keine gültige Session
+  Session --> LeaveAPI : kein Benutzer
+  LeaveAPI --> UI : 401 Nicht eingeloggt
+  UI --> Benutzer : Fehlermeldung
+else gültige Session
+  Session --> LeaveAPI : Benutzer vorhanden
+  LeaveAPI -> WGAccess : Membership und Rolle prüfen
+
+  alt Benutzer ist kein Mitglied
+    WGAccess --> LeaveAPI : kein Zugriff
+    LeaveAPI --> UI : 403/404 Fehler
+    UI --> Benutzer : Zugriff verweigert
+  else Benutzer ist Mitglied
+    WGAccess --> LeaveAPI : Membership vorhanden
+    LeaveAPI -> Persistence : alle Memberships der WG laden
+
+    alt Benutzer ist letztes Mitglied
+      Persistence --> LeaveAPI : keine weiteren Mitglieder
+      LeaveAPI -> Persistence : WG löschen
+      LeaveAPI --> UI : Erfolg
+      UI --> Benutzer : WG aus Übersicht entfernen
+    else weitere Mitglieder vorhanden
+      alt Benutzer ist letzter Admin
+        Persistence --> LeaveAPI : kein weiterer Admin vorhanden
+        LeaveAPI -> Persistence : am längsten verbleibendes Mitglied bestimmen
+        LeaveAPI -> Persistence : Admin-Rolle übertragen
+        LeaveAPI -> Persistence : aktuelle Membership löschen
+        LeaveAPI --> UI : Erfolg
+        UI --> Benutzer : WG aus Übersicht entfernen
+      else weiterer Admin vorhanden oder Benutzer ist Member
+        Persistence --> LeaveAPI : keine Rollenübergabe nötig
+        LeaveAPI -> Persistence : aktuelle Membership löschen
+        LeaveAPI --> UI : Erfolg
+        UI --> Benutzer : WG aus Übersicht entfernen
+      end
+    end
+  end
+end
+
+@enduml
