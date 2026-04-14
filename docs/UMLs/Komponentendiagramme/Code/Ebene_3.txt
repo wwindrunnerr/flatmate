@@ -1,0 +1,53 @@
+@startuml
+title Ebene 3: Whitebox app/api/wgs
+skinparam componentStyle rectangle
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam defaultTextAlignment left
+left to right direction
+
+package "app/api/wgs" {
+  component "WGs Collection\nroute.ts" as WGS_COLLECTION
+  component "WG by ID\n[id]/route.ts" as WG_BY_ID
+  component "Leave WG\n[id]/leave/route.ts" as WG_LEAVE
+  component "Invites\n[id]/invites/route.ts" as WG_INVITES
+  component "Events\n[id]/events/..." as WG_EVENTS
+}
+
+package "Gemeinsame Infrastruktur" {
+  component "Session Management\nlib/auth/session.ts" as SESSION
+  component "Persistence Layer\nlib/prisma.ts" as PERSISTENCE
+  component "WG Access Control\nlib/auth/wg-access.ts" as WG_ACCESS
+  component "Validation\nlib/validation/*" as VALIDATION
+}
+
+WGS_COLLECTION -[#2F80ED]-> SESSION
+WGS_COLLECTION -[#27AE60]-> PERSISTENCE
+
+WG_BY_ID -[#2F80ED]-> SESSION
+WG_BY_ID -[#F2994A]-> WG_ACCESS
+WG_BY_ID -[#27AE60]-> PERSISTENCE
+
+WG_LEAVE -[#2F80ED]-> SESSION
+WG_LEAVE -[#F2994A]-> WG_ACCESS
+WG_LEAVE -[#27AE60]-> PERSISTENCE
+
+WG_INVITES -[#2F80ED]-> SESSION
+WG_INVITES -[#F2994A]-> WG_ACCESS
+WG_INVITES -[#BB6BD9]-> VALIDATION
+WG_INVITES -[#27AE60]-> PERSISTENCE
+
+WG_EVENTS -[#2F80ED]-> SESSION
+WG_EVENTS -[#F2994A]-> WG_ACCESS
+WG_EVENTS -[#BB6BD9]-> VALIDATION
+WG_EVENTS -[#27AE60]-> PERSISTENCE
+
+legend right
+|= Farbe |= Bedeutung |
+|<#2F80ED> Blau   | Session Management |
+|<#F2994A> Orange | WG Access Control |
+|<#BB6BD9> Violett | Validation |
+|<#27AE60> Grün   | Persistence Layer |
+endlegend
+
+@enduml
