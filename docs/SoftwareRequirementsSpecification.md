@@ -130,11 +130,15 @@
 >
 > [Use Case 1: "WG anlegen"](./useCases/UC1_WG_anlegen.md)
 > 
+> ![Sequenzdiagramm 1](UMLs/Sequenzdiagramme/SD_wg_anlegen.png)
+> 
 > [Use Case 2: "Einladung erzeugen"](./useCases/UC2_Einladung_erzeugen.md)
+> 
+> ![Sequenzdiagramm 2](UMLs/Sequenzdiagramme/SD_invite.png)
 > 
 > [Use Case 3: "WG beitreten"](./useCases/UC3_WG_beitreten.md)
 > 
-> ![Sequenzdiagramm 1](UMLs/Sequenzdiagramme/SD1.2.png)
+> ![Sequenzdiagramm 3](UMLs/Sequenzdiagramme/SD_join_wg.png)
 > 
 > ![Aktivitätsdiagramm 1](./UMLs/Aktivitätsdiagramme/AD1_UC1_UC2_UC3.png)
 
