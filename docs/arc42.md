@@ -875,16 +875,8 @@ der online-Dokumentation (auf Englisch).
 
 </div>
 
-Wichtige, teure, große oder riskante Architektur- oder
-Entwurfsentscheidungen inklusive der jeweiligen Begründungen. Mit
-"Entscheidungen" meinen wir hier die Auswahl einer von mehreren
-Alternativen unter vorgegebenen Kriterien.
-
-Wägen Sie ab, inwiefern Sie Entscheidungen hier zentral beschreiben,
-oder wo eine lokale Beschreibung (z.B. in der Whitebox-Sicht von
-Bausteinen) sinnvoller ist. Vermeiden Sie Redundanz. Verweisen Sie evtl.
-auf Abschnitt 4, wo schon grundlegende strategische Entscheidungen
-beschrieben wurden.
+In diesem Kapitel werden wesentliche Architektur- und Entwurfsentscheidungen beschrieben, die für FlatMate prägend sind. Es handelt sich um Entscheidungen mit hoher Tragweite für Sicherheit, Wartbarkeit, Erweiterbarkeit und Umsetzbarkeit des Systems. 
+Die Auswahl orientiert sich an den Qualitätszielen aus Abschnitt 1.2, den Randbedingungen aus Abschnitt 2 sowie der im Projekt verfolgten MVP-Strategie.
 
 <div class="formalpara-title">
 
@@ -892,8 +884,7 @@ beschrieben wurden.
 
 </div>
 
-Stakeholder des Systems sollten wichtige Entscheidungen verstehen und
-nachvollziehen können.
+Die Architekturentscheidungen sollen für alle Stakeholder nachvollziehbar sein. Insbesondere das Entwicklerteam und die Projektleitung müssen verstehen, warum bestimmte Technologien, Strukturen und Sicherheitsmechanismen gewählt wurden und welche Konsequenzen sich daraus ergeben.
 
 <div class="formalpara-title">
 
@@ -901,26 +892,24 @@ nachvollziehen können.
 
 </div>
 
-Verschiedene Möglichkeiten:
-
-- ADR ([Documenting Architecture
-  Decisions](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions))
-  für jede wichtige Entscheidung
-
-- Liste oder Tabelle, nach Wichtigkeit und Tragweite der Entscheidungen
-  geordnet
-
-- ausführlicher in Form einzelner Unterkapitel je Entscheidung
+Die Entscheidungen werden in tabellarischer Form beschrieben. Für jede Entscheidung werden Problemstellung, gewählte Lösung, Alternativen, Begründung und Konsequenzen angegeben.
 
 <div class="formalpara-title">
 
-**Weiterführende Informationen**
+**Übersicht der Architekturentscheidungen**
 
 </div>
 
-Siehe [Architekturentscheidungen](https://docs.arc42.org/section-9/) in
-der arc42 Dokumentation (auf Englisch!). Dort finden Sie Links und
-Beispiele zum Thema ADR.
+| ID    | Entscheidung                                                                        | Problem / Fragestellung                                                                                                                | Gewählte Lösung                                                                     | Verwor­fene Alternativen                                                                                             | Begründung                                                                                                                                                                                                   | Konsequenzen                                                                                                                                                          |
+| ----- | ----------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| AD-01 | Modularer Monolith mit Next.js                                                      | Es musste entschieden werden, ob FlatMate als verteiltes System oder als kompakte Webanwendung umgesetzt wird.                         | FlatMate wird als schlanker modularer Monolith mit Next.js umgesetzt.               | Microservices, getrenntes Frontend und Backend, klassische Mehrprojekt-Architektur                                   | Diese Lösung passt zur Randbedingung „Web-App als Zielplattform“ und zum MVP-Fokus. Sie reduziert Komplexität, vereinfacht Setup und Deployment und unterstützt dennoch eine klare fachliche Strukturierung. | Geringere Betriebs- und Entwicklungs-komplexität; schnelle Entwicklung; spätere Skalierung in verteilte Architektur wäre möglich, aber nicht unmittelbar vorbereitet. |
+| AD-02 | TypeScript als zentrale Implementierungssprache                                     | Es musste entschieden werden, wie Typensicherheit und Wartbarkeit im Frontend und in der gemeinsamen Codebasis unterstützt werden.     | Einsatz von TypeScript in der Anwendung                                             | Reines JavaScript                                                                                                    | TypeScript verbessert Verständlichkeit, Fehlerfrüherkennung und Wartbarkeit und unterstützt die arbeitsteilige Entwicklung im Team.                                                                          | Höhere Konsistenz und bessere Wartbarkeit; zusätzlicher Aufwand für Typdefinitionen und Tooling.                                                                      |
+| AD-03 | Session-basierte Authentifizierung über HTTP-only Cookies                           | Für Login und Zugriffsschutz musste ein sicherer Mechanismus zur Benutzer-authentifizierung gewählt werden.                            | Serverseitige Sessions mit Cookie-basiertem Session-Token                           | Speicherung von Login-Informationen im localStorage, rein clientseitige Authentifizierung, ungeschützte Sessiondaten | Diese Lösung unterstützt das Qualitätsziel „Sicherheit und Schutz sensibler WG-Daten“. Sessions sind serverseitig kontrollierbar und das Token ist nicht direkt clientseitig auslesbar.                      | Höhere Sicherheit und bessere serverseitige Kontrolle; zusätzlicher Aufwand für Session-Verwaltung und Rechteprüfung.                                                 |
+| AD-04 | Serverseitige Rechteprüfung statt rein clientseitiger Kontrolle                     | Es musste entschieden werden, wo Rollen und Berechtigungen geprüft werden.                                                             | Autorisierung erfolgt serverseitig in den API-Endpunkten                            | Ausschließliche Prüfung im Frontend                                                                                  | Kritische Funktionen wie WG löschen, Invite erzeugen oder WG beitreten dürfen nicht nur UI-seitig geschützt sein. Die serverseitige Prüfung verhindert unbefugten Zugriff auch bei manipulierten Requests.   | Höhere Sicherheit und Konsistenz; zusätzliche Logik in den Route Handlern.                                                                                            |
+| AD-05 | Rollenmodell über WG-spezifische Membership                                         | Es musste entschieden werden, wie Benutzerrollen in einer WG modelliert werden.                                                        | Rollen und Mitgliedschaft werden WG-bezogen modelliert, nicht global pro Benutzer   | Ein globales Admin-Flag am Benutzer, einfache Mitgliederlisten ohne Rollenbezug                                      | Ein Benutzer kann in verschiedenen WGs unterschiedliche Rollen besitzen. Das ist fachlich korrekt und erleichtert die spätere Erweiterung um weitere Rechte und Regeln.                                      | Gute Erweiterbarkeit und fachliche Konsistenz; etwas höherer Modellierungs- und Implementierungsaufwand.                                                              |
+| AD-06 | Invite-System über kryptografisch nicht triviale Codes                              | Für den WG-Beitritt musste ein Mechanismus gewählt werden, der einfach nutzbar, aber nicht erratbar ist.                               | Einladung über serverseitig erzeugte Invite-Codes bzw. Links                        | Manuelles Hinzufügen von Nutzern durch Administratoren, triviale numerische Codes                                    | Diese Entscheidung erfüllt die Randbedingung „Kryptografisch sichere Invite-Codes“ und unterstützt gleichzeitig die Usability, weil Einladungen leicht geteilt werden können.                                | Guter Kompromiss aus Benutzbarkeit und Sicherheit; zusätzlicher Aufwand für Gültigkeit, Fehlerfälle und Join-Logik.                                                   |
+| AD-07 | Klare Trennung zwischen UI, API und Hilfslogik                                      | Es musste entschieden werden, wie die Codebasis strukturiert wird, damit Erweiterungen und Teamarbeit möglich bleiben.                 | Strukturierung in `app`, `components`, `lib`, `models`                              | Unstrukturierte oder rein seitenorientierte Codeorganisation                                                         | Die Trennung verbessert Wartbarkeit und Erweiterbarkeit und unterstützt parallele Entwicklung im Team. Fachliche und technische Verantwortung werden klar getrennt.                                          | Bessere Verständlichkeit und Erweiterbarkeit; etwas mehr Abstimmungsbedarf bei der Modulgrenze.                                                                       |
+| AD-08 | Gemeinsamer WG-Bereich mit eigenem Layout und AppShell                              | Für alle WG-internen Funktionen musste eine konsistente Navigations- und Interaktionsstruktur definiert werden.                        | Eigener WG-Bereich mit `layout.tsx`, `AppShell.tsx` und modularem Dashboard         | Isolierte Einzelansichten ohne gemeinsamen Shell-Bereich                                                             | Die Lösung verbessert Usability, Wiederverwendbarkeit und einheitliche Navigation innerhalb einer WG.                                                                                                        | Konsistente Benutzerführung; erleichtert spätere Erweiterungen um weitere WG-Module.                                                                                  |
 
 # Qualitätsanforderungen
 
@@ -930,13 +919,8 @@ Beispiele zum Thema ADR.
 
 </div>
 
-Dieser Abschnitt enthält alle relevanten Qualitätsanforderungen.
-
-Die wichtigsten davon haben Sie bereits in Abschnitt 1.2
-(Qualitätsziele) hervorgehoben, daher soll hier nur auf sie verwiesen
-werden. In diesem Abschnitt 10 sollten Sie auch Qualitätsanforderungen
-mit geringerer Bedeutung erfassen, deren Nichterfüllung keine großen
-Risiken birgt (die aber *nice-to-have* sein könnten).
+Dieser Abschnitt konkretisiert die relevanten Qualitätsanforderungen für FlatMate.
+Die wichtigsten Qualitätsziele wurden bereits in Abschnitt 1.2 beschrieben. Im Folgenden werden diese strukturiert zusammengefasst und durch konkrete Qualitätsszenarien operationalisiert.
 
 <div class="formalpara-title">
 
@@ -944,15 +928,9 @@ Risiken birgt (die aber *nice-to-have* sein könnten).
 
 </div>
 
-Weil Qualitätsanforderungen die Architekturentscheidungen oft maßgeblich
-beeinflussen, sollten Sie die für Ihre Stakeholder relevanten
-Qualitätsanforderungen kennen, möglichst konkret und operationalisiert.
-
-- Siehe [Qualitätsanforderungen](https://docs.arc42.org/section-10/) in
-  der online-Dokumentation (auf Englisch!).
-
-- Siehe auch das ausführliche [Q42 Qualitätsmodell auf
-  https://quality.arc42.org](https://quality.arc42.org).
+Qualitätsanforderungen beeinflussen zentrale Architekturentscheidungen unmittelbar.
+Für FlatMate sind insbesondere Sicherheit, Usability, Wartbarkeit, Erweiterbarkeit, Zuverlässigkeit und die korrekte Verarbeitung fachlicher Kernprozesse architekturrelevant.
+Die Szenarien machen diese Anforderungen überprüfbar und dienen zugleich als Akzeptanzkriterien.
 
 ## Übersicht der Qualitätsanforderungen
 
@@ -962,7 +940,8 @@ Qualitätsanforderungen kennen, möglichst konkret und operationalisiert.
 
 </div>
 
-Eine Übersicht oder Zusammenfassung der Qualitätsanforderungen.
+Dieser Abschnitt fasst die wichtigsten Qualitätsanforderungen von FlatMate in verdichteter Form zusammen.
+Ziel ist es, die Vielzahl möglicher nicht-funktionaler Anforderungen auf die architekturrelevanten Kernaspekte zu reduzieren.
 
 <div class="formalpara-title">
 
@@ -970,15 +949,10 @@ Eine Übersicht oder Zusammenfassung der Qualitätsanforderungen.
 
 </div>
 
-Oft stößt man auf Dutzende (oder sogar Hunderte) von detaillierten
-Qualitätsanforderungen für ein System. In diesem Abschnitt sollten Sie
-versuchen, sie zusammenzufassen, z. B. durch die Beschreibung von
-Kategorien oder Themen (wie z.B. von [ISO
-25010:2023](https://www.iso.org/obp/ui/#iso:std:iso-iec:25010:ed-2:v1:en)
-oder [Q42](https://quality.arc42.org) vorgeschlagen).
+Gerade bei interaktiven Webanwendungen ergeben sich schnell viele Detailanforderungen.
+Eine zusammenfassende Übersicht hilft dabei, die zentralen Qualitätsaspekte zu strukturieren und ihre Bedeutung für die Architektur sichtbar zu machen.
 
-Wenn diese Kurzbeschreibungen oder Zusammenfassungen bereits präzise,
-spezifisch und messbar sind, können Sie Abschnitt 10.2 auslassen.
+Für FlatMate sind vor allem solche Qualitätsanforderungen relevant, die das Nutzungserlebnis im Alltag, die Sicherheit sensibler WG-Daten, die Änderbarkeit der Codebasis und die Zuverlässigkeit kritischer Abläufe beeinflussen.
 
 <div class="formalpara-title">
 
@@ -986,14 +960,19 @@ spezifisch und messbar sind, können Sie Abschnitt 10.2 auslassen.
 
 </div>
 
-Verwenden Sie eine einfache Tabelle, in der jede Zeile eine Kategorie
-oder ein Thema und eine kurze Beschreibung der Qualitätsanforderung
-enthält. Alternativ können Sie auch eine Mindmap verwenden, um diese
-Qualitätsanforderungen zu strukturieren. In der Literatur (insb.
-\[Bass+21\]) ist die Idee eines *Quality Attribute Utility Tree* (auf
-Deutsch manchmal kurz als *Qualitätsbaum* bezeichnet) beschrieben
-worden, der den Oberbegriff „Qualität“ als Wurzel hat und eine
-baumartige Verfeinerung des Begriffs „Qualität“ verwendet.
+Die Qualitätsanforderungen werden in tabellarischer Form zusammengefasst.
+Jede Zeile beschreibt eine Qualitätskategorie und deren Bedeutung für das System.
+
+| Kategorie                        | Beschreibung                                                                                                                                                        |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Fachliche Korrektheit            | Fachliche Kernprozesse wie WG-Erstellung, WG-Beitritt, Rollenwechsel, Event-Verwaltung und später Budgetvorgänge müssen korrekt verarbeitet werden.                 |
+| Sicherheit                       | Accounts, Sessions, Rollen, Einladungen und WG-Daten müssen gegen unberechtigten Zugriff geschützt sein. Kritische Aktionen müssen serverseitig abgesichert werden. |
+| Usability                        | Die Anwendung soll für WG-Bewohner ohne zusätzliche Erklärung verständlich nutzbar sein und schnelles, klares Feedback geben.                                       |
+| Wartbarkeit                      | Die Architektur soll Änderungen an einzelnen Modulen ermöglichen, ohne andere Teile der Anwendung unnötig zu beeinträchtigen.                                       |
+| Erweiterbarkeit                  | Neue WG-Module und zusätzliche Funktionen sollen später mit geringem Eingriff in die bestehende Struktur ergänzt werden können.                                     |
+| Zuverlässigkeit                  | Fehler- und Ausnahmefälle, z. B. ungültige Einladungen oder Rollenwechsel beim Verlassen einer WG, sollen kontrolliert und konsistent behandelt werden.             |
+| Performance / Reaktionsverhalten | Typische Alltagsaktionen sollen ohne spürbare Verzögerung ausgeführt und in der Oberfläche zeitnah sichtbar werden.                                                 |
+
 
 ## Qualitätsszenarien
 
@@ -1003,24 +982,10 @@ baumartige Verfeinerung des Begriffs „Qualität“ verwendet.
 
 </div>
 
-Qualitätsszenarien konkretisieren Qualitätsanforderungen und ermöglichen
-es zu entscheiden, ob sie erfüllt sind (im Sinne von
-Akzeptanzkriterien). Stellen Sie sicher, dass Ihre Szenarien spezifisch
-und messbar sind.
+Qualitätsszenarien konkretisieren die Qualitätsanforderungen von FlatMate und machen sie überprüfbar.
+Sie beschreiben, wie das System in bestimmten Nutzungssituationen oder bei Änderungen reagieren soll und dienen damit als operative Akzeptanzkriterien.
 
-Zwei Arten von Szenarien finden wir besonders nützlich:
-
-- Nutzungsszenarien (auch bekannt als Anwendungs- oder
-  Anwendungsfallszenarien) beschreiben, wie das System zur Laufzeit auf
-  einen bestimmten Auslöser reagieren soll. Hierunter fallen auch
-  Szenarien zur Beschreibung von Effizienz oder Performance. Beispiel:
-  Das System beantwortet eine Benutzeranfrage innerhalb einer Sekunde.
-
-- Änderungsszenarien\_ beschreiben die gewünschte Wirkung einer Änderung
-  oder Erweiterung des Systems oder seiner unmittelbaren Umgebung.
-  Beispiel: Zusätzliche Funktionalität wird implementiert oder
-  Anforderungen an ein Qualitätsmerkmal ändern sich, und der Aufwand
-  oder die Dauer der Änderung wird gemessen.
+Die Szenarien sind so formuliert, dass sie einen klaren Bezug zu den Qualitätszielen des Systems haben und architektonisch relevante Anforderungen präzisieren.
 
 <div class="formalpara-title">
 
@@ -1028,55 +993,146 @@ Zwei Arten von Szenarien finden wir besonders nützlich:
 
 </div>
 
-Typische Informationen für detaillierte Szenarien sind die folgenden:
+Die Szenarien werden in Kurzform nach dem Q42-Modell beschrieben:
 
-In Kurzform (bevorzugt im Q42-Modell):
-
-- K**ontext/Hintergrund**: Um welche Art von System oder Komponente
-  handelt es sich, wie sieht die Umgebung oder Situation aus?
-
-- **Quelle/Stimulus**: Wer oder was initiiert oder löst ein Verhalten,
-  eine Reaktion oder eine Aktion aus.
-
-- **Metrik/Akzeptanzkriterien**: Eine Reaktion einschließlich einer
-  *Maßnahme* oder *Metrik*
-
-Die Langform von Szenarien (die von der SEI und \[Bass+21\] bevorzugt
-wird) ist detaillierter und enthält die folgenden Informationen:
-
-- **Szenario-ID**: Ein eindeutiger Bezeichner für das Szenario.
-
-- **Szenario-Name**: Ein kurzer, beschreibender Name für das Szenario.
-
-- **Quelle**: Die Entität (Benutzer, System oder Ereignis), die das
-  Szenario auslöst.
-
-- **Stimulus**: Das auslösende Ereignis oder die Bedingung, auf die das
-  System reagieren muss.
-
-- **Umgebung**: Der betriebliche Kontext oder die Bedingungen, unter
-  denen das System den Stimulus erlebt.
-
-- **Artefakt**: Die Bausteine oder anderen Elemente des Systems, die von
-  dem Stimulus betroffen sind.
-
-- **Reaktion**: Das Ergebnis oder Verhalten, das das System als Reaktion
-  auf den Stimulus zeigt.
-
-- **Antwortmaß**: Das Kriterium oder die Metrik, nach der die Antwort
-  des Systems bewertet wird.
+- **Kontext/Hintergrund:** Um welche Art von System oder Komponente handelt es sich, wie sieht die Umgebung oder Situation aus?
+- **Quelle/Stimulus:** Wer oder was initiiert oder löst ein Verhalten, eine Reaktion oder eine Aktion aus?
+- **Metrik/Akzeptanzkriterien:** Welche Reaktion wird erwartet und anhand welcher Maßnahme oder Metrik wird sie bewertet?
 
 <div class="formalpara-title">
 
-**Beispiele**
+**QS-01 – Konto- und WG-Erstellung in kurzer Zeit**
 
 </div>
 
-Ausführliche Beispiele für Qualitätsanforderungen finden Sie auf [der
-Website zum Qualitätsmodell Q42](https://quality.arc42.org).
+**Kontext/Hintergrund:**
+FlatMate ist eine browserbasierte Webanwendung für den WG-Alltag. Neue Nutzer sollen schnell starten können, ohne einen komplexen Einrichtungsprozess durchlaufen zu müssen.
 
-- Len Bass, Paul Clements, Rick Kazman: „Software Architecture in
-  Practice“, 4. Auflage, Addison-Wesley, 2021.
+**Quelle/Stimulus:**
+Ein neuer Benutzer registriert sich und erstellt anschließend seine erste WG.
+
+**Metrik/Akzeptanzkriterien:**
+Die Erstellung eines Accounts und einer ersten WG soll für einen durchschnittlichen Nutzer in weniger als 5 Minuten möglich sein.
+
+<div class="formalpara-title">
+
+**QS-02 – Verständlicher Invite-Flow ohne Anleitung**
+
+</div>
+
+**Kontext/Hintergrund:**
+Einladungen sind ein zentraler Mechanismus, um neue Mitglieder in eine bestehende WG aufzunehmen.
+
+**Quelle/Stimulus:**
+Ein Benutzer öffnet einen Invite-Link im Browser.
+
+**Metrik/Akzeptanzkriterien:**
+Der Invite-Flow soll ohne zusätzliche Anleitung verständlich sein. Der Benutzer soll klar erkennen können, ob er sich anmelden, registrieren oder direkt beitreten kann.
+
+<div class="formalpara-title">
+
+**QS-03 – Sofortige Sichtbarkeit der eigenen WGs nach dem Login**
+
+</div>
+
+**Kontext/Hintergrund:**
+Nach erfolgreicher Anmeldung soll der Benutzer direkt in seinen Arbeitskontext gelangen.
+
+**Quelle/Stimulus:**
+Ein bestehender Benutzer loggt sich erfolgreich ein.
+
+**Metrik/Akzeptanzkriterien:**
+Der Benutzer sieht unmittelbar nach dem Login seine WGs in der Benutzerübersicht, ohne zusätzliche Navigation.
+
+<div class="formalpara-title">
+
+**QS-04 – Schutz vor unberechtigtem Zugriff auf WG-Daten**
+
+</div>
+
+**Kontext/Hintergrund:**
+WG-Daten enthalten personenbezogene und organisationsbezogene Informationen, z. B. Mitglieder, Einladungen und Events.
+
+**Quelle/Stimulus:**
+Ein nicht eingeloggter oder nicht berechtigter Benutzer versucht, eine geschützte WG-Seite oder einen geschützten WG-Endpunkt aufzurufen.
+
+**Metrik/Akzeptanzkriterien:**
+Nicht eingeloggte Benutzer dürfen keine WG-Daten sehen. Bei unberechtigtem Zugriff wird der Zugriff verweigert und es werden keine geschützten Daten ausgeliefert.
+
+<div class="formalpara-title">
+
+**QS-05 – Schutz administrativer Aktionen**
+
+</div>
+
+**Kontext/Hintergrund:**
+Bestimmte Aktionen beeinflussen die Struktur einer WG erheblich und dürfen daher nicht von allen Benutzern ausgeführt werden.
+
+**Quelle/Stimulus:**
+Ein Benutzer versucht, eine WG zu löschen oder Invite-Links zu erzeugen.
+
+**Metrik/Akzeptanzkriterien:**
+Nur der administrative Besitzer bzw. ein entsprechend berechtigter Administrator darf eine WG löschen oder Invite-Links erzeugen. Die Berechtigungsprüfung erfolgt serverseitig.
+
+<div class="formalpara-title">
+
+**QS-06 – Zuverlässige Rollenübergabe beim Verlassen des letzten Admins**
+
+</div>
+
+**Kontext/Hintergrund:**
+Eine WG muss auch dann konsistent administrierbar bleiben, wenn der letzte Administrator die WG verlässt.
+
+**Quelle/Stimulus:**
+Der letzte Admin verlässt eine WG, in der noch weitere Mitglieder vorhanden sind.
+
+**Metrik/Akzeptanzkriterien:**
+Die Admin-Rolle wird automatisch an den Benutzer übertragen, der sich am letzten hinzugefügt wurde. Dadurch bleibt die WG administrierbar.
+
+<div class="formalpara-title">
+
+**QS-07 – Einfache Ergänzbarkeit neuer WG-Module**
+
+</div>
+
+**Kontext/Hintergrund:**
+FlatMate soll über den MVP hinaus um weitere Funktionen erweitert werden können.
+
+**Quelle/Stimulus:**
+Das Entwicklerteam ergänzt ein neues WG-Modul.
+
+**Metrik/Akzeptanzkriterien:**
+Ein neues Modul soll mit geringem Änderungsaufwand außerhalb des betroffenen Fachbereichs integriert werden können.
+
+<div class="formalpara-title">
+
+**QS-08 – Änderbarkeit der Backend-Logik ohne vollständigen UI-Umbau**
+
+</div>
+
+**Kontext/Hintergrund:**
+Im Projektverlauf können fachliche Regeln, Rollenlogik oder Datenverarbeitung angepasst werden müssen.
+
+**Quelle/Stimulus:**
+Eine bestehende Backend-Regel wird geändert oder erweitert.
+
+**Metrik/Akzeptanzkriterien:**
+Die Backend-Logik soll lokal änderbar sein, ohne dass die gesamte Benutzeroberfläche neu implementiert werden muss.
+
+<div class="formalpara-title">
+
+**QS-09 – Zeitnahes Feedback bei typischen Kerninteraktionen**
+
+</div>
+
+**Kontext/Hintergrund:**
+FlatMate wird im Alltag genutzt und muss daher schnell und reaktionsfreudig wirken.
+
+**Quelle/Stimulus:**
+Ein Benutzer führt eine typische Kernaktion aus, z. B. Login, WG laden, Invite beitreten oder Event erstellen.
+
+**Metrik/Akzeptanzkriterien:**
+Typische Kerninteraktionen sollen im Normalfall innerhalb von etwa 1 bis 2 Sekunden sichtbar verarbeitet werden.
 
 # Risiken und technische Schulden
 
