@@ -345,7 +345,7 @@ aufgebaut:
 
 ### Übersichtsdiagramm
 
-![Ebene 1 – Whitebox Gesamtsystem](docs/UMLs/Komponentendiagramme/Ebene_1.png)
+![Ebene 1 – Whitebox Gesamtsystem](./UMLs/Komponentendiagramme/Ebene_1.png)
 
 ### Begründung
 
@@ -385,7 +385,7 @@ enthält.
 
 ### Übersichtsdiagramm
 
-![Ebene 2 – Whitebox app](docs/UMLs/Komponentendiagramme/Ebene_2.png)
+![Ebene 2 – Whitebox app](./UMLs/Komponentendiagramme/Ebene_2.png)
 
 ### Begründung
 
@@ -427,7 +427,7 @@ WG-Events.
 
 ### Übersichtsdiagramm
 
-![Ebene 3 – Whitebox app/api/wgs](docs/UMLs/Komponentendiagramme/Ebene_3.png)
+![Ebene 3 – Whitebox app/api/wgs](./UMLs/Komponentendiagramme/Ebene_3.png)
 
 ### Begründung
 
@@ -516,7 +516,7 @@ Ergänzend wird jeder Ablauf durch kurze textuelle Erläuterungen präzisiert.
 
 ## Registrierung
 
-![Sequenzdiagramm Registrierung](docs/UMLs/Sequenzdiagramme/SD_register.png)
+![Sequenzdiagramm Registrierung](./UMLs/Sequenzdiagramme/SD_register.png)
 
 ### Beschreibung
 
@@ -537,7 +537,7 @@ Dieses Szenario beschreibt die Registrierung eines neuen Benutzers
 
 ## Login
 
-![Sequenzdiagramm Login](docs/UMLs/Sequenzdiagramme/SD_login.png)
+![Sequenzdiagramm Login](./UMLs/Sequenzdiagramme/SD_login.png)
 
 ### Beschreibung
 
@@ -557,7 +557,7 @@ Dieses Szenario beschreibt die Anmeldung eines bestehenden Benutzers.
 
 ## WG anlegen
 
-![Sequenzdiagramm WG anlegen](docs/UMLs/Sequenzdiagramme/SD_wg_anlegen.png)
+![Sequenzdiagramm WG anlegen](./UMLs/Sequenzdiagramme/SD_wg_anlegen.png)
 
 ### Beschreibung
 
@@ -580,7 +580,7 @@ eingeloggten Benutzer.
 
 ## Einladung erzeugen
 
-![Sequenzdiagramm Einladung erzeugen](docs/UMLs/Sequenzdiagramme/SD_invite.png)
+![Sequenzdiagramm Einladung erzeugen](./UMLs/Sequenzdiagramme/SD_invite.png)
 
 ### Beschreibung
 
@@ -601,7 +601,7 @@ bestehende WG.
 
 ## WG beitreten
 
-![Sequenzdiagramm WG beitreten](docs/UMLs/Sequenzdiagramme/SD_join_wg.png)
+![Sequenzdiagramm WG beitreten](./UMLs/Sequenzdiagramme/SD_join_wg.png)
 
 ### Beschreibung
 
@@ -627,7 +627,7 @@ einen Einladungslink.
 
 ## WG verlassen
 
-![Sequenzdiagramm WG verlassen](docs/UMLs/Sequenzdiagramme/SD_leave_wg.png)
+![Sequenzdiagramm WG verlassen](./UMLs/Sequenzdiagramme/SD_leave_wg.png)
 
 ### Beschreibung
 
