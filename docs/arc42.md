@@ -1,25 +1,13 @@
----
-date: Juli 2025
-title: "![arc42](images/arc42-logo.png) Template"
----
-
-# 
-
-**Über arc42**
-
-arc42, das Template zur Dokumentation von Software- und
-Systemarchitekturen.
-
-Template Version 9.0-DE. (basiert auf der AsciiDoc Version), Juli 2025
-
-Created, maintained and © by Dr. Peter Hruschka, Dr. Gernot Starke and
-contributors. Siehe <https://arc42.org>.
-
-> [!NOTE]
-> Diese Version des Templates enthält Hilfen und Erläuterungen. Sie
-> dient der Einarbeitung in arc42 sowie dem Verständnis der Konzepte.
-> Für die Dokumentation eigener System verwenden Sie besser die *plain*
-> Version.
+## Navigation
+> * [Qualitätsziele](#qualitätsziele)
+> * [Stakeholder](#stakeholder)
+> * [Randbedingen](#randbedingungen)
+> * [Bausteinsicht](#bausteinsicht)
+> * [Laufzeitsicht](#laufzeitsicht)
+> * [Verteilungssicht](#verteilungssicht)
+> * [Querschnittliche Konzepte](#querschnittliche-konzepte)
+> * [Architekturentscheidungen](#architekturentscheidungen)
+> * [Qualitätsanforderungen](#qualitätsanforderungen)
 
 # Einführung und Ziele
 
@@ -75,147 +63,56 @@ entsprechenden Anforderungsdokumente enthalten.
 Halten Sie diese Auszüge so knapp wie möglich und wägen Sie Lesbarkeit
 und Redundanzfreiheit gegeneinander ab.
 
-<div class="formalpara-title">
 
-**Weiterführende Informationen**
 
-</div>
+# Qualitätsziele
 
-Siehe [Anforderungen und Ziele](https://docs.arc42.org/section-1/) in
-der online-Dokumentation (auf Englisch!).
+Die folgenden Qualitätsziele fassen jene nicht-funktionalen Anforderungen zusammen, die aus architektonischer Sicht für FlatMate besonders relevant sind.  
+Sie priorisieren die Qualitätsaspekte, die die wesentlichen Architekturentscheidungen des Systems beeinflussen.  
+Die Ziele sind möglichst konkret formuliert und durch Szenarien operationalisiert, damit ihre Bedeutung für Entwurf, Implementierung und Bewertung der Architektur nachvollziehbar bleibt.
 
-## Qualitätsziele
+| Priorität | Qualitätsziel | Bedeutung für die Architektur | Konkretes Szenario / Operationalisierung |
+|----------:|---------------|-------------------------------|------------------------------------------|
+| 1 | Korrekte und schnelle Verarbeitung fachlicher Kernprozesse | Das System muss zentrale WG-Prozesse, insbesondere Budgetvorgänge, korrekt und ohne spürbare Verzögerung verarbeiten. Dies beeinflusst insbesondere Datenmodell, Transaktionslogik und Datenbankwahl. | Ein Bewohner speichert eine neue Ausgabe. Das System speichert die Transaktion korrekt, berechnet die Anteile bzw. Schulden neu und aktualisiert die Übersicht in unter 1–2 Sekunden. |
+| 2 | Sicherheit und Schutz sensibler WG-Daten | Da FlatMate mit Accounts, Einladungslinks bzw. -codes, Rollen und personenbezogenen Daten arbeitet, muss die Architektur sichere Authentifizierung, geschützte Sessions und serverseitige Rechteprüfungen gewährleisten. | Ein Nutzer meldet sich an oder tritt einer WG per Invite bei. Die Session darf nicht clientseitig auslesbar sein, Rollen müssen serverseitig geprüft werden, und ungültige oder abgelaufene Einladungen dürfen keinen Zugriff erzeugen. |
+| 3 | Hohe Usability und unmittelbares Feedback | Die Web-App richtet sich an Alltagsnutzer in einer WG. Viele Kerninteraktionen müssen ohne Reload, verständlich und unmittelbar wirken. Dies beeinflusst UI-Design, Validierungslogik und Reaktionsverhalten der Anwendung. | Bei fehlerhafter Registrierung erhält der Nutzer in unter 0,5 Sekunden eine klare Fehlermeldung, ohne dass Eingaben verloren gehen. Beim Hinzufügen eines Artikels in der Einkaufsliste ist der neue Eintrag in unter 0,5 Sekunden sichtbar. |
+| 4 | Wartbarkeit und Erweiterbarkeit des Systems | FlatMate besitzt bereits viele geplante Funktionen über den MVP hinaus. Die Architektur muss deshalb neue Module integrierbar machen, ohne den bestehenden Kern stark zu beeinträchtigen. Dies beeinflusst insbesondere die Modularisierung und die Struktur der Codebasis. | Ein neues Feature soll in die Codebasis integriert werden können, ohne bestehende Module wesentlich umzubauen; Ziel ist eine Erweiterung mit minimalen Änderungen außerhalb des betroffenen Fachmoduls. |
+| 5 | Verfügbarkeit und zuverlässiger Zugriff | Als Alltagswerkzeug für eine WG muss die Anwendung im normalen Betrieb erreichbar und stabil sein. Dieses Ziel beeinflusst Hosting, Error Handling, Betriebskonzept und Backup-Strategie. | Ein WG-Mitglied öffnet die Web-App. Frontend, Backend und Datenbank müssen im Normalbetrieb verfügbar sein; angestrebtes Ziel ist eine Verfügbarkeit von 99 %. |
 
-<div class="formalpara-title">
+# Stakeholder
 
-**Inhalt**
+Die nachfolgende Tabelle gibt einen Überblick über die wichtigsten Stakeholder von FlatMate.  
+Sie zeigt, welche Personen, Rollen oder Nutzergruppen ein berechtigtes Interesse an der Architektur und ihrer Dokumentation haben und welche Erwartungen sie damit verbinden.  
+Die Stakeholder dienen als Orientierung dafür, welche Aspekte der Architektur besonders verständlich, nachvollziehbar und dokumentiert sein müssen.
 
-</div>
-
-Die Top-3 bis Top-5 der Qualitätsanforderungen für die Architektur,
-deren Erfüllung oder Einhaltung den maßgeblichen Stakeholdern besonders
-wichtig sind. Gemeint sind hier wirklich Qualitätsziele, die nicht
-unbedingt mit den Zielen des Projekts übereinstimmen. Beachten Sie den
-Unterschied.
-
-Hier ein Überblick möglicher Themen (basierend auf dem ISO 25010
-Standard):
-
-<figure>
-<img src="images/01_2_iso-25010-topics-DE.drawio.png"
-alt="Kategorien von Qualitätsanforderungen" />
-</figure>
-
-<div class="formalpara-title">
-
-**Motivation**
-
-</div>
-
-Weil Qualitätsziele grundlegende Architekturentscheidungen oft
-maßgeblich beeinflussen, sollten Sie die für Ihre Stakeholder relevanten
-Qualitätsziele kennen, möglichst konkret und operationalisierbar.
-
-<div class="formalpara-title">
-
-**Form**
-
-</div>
-
-Tabellarische Darstellung der Qualitätsziele mit möglichst konkreten
-Szenarien, geordnet nach Prioritäten.
-
-## Stakeholder
-
-<div class="formalpara-title">
-
-**Inhalt**
-
-</div>
-
-Expliziter Überblick über die Stakeholder des Systems – über alle
-Personen, Rollen oder Organisationen –, die
-
-- die Architektur kennen sollten oder
-
-- von der Architektur überzeugt werden müssen,
-
-- mit der Architektur oder dem Code arbeiten (z.B. Schnittstellen
-  nutzen),
-
-- die Dokumentation der Architektur für ihre eigene Arbeit benötigen,
-
-- Entscheidungen über das System und dessen Entwicklung treffen.
-
-<div class="formalpara-title">
-
-**Motivation**
-
-</div>
-
-Sie sollten die Projektbeteiligten und -betroffenen kennen, sonst
-erleben Sie später im Entwicklungsprozess Überraschungen. Diese
-Stakeholder bestimmen unter anderem Umfang und Detaillierungsgrad der
-von Ihnen zu leistenden Arbeit und Ergebnisse.
-
-<div class="formalpara-title">
-
-**Form**
-
-</div>
-
-Tabelle mit Rollen- oder Personennamen, sowie deren Erwartungshaltung
-bezüglich der Architektur und deren Dokumentation.
-
-| Rolle         | Kontakt         | Erwartungshaltung |
-|---------------|-----------------|-------------------|
-| *\<Rolle-1\>* | *\<Kontakt-1\>* | *\<Erwartung-1\>* |
-| *\<Rolle-2\>* | *\<Kontakt-2\>* | *\<Erwartung-2\>* |
+| Rolle / Stakeholder | Kontakt | Erwartungshaltung bezüglich Architektur und Dokumentation |
+|---------------------|---------|-----------------------------------------------------------|
+| Projektleitung / Product-Verantwortliche im Team | Leon | Erwartet eine nachvollziehbare, begründete Architektur, die im Projektkontext realistisch umsetzbar ist, das MVP unterstützt und im Bericht bzw. in Präsentationen sauber argumentiert werden kann. |
+| Entwicklerteam | Denis, Yaroslav, Mykyta | Benötigt eine klar strukturierte, wartbare Architektur mit verständlicher Modulaufteilung, dokumentierten Entscheidungen und eindeutigen technischen Leitplanken, damit Features parallel entwickelt werden können. |
+| Endnutzer: WG-Bewohner | spätere Nutzergruppe | Erwarten eine einfache Bedienung, transparente Verwaltung von Ausgaben, Aufgaben, Terminen und Einladungen sowie ein zuverlässiges und verständliches Verhalten der Anwendung. |
+| WG-Admins / Organisatoren | spätere Nutzergruppe | Erwarten Rechteverwaltung, sichere Einladungsmechanismen, Kontrolle über Mitglieder und eine verlässliche Durchsetzung von Rollen und Berechtigungen. |
+| Tester / Reviewende im Team | Denis, Yaroslav, Mykyta, Kim, Leon | Benötigen klare Anforderungen, nachvollziehbare Use Cases, konsistente Fehlerfälle und dokumentierte Qualitätsziele, damit Verhalten und Architektur überprüfbar sind. |
 
 # Randbedingungen
 
-<div class="formalpara-title">
+Die folgenden Randbedingungen beschreiben wesentliche technische, organisatorische, fachliche und konventionelle Vorgaben, die den Entwurf und die Umsetzung der Architektur von FlatMate beeinflussen.  
+Sie schränken den Lösungsraum bewusst ein und bilden damit einen verbindlichen Rahmen für Architektur- und Implementierungsentscheidungen.  
+Die Berücksichtigung dieser Randbedingungen ist notwendig, um eine realistische und im Projektkontext tragfähige Architektur zu entwickeln.
 
-**Inhalt**
+| Kategorie | Randbedingung | Erläuterung |
+|-----------|---------------|-------------|
+| Technisch | Web-App als Zielplattform | FlatMate wird als browserbasierte Webanwendung entwickelt, nicht als native Mobile- oder Desktop-Anwendung. Dadurch ergeben sich Anforderungen an Responsive Design und Browser-Kompatibilität. |
+| Technisch | Schlanker Monolith mit Next.js | Die Architektur ist nicht frei offen, sondern bereits auf einen modularen Monolithen mit Next.js festgelegt. Das schließt Microservices für den aktuellen Projektkontext explizit aus. |
+| Technisch | TypeScript im Frontend | Die Frontend-Entwicklung soll in TypeScript erfolgen. Das beeinflusst Tooling, Build-Prozess und Codekonventionen. |
+| Technisch | Browser-/Gerätesupport | Die Anwendung soll auf aktuellen Versionen von Chrome, Edge, Firefox, Safari sowie mobilen Browsern funktionieren. Daraus folgen Einschränkungen für UI- und API-Verhalten. |
+| Organisatorisch | MVP-Fokus | Im Projektumfang stehen zunächst WG erstellen/beitreten, Ausgaben erfassen und aufteilen sowie Salden/Ausgleich im Vordergrund. Viele weitere Features sind bewusst nachrangig oder außerhalb des MVP. |
+| Organisatorisch | Scrum-Setup mit Sprints und Teamarbeit | Der Entwicklungsprozess ist durch Sprintarbeit, Meetings und Aufgabenaufteilung geprägt. Die Architektur muss daher arbeitsteilige Entwicklung unterstützen. |
+| Sicherheits-/fachlich | Minimierung personenbezogener Daten | Es sollen nur notwendige personenbezogene Daten wie Name, E-Mail und WG-Bezug verarbeitet werden. Das beeinflusst Datenmodell und Sicherheitsmaßnahmen. |
+| Sicherheits-/fachlich | Kryptografisch sichere Invite-Codes | Einladungsmechanismen dürfen nicht trivial erratbar sein; daraus ergibt sich eine klare Vorgabe an Erzeugung und Verwaltung von Einladungen. |
+| Konvention | Keine dotenv-Dateien im Repository | Konfigurationsdaten sollen nicht direkt im Repository abgelegt werden; stattdessen ist eine `.env.example` vorgesehen. Das beeinflusst Build, Setup und Dokumentation. |
+| Konvention | Einheitliches Fehlerformat | API-Fehler sollen einer einheitlichen Struktur `{ code, message, details }` folgen. Das ist eine technische und dokumentarische Vorgabe für Backend und Schnittstellen. |
 
-</div>
 
-Randbedingungen und Vorgaben, die ihre Freiheiten bezüglich Entwurf,
-Implementierung oder Ihres Entwicklungsprozesses einschränken. Diese
-Randbedingungen gelten manchmal organisations- oder firmenweit über die
-Grenzen einzelner Systeme hinweg.
-
-<div class="formalpara-title">
-
-**Motivation**
-
-</div>
-
-Für eine tragfähige Architektur sollten Sie genau wissen, wo Ihre
-Freiheitsgrade bezüglich der Entwurfsentscheidungen liegen und wo Sie
-Randbedingungen beachten müssen. Sie können Randbedingungen vielleicht
-noch verhandeln, zunächst sind sie aber da.
-
-<div class="formalpara-title">
-
-**Form**
-
-</div>
-
-Einfache Tabellen der Randbedingungen mit Erläuterungen. Bei Bedarf
-unterscheiden Sie technische, organisatorische und politische
-Randbedingungen oder übergreifende Konventionen (beispielsweise
-Programmier- oder Versionierungsrichtlinien, Dokumentations- oder
-Namenskonvention).
-
-<div class="formalpara-title">
-
-**Weiterführende Informationen**
-
-</div>
-
-Siehe [Randbedingungen](https://docs.arc42.org/section-2/) in der
-online-Dokumentation (auf Englisch!).
 
 # Kontextabgrenzung
 
@@ -414,8 +311,10 @@ Bibliotheken, Frameworks, Schichten, Partitionen, Tiers, Funktionen,
 Makros, Operationen, Datenstrukturen, …​) sowie deren Abhängigkeiten
 (Beziehungen, Assoziationen, …​)
 
-Diese Sicht sollte in jeder Architekturdokumentation vorhanden sein. In
-der Analogie zum Hausbau bildet die Bausteinsicht den *Grundrissplan*.
+> * [Ebene 1](#ebene-1)
+> * [Ebene 2](#ebene-2)
+> * [Ebene 3](#ebene-3)
+
 
 <div class="formalpara-title">
 
@@ -423,11 +322,10 @@ der Analogie zum Hausbau bildet die Bausteinsicht den *Grundrissplan*.
 
 </div>
 
-Behalten Sie den Überblick über den Quellcode, indem Sie die statische
-Struktur des Systems durch Abstraktion verständlich machen.
-
-Damit ermöglichen Sie Kommunikation auf abstrakterer Ebene, ohne zu
-viele Implementierungsdetails offenlegen zu müssen.
+Die Anwendung besteht aus mehreren funktionalen und technischen Teilbereichen. Ohne geeignete Strukturierung würde der Quellcode schnell unübersichtlich werden. Die Bausteinsicht hilft dabei,
+* die Zuständigkeiten der einzelnen Module zu verstehen,
+* die Trennung zwischen UI, API, Geschäftslogik und Hilfsbausteinen nachvollziehbar zu machen,
+* die Erweiterbarkeit und Wartbarkeit des Systems sicherzustellen.
 
 <div class="formalpara-title">
 
@@ -435,184 +333,138 @@ viele Implementierungsdetails offenlegen zu müssen.
 
 </div>
 
-Die Bausteinsicht ist eine hierarchische Sammlung von Blackboxen und
-Whiteboxen (siehe Abbildung unten) und deren Beschreibungen.
+Die Bausteinsicht ist als hierarchische Sammlung von Whiteboxen
+aufgebaut:
 
-<figure>
-<img src="images/05_building_blocks-DE.png"
-alt="Hierarchie in der Bausteinsicht" />
-</figure>
+- **Ebene 1** beschreibt das Gesamtsystem.
+- **Ebene 2** beschreibt den inneren Aufbau des Bausteins `app`.
+- **Ebene 3** beschreibt den inneren Aufbau des Bausteins `app/api/wgs`.
 
-**Ebene 1** ist die Whitebox-Beschreibung des Gesamtsystems, zusammen
-mit Blackbox-Beschreibungen der darin enthaltenen Bausteine.
 
-**Ebene 2** zoomt in einige Bausteine der Ebene 1 hinein. Sie enthält
-somit die Whitebox-Beschreibungen ausgewählter Bausteine der Ebene 1,
-jeweils zusammen mit Blackbox-Beschreibungen darin enthaltener
-Bausteine.
+## Ebene 1
 
-**Ebene 3** zoomt in einige Bausteine der Ebene 2 hinein, usw.
+### Übersichtsdiagramm
 
-<div class="formalpara-title">
+![Ebene 1 – Whitebox Gesamtsystem](./UMLs/Komponentendiagramme/Ebene_1.png)
 
-**Weiterführende Informationen**
+### Begründung
 
-</div>
+Auf oberster Ebene wird FlatMate in kleinere Bausteine zerlegt. Dadurch wird die grundlegende Architektur des Systems
+sichtbar. Die Zerlegung orientiert sich an den wesentlichen Verantwortungsbereichen
+des Projekts:
 
-Siehe [Bausteinsicht](https://docs.arc42.org/section-5/) in der
-online-Dokumentation (auf Englisch!).
+### Enthaltene Bausteine
 
-## Whitebox Gesamtsystem
+| **Name** | **Verantwortung** |
+|----------|-------------------|
+| `app` | Enthält die sichtbaren Seiten der Anwendung, Layouts, WG-Bereiche sowie die serverseitigen API-Route-Handler |
+| `components` | Beinhaltet wiederverwendbare UI-Komponenten und Icons |
+| `lib` | Stellt technische Hilfsbausteine wie Authentifizierung, Zugriffsprüfung, Validierung und Infrastrukturzugriff bereit |
+| `models` | Enthält fachliche Datenmodelle des Systems |
+| `public` | Beinhaltet statische Dateien und Assets, die von der Präsentationsschicht genutzt werden |
 
-An dieser Stelle beschreiben Sie die Zerlegung des Gesamtsystems anhand
-des nachfolgenden Whitebox-Templates. Dieses enthält:
+### Wichtige Schnittstellen
 
-- Ein Übersichtsdiagramm
+Die wichtigste Abhängigkeitsrichtung auf dieser Ebene verläuft von
+`app` zu den unterstützenden Bausteinen:
 
-- die Begründung dieser Zerlegung
+- `app` nutzt `components` für wiederverwendbare UI-Bausteine,
+- `app` nutzt `lib` für Authentifizierung, Validierung und technische
+  Hilfslogik,
+- `app` nutzt `models` für fachliche Datenstrukturen,
+- `app` nutzt `public` für statische Ressourcen.
 
-- Blackbox-Beschreibungen der hier enthaltenen Bausteine. Dafür haben
-  Sie verschiedene Optionen:
-
-  - in *einer* Tabelle, gibt einen kurzen und pragmatischen Überblick
-    über die enthaltenen Bausteine sowie deren Schnittstellen.
-
-  - als Liste von Blackbox-Beschreibungen der Bausteine, gemäß dem
-    Blackbox-Template (siehe unten). Diese Liste können Sie, je nach
-    Werkzeug, etwa in Form von Unterkapiteln (Text), Unter-Seiten (Wiki)
-    oder geschachtelten Elementen (Modellierungswerkzeug) darstellen.
-
-- (optional:) wichtige Schnittstellen, die nicht bereits im
-  Blackbox-Template eines der Bausteine erläutert werden, aber für das
-  Verständnis der Whitebox von zentraler Bedeutung sind. Aufgrund der
-  vielfältigen Möglichkeiten oder Ausprägungen von Schnittstellen geben
-  wir hierzu kein weiteres Template vor. Im schlimmsten Fall müssen Sie
-  Syntax, Semantik, Protokolle, Fehlerverhalten, Restriktionen,
-  Versionen, Qualitätseigenschaften, notwendige Kompatibilitäten und
-  vieles mehr spezifizieren oder beschreiben. Im besten Fall kommen Sie
-  mit Beispielen oder einfachen Signaturen zurecht.
-
-***\<Übersichtsdiagramm\>***
-
-Begründung  
-*\<Erläuternder Text\>*
-
-Enthaltene Bausteine  
-*\<Beschreibung der enthaltenen Bausteine (Blackboxen)\>*
-
-Wichtige Schnittstellen  
-*\<Beschreibung wichtiger Schnittstellen\>*
-
-Hier folgen jetzt Erläuterungen zu Blackboxen der Ebene 1.
-
-Falls Sie die tabellarische Beschreibung wählen, so werden Blackboxen
-darin nur mit Name und Verantwortung nach folgendem Muster beschrieben:
-
-| **Name**         | **Verantwortung** |
-|------------------|-------------------|
-| *\<Blackbox 1\>* |  *\<Text\>*       |
-| *\<Blackbox 2\>* |  *\<Text\>*       |
-
-Falls Sie die ausführliche Liste von Blackbox-Beschreibungen wählen,
-beschreiben Sie jede wichtige Blackbox in einem eigenen
-Blackbox-Template. Dessen Überschrift ist jeweils der Namen dieser
-Blackbox.
-
-### \<Name Blackbox 1\>
-
-Beschreiben Sie die \<Blackbox 1\> anhand des folgenden
-Blackbox-Templates:
-
-- Zweck/Verantwortung
-
-- Schnittstelle(n), sofern diese nicht als eigenständige Beschreibungen
-  herausgezogen sind. Hierzu gehören eventuell auch Qualitäts- und
-  Leistungsmerkmale dieser Schnittstelle.
-
-- (Optional) Qualitäts-/Leistungsmerkmale der Blackbox, beispielsweise
-  Verfügbarkeit, Laufzeitverhalten o. Ä.
-
-- (Optional) Ablageort/Datei(en)
-
-- (Optional) Erfüllte Anforderungen, falls Sie Traceability zu
-  Anforderungen benötigen.
-
-- (Optional) Offene Punkte/Probleme/Risiken
-
-*\<Zweck/Verantwortung\>*
-
-*\<Schnittstelle(n)\>*
-
-*\<(Optional) Qualitäts-/Leistungsmerkmale\>*
-
-*\<(Optional) Ablageort/Datei(en)\>*
-
-*\<(Optional) Erfüllte Anforderungen\>*
-
-*\<(optional) Offene Punkte/Probleme/Risiken\>*
-
-### \<Name Blackbox 2\>
-
-*\<Blackbox-Template\>*
-
-### \<Name Blackbox n\>
-
-*\<Blackbox-Template\>*
-
-### \<Name Schnittstelle 1\>
-
-…​
-
-### \<Name Schnittstelle m\>
 
 ## Ebene 2
 
-Beschreiben Sie den inneren Aufbau (einiger) Bausteine aus Ebene 1 als
-Whitebox.
+### Whitebox `app`
 
-Welche Bausteine Ihres Systems Sie hier beschreiben, müssen Sie selbst
-entscheiden. Bitte stellen Sie dabei Relevanz vor Vollständigkeit.
-Skizzieren Sie wichtige, überraschende, riskante, komplexe oder
-besonders volatile Bausteine. Normale, einfache oder standardisierte
-Teile sollten Sie weglassen.
+Die zweite Ebene beschreibt den inneren Aufbau des Bausteins `app`, da
+dieser den zentralen fachlichen und technischen Kern der Anwendung
+enthält.
 
-### Whitebox *\<Baustein 1\>*
+### Übersichtsdiagramm
 
-…​zeigt das Innenleben von *Baustein 1*.
+![Ebene 2 – Whitebox app](./UMLs/Komponentendiagramme/Ebene_2.png)
 
-*\<Whitebox-Template\>*
+### Begründung
 
-### Whitebox *\<Baustein 2\>*
+Der Baustein `app` ist für FlatMate besonders relevant, da hier sowohl
+die Benutzerinteraktion als auch die serverseitige Anwendungslogik
+zusammenlaufen. Gleichzeitig ist `app` der Bereich mit den meisten
+Unterstrukturen und damit architektonisch besonders wichtig.
 
-*\<Whitebox-Template\>*
+### Enthaltene Bausteine
 
-…​
+| **Name** | **Verantwortung** |
+|----------|-------------------|
+| Öffentliche Seiten | Einstieg in das System für nicht eingeloggte Nutzer, insbesondere Landing Page, Login, Registrierung, Invite-Einstieg und WG-Erstellung |
+| Benutzerbereich | Darstellung der benutzerspezifischen Übersicht, insbesondere Profil und WG-Liste |
+| WG-Bereich | Interner Bereich einer konkreten WG mit eigenem Layout, Dashboard und den Modulen Kosten, Putzplan und Einkaufsliste |
+| API-Endpunkte | Serverseitige Route-Handler für Authentifizierung, WG-Verwaltung, Einladungen und weitere Fachfunktionen |
+| Styles / Layouts | CSS-Dateien und Layout-Strukturen zur konsistenten Gestaltung der Anwendung |
 
-### Whitebox *\<Baustein m\>*
+### Wichtige Schnittstellen
 
-*\<Whitebox-Template\>*
+Die wichtigsten Beziehungen innerhalb von `app` sind:
+
+- Öffentliche Seiten, Benutzerbereich und WG-Bereich rufen die
+  API-Endpunkte über HTTP auf.
+- Die sichtbaren Bereiche verwenden gemeinsame Styles und Layouts.
+- Im WG-Bereich sorgt ein gemeinsames Layout mit `AppShell` für eine
+  einheitliche interne Navigation und Darstellung.
+
 
 ## Ebene 3
 
-Beschreiben Sie den inneren Aufbau (einiger) Bausteine aus Ebene 2 als
-Whitebox.
+### Whitebox `app/api/wgs`
 
-Bei tieferen Gliederungen der Architektur kopieren Sie diesen Teil von
-arc42 für die weiteren Ebenen.
+Die dritte Ebene beschreibt den inneren Aufbau des Bausteins
+`app/api/wgs`, da dieser ein besonders relevanter Teil der Anwendung ist.  
+Hier befinden sich zentrale Endpunkte für das Laden von WGs, das
+Verlassen einer WG, das Erzeugen von Einladungen und die Verwaltung von
+WG-Events.
 
-### Whitebox \<\_Baustein x.1\_\>
+### Übersichtsdiagramm
 
-…​zeigt das Innenleben von *Baustein x.1*.
+![Ebene 3 – Whitebox app/api/wgs](./UMLs/Komponentendiagramme/Ebene_3.png)
 
-*\<Whitebox-Template\>*
+### Begründung
 
-### Whitebox \<\_Baustein x.2\_\>
+Der Baustein `app/api/wgs` wurde für Ebene 3 ausgewählt, weil er eine
+hohe fachliche Bedeutung besitzt und mehrere sicherheits- und
+zustandsrelevante Operationen bündelt.  
+Insbesondere die Verarbeitung von WG-Zugriffen, Rollen, Leave-Logik,
+Invite-Erzeugung und Event-Handling macht diesen Bereich architektonisch
+wichtiger als einfache Standardbausteine.
 
-*\<Whitebox-Template\>*
 
-### Whitebox \<\_Baustein y.1\_\>
+### Enthaltene Bausteine
 
-*\<Whitebox-Template\>*
+| **Name** | **Verantwortung** |
+|----------|-------------------|
+| WGs Collection | Lädt alle WGs des aktuell eingeloggten Benutzers |
+| WG by ID | Lädt Details einer konkreten WG und verarbeitet Operationen auf WG-Ebene |
+| Leave WG | Verarbeitet das Verlassen einer WG, einschließlich rollenbezogener Folgelogik |
+| Invites | Erzeugt Einladungscodes bzw. Links für eine WG |
+| Events | Lädt, erstellt und löscht Events innerhalb einer WG |
+| Gemeinsame Infrastruktur | Stellt Session-Verwaltung, WG-Zugriffsprüfung, Validierung und Persistenzzugriff bereit |
+
+### Wichtige Schnittstellen
+
+Die Teilbausteine von `app/api/wgs` verwenden gemeinsame technische
+Hilfsbausteine:
+
+- **Session Management** zur Ermittlung des aktuell eingeloggten
+  Benutzers,
+- **WG Access Control** zur Prüfung von Mitgliedschaft und Rechten,
+- **Validation** zur Prüfung von Eingabedaten,
+- **Persistence Layer** für den Zugriff auf die Datenhaltung.
+
+Diese Schnittstellen sind für das Verständnis der Sicherheits- und
+Geschäftslogik in diesem Bereich zentral.
+
+
 
 # Laufzeitsicht
 
@@ -622,23 +474,21 @@ arc42 für die weiteren Ebenen.
 
 </div>
 
-Diese Sicht erklärt konkrete Abläufe und Beziehungen zwischen Bausteinen
-in Form von Szenarien aus den folgenden Bereichen:
+Die Laufzeitsicht beschreibt das Verhalten von FlatMate zur Ausführungszeit.
+Für FlatMate wurden insbesondere solche Szenarien ausgewählt, die
 
-- Wichtige Abläufe oder *Features*: Wie führen die Bausteine der
-  Architektur die wichtigsten Abläufe durch?
+- zentrale Benutzerinteraktionen abbilden,
+- sicherheitsrelevante Prüfungen enthalten,
+- fachlich wichtige Kernprozesse beschreiben,
+- sowie nicht triviale Sonderlogik sichtbar machen.
 
-- Interaktionen an kritischen externen Schnittstellen: Wie arbeiten
-  Bausteine mit Nutzern und Nachbarsystemen zusammen?
-
-- Betrieb und Administration: Inbetriebnahme, Start, Stop.
-
-- Fehler- und Ausnahmeszenarien
-
-Anmerkung: Das Kriterium für die Auswahl der möglichen Szenarien (d.h.
-Abläufe) des Systems ist deren Architekturrelevanz. Es geht nicht darum,
-möglichst viele Abläufe darzustellen, sondern eine angemessene Auswahl
-zu dokumentieren.
+Die dargestellten Abläufe betreffen insbesondere 
+> * [Registrierung](#registrierung)
+> * [Login](#login)
+> * [WG-Erstellung](#wg-anlegen)
+> * [Invite-Erzeugung](#einladung-erzeugen)
+> * [WG-Beitritt](#wg-beitreten)
+> * [Verlassen einer WG](#wg-verlassen)
 
 <div class="formalpara-title">
 
@@ -646,14 +496,13 @@ zu dokumentieren.
 
 </div>
 
-Sie sollten verstehen, wie (Instanzen von) Bausteine(n) Ihres Systems
-ihre jeweiligen Aufgaben erfüllen und zur Laufzeit miteinander
-kommunizieren.
+Die Laufzeitsicht macht nachvollziehbar, wie die Bausteine des Systems zur Laufzeit zusammenarbeiten.  
+Sie zeigt insbesondere,
 
-Nutzen Sie diese Szenarien in der Dokumentation hauptsächlich für eine
-verständlichere Kommunikation mit denjenigen Stakeholdern, die die
-statischen Modelle (z.B. Bausteinsicht, Verteilungssicht) weniger
-verständlich finden.
+- wie Benutzeraktionen durch Frontend und Backend verarbeitet werden,
+- an welchen Stellen Validierung, Session-Prüfung und Autorisierung stattfinden,
+- wie fachliche Regeln umgesetzt werden,
+- und wie FlatMate auf Sonder- und Fehlerfälle reagiert.
 
 <div class="formalpara-title">
 
@@ -661,45 +510,146 @@ verständlich finden.
 
 </div>
 
-Für die Beschreibung von Szenarien gibt es zahlreiche
-Ausdrucksmöglichkeiten. Nutzen Sie beispielsweise:
+Die Abläufe werden durch Sequenzdiagramme auf Komponentenebene beschrieben.  
+Ergänzend wird jeder Ablauf durch kurze textuelle Erläuterungen präzisiert.
 
-- Nummerierte Schrittfolgen oder Aufzählungen in Umgangssprache
 
-- Aktivitäts- oder Flussdiagramme
+## Registrierung
 
-- Sequenzdiagramme
+![Sequenzdiagramm Registrierung](./UMLs/Sequenzdiagramme/SD_register.png)
 
-- BPMN (Geschäftsprozessmodell und -notation) oder EPKs
-  (Ereignis-Prozessketten)
+### Beschreibung
 
-- Zustandsautomaten
+Dieses Szenario beschreibt die Registrierung eines neuen Benutzers
 
-- …​
+1. Der Benutzer öffnet die Registrierungsseite und gibt seine Daten ein.
+2. Das Frontend sendet die Eingaben an den Registrierungs-Endpunkt.
+3. Die Eingaben werden serverseitig validiert.
+4. Bei ungültigen Eingaben werden strukturierte Fehlermeldungen
+   zurückgegeben und im Formular angezeigt.
+5. Bei gültigen Eingaben wird ein neuer Benutzer in der Datenhaltung
+   angelegt.
+6. Direkt im Anschluss wird serverseitig eine Session erzeugt und als
+   Cookie gesetzt.
+7. Das Frontend leitet den Benutzer danach in den Benutzerbereich oder
+   zum ursprünglich angefragten Ziel weiter.
 
-<div class="formalpara-title">
 
-**Weiterführende Informationen**
+## Login
 
-</div>
+![Sequenzdiagramm Login](./UMLs/Sequenzdiagramme/SD_login.png)
 
-Siehe [Laufzeitsicht](https://docs.arc42.org/section-6/) in der
-online-Dokumentation (auf Englisch!).
+### Beschreibung
 
-## *\<Bezeichnung Laufzeitszenario 1\>*
+Dieses Szenario beschreibt die Anmeldung eines bestehenden Benutzers.
 
-- \<hier Laufzeitdiagramm oder Ablaufbeschreibung einfügen\>
+1. Der Benutzer öffnet die Login-Seite und gibt E-Mail und Passwort ein.
+2. Das Frontend sendet die Login-Daten an den Login-Endpunkt.
+3. Der Endpunkt lädt den Benutzer anhand der E-Mail-Adresse.
+4. Anschließend wird das Passwort geprüft.
+5. Bei fehlerhaften Zugangsdaten wird eine Fehlermeldung zurückgegeben.
+6. Bei erfolgreicher Authentifizierung wird serverseitig eine Session
+   erzeugt und als Cookie gesetzt.
+7. Danach erfolgt die Weiterleitung in den Benutzerbereich oder auf ein
+   per `next` übergebenes Ziel.
 
-- \<hier Besonderheiten bei dem Zusammenspiel der Bausteine in diesem
-  Szenario erläutern\>
 
-## *\<Bezeichnung Laufzeitszenario 2\>*
 
-…​
+## WG anlegen
 
-## *\<Bezeichnung Laufzeitszenario n\>*
+![Sequenzdiagramm WG anlegen](./UMLs/Sequenzdiagramme/SD_wg_anlegen.png)
 
-…​
+### Beschreibung
+
+Dieses Szenario beschreibt das Anlegen einer neuen WG durch einen
+eingeloggten Benutzer.
+
+1. Der Benutzer öffnet die Seite zur Erstellung einer WG.
+2. Das Frontend sendet den WG-Namen an den Endpunkt zur WG-Erstellung.
+3. Der Endpunkt bestimmt zunächst über die Session den aktuellen
+   Benutzer.
+4. Anschließend werden die Eingaben validiert.
+5. Bei ungültigen Eingaben werden Fehlermeldungen zurückgegeben.
+6. Bei gültigen Eingaben wird die WG gespeichert.
+7. Danach wird für den Ersteller automatisch eine Membership mit der
+   Rolle `ADMIN` angelegt.
+8. Die Oberfläche aktualisiert anschließend die Benutzerübersicht bzw.
+   leitet in den WG-Bereich weiter.
+
+
+
+## Einladung erzeugen
+
+![Sequenzdiagramm Einladung erzeugen](./UMLs/Sequenzdiagramme/SD_invite.png)
+
+### Beschreibung
+
+Dieses Szenario beschreibt das Erzeugen eines Invite-Links für eine
+bestehende WG.
+
+1. Ein Admin der WG löst im WG-Bereich die Erstellung eines Invite-Links aus.
+2. Der Browser ruft den WG-spezifischen Invite-Endpunkt auf.
+3. Der Endpunkt ermittelt den aktuellen Benutzer über die Session.
+4. Danach wird geprüft, ob der Benutzer Mitglied der WG ist und über
+   ausreichende Rechte verfügt.
+5. Bei fehlender Berechtigung wird die Anfrage abgewiesen.
+6. Bei erfolgreicher Prüfung wird ein neuer Invite-Code erzeugt und mit
+   Metadaten wie Ablaufzeit oder Nutzungsgrenzen gespeichert.
+7. Der fertige Invite-Link wird an das Frontend zurückgegeben und kann
+   anschließend geteilt werden.
+
+
+## WG beitreten
+
+![Sequenzdiagramm WG beitreten](./UMLs/Sequenzdiagramme/SD_join_wg.png)
+
+### Beschreibung
+
+Dieses Szenario beschreibt den Beitritt eines Benutzers zu einer WG über
+einen Einladungslink.
+
+1. Ein Benutzer öffnet einen Invite-Link.
+2. Die Invite-Seite prüft zunächst, ob bereits eine gültige Session
+   existiert.
+3. Ist der Benutzer nicht eingeloggt, wird er auf Login bzw.
+   Registrierung vorbereitet und anschließend zurückgeführt.
+4. Beim Klick auf „WG beitreten“ wird der Join-Endpunkt aufgerufen.
+5. Dort wird erneut serverseitig geprüft, welcher Benutzer aktuell
+   angemeldet ist.
+6. Anschließend wird der Invite geladen und auf Gültigkeit, Ablauf und
+   Nutzbarkeit geprüft.
+7. Zusätzlich wird geprüft, ob der Benutzer bereits Mitglied der WG ist.
+8. Ist alles gültig, wird eine neue Membership für die WG angelegt und
+   die Invite-Nutzung aktualisiert.
+9. Danach wird der Benutzer in den WG-Bereich weitergeleitet.
+
+
+
+## WG verlassen
+
+![Sequenzdiagramm WG verlassen](./UMLs/Sequenzdiagramme/SD_leave_wg.png)
+
+### Beschreibung
+
+Dieses Szenario beschreibt das Verlassen einer WG durch ein Mitglied,
+einschließlich der Sonderlogik für den Fall, dass der letzte Admin die
+WG verlässt.
+
+1. Der Benutzer löst im Frontend die Aktion „WG verlassen“ aus.
+2. Der Leave-Endpunkt ermittelt zunächst den aktuellen Benutzer über die
+   Session.
+3. Danach wird geprüft, ob der Benutzer tatsächlich Mitglied der
+   betreffenden WG ist.
+4. Die aktuelle Membership-Situation der WG wird geladen.
+5. Falls der Benutzer das letzte Mitglied ist, kann die WG vollständig
+   entfernt werden.
+6. Falls weitere Mitglieder existieren, aber kein weiterer Admin
+   vorhanden ist, wird die Admin-Rolle automatisch auf das am längsten
+   verbleibende Mitglied übertragen.
+7. Anschließend wird die Membership des austretenden Benutzers entfernt.
+8. Das Frontend entfernt die WG aus der Benutzerübersicht.
+
+
 
 # Verteilungssicht
 
@@ -925,16 +875,8 @@ der online-Dokumentation (auf Englisch).
 
 </div>
 
-Wichtige, teure, große oder riskante Architektur- oder
-Entwurfsentscheidungen inklusive der jeweiligen Begründungen. Mit
-"Entscheidungen" meinen wir hier die Auswahl einer von mehreren
-Alternativen unter vorgegebenen Kriterien.
-
-Wägen Sie ab, inwiefern Sie Entscheidungen hier zentral beschreiben,
-oder wo eine lokale Beschreibung (z.B. in der Whitebox-Sicht von
-Bausteinen) sinnvoller ist. Vermeiden Sie Redundanz. Verweisen Sie evtl.
-auf Abschnitt 4, wo schon grundlegende strategische Entscheidungen
-beschrieben wurden.
+In diesem Kapitel werden wesentliche Architektur- und Entwurfsentscheidungen beschrieben, die für FlatMate prägend sind. Es handelt sich um Entscheidungen mit hoher Tragweite für Sicherheit, Wartbarkeit, Erweiterbarkeit und Umsetzbarkeit des Systems. 
+Die Auswahl orientiert sich an den Qualitätszielen aus Abschnitt 1.2, den Randbedingungen aus Abschnitt 2 sowie der im Projekt verfolgten MVP-Strategie.
 
 <div class="formalpara-title">
 
@@ -942,8 +884,7 @@ beschrieben wurden.
 
 </div>
 
-Stakeholder des Systems sollten wichtige Entscheidungen verstehen und
-nachvollziehen können.
+Die Architekturentscheidungen sollen für alle Stakeholder nachvollziehbar sein. Insbesondere das Entwicklerteam und die Projektleitung müssen verstehen, warum bestimmte Technologien, Strukturen und Sicherheitsmechanismen gewählt wurden und welche Konsequenzen sich daraus ergeben.
 
 <div class="formalpara-title">
 
@@ -951,26 +892,24 @@ nachvollziehen können.
 
 </div>
 
-Verschiedene Möglichkeiten:
-
-- ADR ([Documenting Architecture
-  Decisions](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions))
-  für jede wichtige Entscheidung
-
-- Liste oder Tabelle, nach Wichtigkeit und Tragweite der Entscheidungen
-  geordnet
-
-- ausführlicher in Form einzelner Unterkapitel je Entscheidung
+Die Entscheidungen werden in tabellarischer Form beschrieben. Für jede Entscheidung werden Problemstellung, gewählte Lösung, Alternativen, Begründung und Konsequenzen angegeben.
 
 <div class="formalpara-title">
 
-**Weiterführende Informationen**
+**Übersicht der Architekturentscheidungen**
 
 </div>
 
-Siehe [Architekturentscheidungen](https://docs.arc42.org/section-9/) in
-der arc42 Dokumentation (auf Englisch!). Dort finden Sie Links und
-Beispiele zum Thema ADR.
+| ID    | Entscheidung                                                                        | Problem / Fragestellung                                                                                                                | Gewählte Lösung                                                                     | Verwor­fene Alternativen                                                                                             | Begründung                                                                                                                                                                                                   | Konsequenzen                                                                                                                                                          |
+| ----- | ----------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| AD-01 | Modularer Monolith mit Next.js                                                      | Es musste entschieden werden, ob FlatMate als verteiltes System oder als kompakte Webanwendung umgesetzt wird.                         | FlatMate wird als schlanker modularer Monolith mit Next.js umgesetzt.               | Microservices, getrenntes Frontend und Backend, klassische Mehrprojekt-Architektur                                   | Diese Lösung passt zur Randbedingung „Web-App als Zielplattform“ und zum MVP-Fokus. Sie reduziert Komplexität, vereinfacht Setup und Deployment und unterstützt dennoch eine klare fachliche Strukturierung. | Geringere Betriebs- und Entwicklungs-komplexität; schnelle Entwicklung; spätere Skalierung in verteilte Architektur wäre möglich, aber nicht unmittelbar vorbereitet. |
+| AD-02 | TypeScript als zentrale Implementierungssprache                                     | Es musste entschieden werden, wie Typensicherheit und Wartbarkeit im Frontend und in der gemeinsamen Codebasis unterstützt werden.     | Einsatz von TypeScript in der Anwendung                                             | Reines JavaScript                                                                                                    | TypeScript verbessert Verständlichkeit, Fehlerfrüherkennung und Wartbarkeit und unterstützt die arbeitsteilige Entwicklung im Team.                                                                          | Höhere Konsistenz und bessere Wartbarkeit; zusätzlicher Aufwand für Typdefinitionen und Tooling.                                                                      |
+| AD-03 | Session-basierte Authentifizierung über HTTP-only Cookies                           | Für Login und Zugriffsschutz musste ein sicherer Mechanismus zur Benutzer-authentifizierung gewählt werden.                            | Serverseitige Sessions mit Cookie-basiertem Session-Token                           | Speicherung von Login-Informationen im localStorage, rein clientseitige Authentifizierung, ungeschützte Sessiondaten | Diese Lösung unterstützt das Qualitätsziel „Sicherheit und Schutz sensibler WG-Daten“. Sessions sind serverseitig kontrollierbar und das Token ist nicht direkt clientseitig auslesbar.                      | Höhere Sicherheit und bessere serverseitige Kontrolle; zusätzlicher Aufwand für Session-Verwaltung und Rechteprüfung.                                                 |
+| AD-04 | Serverseitige Rechteprüfung statt rein clientseitiger Kontrolle                     | Es musste entschieden werden, wo Rollen und Berechtigungen geprüft werden.                                                             | Autorisierung erfolgt serverseitig in den API-Endpunkten                            | Ausschließliche Prüfung im Frontend                                                                                  | Kritische Funktionen wie WG löschen, Invite erzeugen oder WG beitreten dürfen nicht nur UI-seitig geschützt sein. Die serverseitige Prüfung verhindert unbefugten Zugriff auch bei manipulierten Requests.   | Höhere Sicherheit und Konsistenz; zusätzliche Logik in den Route Handlern.                                                                                            |
+| AD-05 | Rollenmodell über WG-spezifische Membership                                         | Es musste entschieden werden, wie Benutzerrollen in einer WG modelliert werden.                                                        | Rollen und Mitgliedschaft werden WG-bezogen modelliert, nicht global pro Benutzer   | Ein globales Admin-Flag am Benutzer, einfache Mitgliederlisten ohne Rollenbezug                                      | Ein Benutzer kann in verschiedenen WGs unterschiedliche Rollen besitzen. Das ist fachlich korrekt und erleichtert die spätere Erweiterung um weitere Rechte und Regeln.                                      | Gute Erweiterbarkeit und fachliche Konsistenz; etwas höherer Modellierungs- und Implementierungsaufwand.                                                              |
+| AD-06 | Invite-System über kryptografisch nicht triviale Codes                              | Für den WG-Beitritt musste ein Mechanismus gewählt werden, der einfach nutzbar, aber nicht erratbar ist.                               | Einladung über serverseitig erzeugte Invite-Codes bzw. Links                        | Manuelles Hinzufügen von Nutzern durch Administratoren, triviale numerische Codes                                    | Diese Entscheidung erfüllt die Randbedingung „Kryptografisch sichere Invite-Codes“ und unterstützt gleichzeitig die Usability, weil Einladungen leicht geteilt werden können.                                | Guter Kompromiss aus Benutzbarkeit und Sicherheit; zusätzlicher Aufwand für Gültigkeit, Fehlerfälle und Join-Logik.                                                   |
+| AD-07 | Klare Trennung zwischen UI, API und Hilfslogik                                      | Es musste entschieden werden, wie die Codebasis strukturiert wird, damit Erweiterungen und Teamarbeit möglich bleiben.                 | Strukturierung in `app`, `components`, `lib`, `models`                              | Unstrukturierte oder rein seitenorientierte Codeorganisation                                                         | Die Trennung verbessert Wartbarkeit und Erweiterbarkeit und unterstützt parallele Entwicklung im Team. Fachliche und technische Verantwortung werden klar getrennt.                                          | Bessere Verständlichkeit und Erweiterbarkeit; etwas mehr Abstimmungsbedarf bei der Modulgrenze.                                                                       |
+| AD-08 | Gemeinsamer WG-Bereich mit eigenem Layout und AppShell                              | Für alle WG-internen Funktionen musste eine konsistente Navigations- und Interaktionsstruktur definiert werden.                        | Eigener WG-Bereich mit `layout.tsx`, `AppShell.tsx` und modularem Dashboard         | Isolierte Einzelansichten ohne gemeinsamen Shell-Bereich                                                             | Die Lösung verbessert Usability, Wiederverwendbarkeit und einheitliche Navigation innerhalb einer WG.                                                                                                        | Konsistente Benutzerführung; erleichtert spätere Erweiterungen um weitere WG-Module.                                                                                  |
 
 # Qualitätsanforderungen
 
@@ -980,13 +919,8 @@ Beispiele zum Thema ADR.
 
 </div>
 
-Dieser Abschnitt enthält alle relevanten Qualitätsanforderungen.
-
-Die wichtigsten davon haben Sie bereits in Abschnitt 1.2
-(Qualitätsziele) hervorgehoben, daher soll hier nur auf sie verwiesen
-werden. In diesem Abschnitt 10 sollten Sie auch Qualitätsanforderungen
-mit geringerer Bedeutung erfassen, deren Nichterfüllung keine großen
-Risiken birgt (die aber *nice-to-have* sein könnten).
+Dieser Abschnitt konkretisiert die relevanten Qualitätsanforderungen für FlatMate.
+Die wichtigsten Qualitätsziele wurden bereits in Abschnitt 1.2 beschrieben. Im Folgenden werden diese strukturiert zusammengefasst und durch konkrete Qualitätsszenarien operationalisiert.
 
 <div class="formalpara-title">
 
@@ -994,15 +928,9 @@ Risiken birgt (die aber *nice-to-have* sein könnten).
 
 </div>
 
-Weil Qualitätsanforderungen die Architekturentscheidungen oft maßgeblich
-beeinflussen, sollten Sie die für Ihre Stakeholder relevanten
-Qualitätsanforderungen kennen, möglichst konkret und operationalisiert.
-
-- Siehe [Qualitätsanforderungen](https://docs.arc42.org/section-10/) in
-  der online-Dokumentation (auf Englisch!).
-
-- Siehe auch das ausführliche [Q42 Qualitätsmodell auf
-  https://quality.arc42.org](https://quality.arc42.org).
+Qualitätsanforderungen beeinflussen zentrale Architekturentscheidungen unmittelbar.
+Für FlatMate sind insbesondere Sicherheit, Usability, Wartbarkeit, Erweiterbarkeit, Zuverlässigkeit und die korrekte Verarbeitung fachlicher Kernprozesse architekturrelevant.
+Die Szenarien machen diese Anforderungen überprüfbar und dienen zugleich als Akzeptanzkriterien.
 
 ## Übersicht der Qualitätsanforderungen
 
@@ -1012,7 +940,8 @@ Qualitätsanforderungen kennen, möglichst konkret und operationalisiert.
 
 </div>
 
-Eine Übersicht oder Zusammenfassung der Qualitätsanforderungen.
+Dieser Abschnitt fasst die wichtigsten Qualitätsanforderungen von FlatMate in verdichteter Form zusammen.
+Ziel ist es, die Vielzahl möglicher nicht-funktionaler Anforderungen auf die architekturrelevanten Kernaspekte zu reduzieren.
 
 <div class="formalpara-title">
 
@@ -1020,15 +949,10 @@ Eine Übersicht oder Zusammenfassung der Qualitätsanforderungen.
 
 </div>
 
-Oft stößt man auf Dutzende (oder sogar Hunderte) von detaillierten
-Qualitätsanforderungen für ein System. In diesem Abschnitt sollten Sie
-versuchen, sie zusammenzufassen, z. B. durch die Beschreibung von
-Kategorien oder Themen (wie z.B. von [ISO
-25010:2023](https://www.iso.org/obp/ui/#iso:std:iso-iec:25010:ed-2:v1:en)
-oder [Q42](https://quality.arc42.org) vorgeschlagen).
+Gerade bei interaktiven Webanwendungen ergeben sich schnell viele Detailanforderungen.
+Eine zusammenfassende Übersicht hilft dabei, die zentralen Qualitätsaspekte zu strukturieren und ihre Bedeutung für die Architektur sichtbar zu machen.
 
-Wenn diese Kurzbeschreibungen oder Zusammenfassungen bereits präzise,
-spezifisch und messbar sind, können Sie Abschnitt 10.2 auslassen.
+Für FlatMate sind vor allem solche Qualitätsanforderungen relevant, die das Nutzungserlebnis im Alltag, die Sicherheit sensibler WG-Daten, die Änderbarkeit der Codebasis und die Zuverlässigkeit kritischer Abläufe beeinflussen.
 
 <div class="formalpara-title">
 
@@ -1036,14 +960,19 @@ spezifisch und messbar sind, können Sie Abschnitt 10.2 auslassen.
 
 </div>
 
-Verwenden Sie eine einfache Tabelle, in der jede Zeile eine Kategorie
-oder ein Thema und eine kurze Beschreibung der Qualitätsanforderung
-enthält. Alternativ können Sie auch eine Mindmap verwenden, um diese
-Qualitätsanforderungen zu strukturieren. In der Literatur (insb.
-\[Bass+21\]) ist die Idee eines *Quality Attribute Utility Tree* (auf
-Deutsch manchmal kurz als *Qualitätsbaum* bezeichnet) beschrieben
-worden, der den Oberbegriff „Qualität“ als Wurzel hat und eine
-baumartige Verfeinerung des Begriffs „Qualität“ verwendet.
+Die Qualitätsanforderungen werden in tabellarischer Form zusammengefasst.
+Jede Zeile beschreibt eine Qualitätskategorie und deren Bedeutung für das System.
+
+| Kategorie                        | Beschreibung                                                                                                                                                        |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Fachliche Korrektheit            | Fachliche Kernprozesse wie WG-Erstellung, WG-Beitritt, Rollenwechsel, Event-Verwaltung und später Budgetvorgänge müssen korrekt verarbeitet werden.                 |
+| Sicherheit                       | Accounts, Sessions, Rollen, Einladungen und WG-Daten müssen gegen unberechtigten Zugriff geschützt sein. Kritische Aktionen müssen serverseitig abgesichert werden. |
+| Usability                        | Die Anwendung soll für WG-Bewohner ohne zusätzliche Erklärung verständlich nutzbar sein und schnelles, klares Feedback geben.                                       |
+| Wartbarkeit                      | Die Architektur soll Änderungen an einzelnen Modulen ermöglichen, ohne andere Teile der Anwendung unnötig zu beeinträchtigen.                                       |
+| Erweiterbarkeit                  | Neue WG-Module und zusätzliche Funktionen sollen später mit geringem Eingriff in die bestehende Struktur ergänzt werden können.                                     |
+| Zuverlässigkeit                  | Fehler- und Ausnahmefälle, z. B. ungültige Einladungen oder Rollenwechsel beim Verlassen einer WG, sollen kontrolliert und konsistent behandelt werden.             |
+| Performance / Reaktionsverhalten | Typische Alltagsaktionen sollen ohne spürbare Verzögerung ausgeführt und in der Oberfläche zeitnah sichtbar werden.                                                 |
+
 
 ## Qualitätsszenarien
 
@@ -1053,24 +982,10 @@ baumartige Verfeinerung des Begriffs „Qualität“ verwendet.
 
 </div>
 
-Qualitätsszenarien konkretisieren Qualitätsanforderungen und ermöglichen
-es zu entscheiden, ob sie erfüllt sind (im Sinne von
-Akzeptanzkriterien). Stellen Sie sicher, dass Ihre Szenarien spezifisch
-und messbar sind.
+Qualitätsszenarien konkretisieren die Qualitätsanforderungen von FlatMate und machen sie überprüfbar.
+Sie beschreiben, wie das System in bestimmten Nutzungssituationen oder bei Änderungen reagieren soll und dienen damit als operative Akzeptanzkriterien.
 
-Zwei Arten von Szenarien finden wir besonders nützlich:
-
-- Nutzungsszenarien (auch bekannt als Anwendungs- oder
-  Anwendungsfallszenarien) beschreiben, wie das System zur Laufzeit auf
-  einen bestimmten Auslöser reagieren soll. Hierunter fallen auch
-  Szenarien zur Beschreibung von Effizienz oder Performance. Beispiel:
-  Das System beantwortet eine Benutzeranfrage innerhalb einer Sekunde.
-
-- Änderungsszenarien\_ beschreiben die gewünschte Wirkung einer Änderung
-  oder Erweiterung des Systems oder seiner unmittelbaren Umgebung.
-  Beispiel: Zusätzliche Funktionalität wird implementiert oder
-  Anforderungen an ein Qualitätsmerkmal ändern sich, und der Aufwand
-  oder die Dauer der Änderung wird gemessen.
+Die Szenarien sind so formuliert, dass sie einen klaren Bezug zu den Qualitätszielen des Systems haben und architektonisch relevante Anforderungen präzisieren.
 
 <div class="formalpara-title">
 
@@ -1078,55 +993,146 @@ Zwei Arten von Szenarien finden wir besonders nützlich:
 
 </div>
 
-Typische Informationen für detaillierte Szenarien sind die folgenden:
+Die Szenarien werden in Kurzform nach dem Q42-Modell beschrieben:
 
-In Kurzform (bevorzugt im Q42-Modell):
-
-- K**ontext/Hintergrund**: Um welche Art von System oder Komponente
-  handelt es sich, wie sieht die Umgebung oder Situation aus?
-
-- **Quelle/Stimulus**: Wer oder was initiiert oder löst ein Verhalten,
-  eine Reaktion oder eine Aktion aus.
-
-- **Metrik/Akzeptanzkriterien**: Eine Reaktion einschließlich einer
-  *Maßnahme* oder *Metrik*
-
-Die Langform von Szenarien (die von der SEI und \[Bass+21\] bevorzugt
-wird) ist detaillierter und enthält die folgenden Informationen:
-
-- **Szenario-ID**: Ein eindeutiger Bezeichner für das Szenario.
-
-- **Szenario-Name**: Ein kurzer, beschreibender Name für das Szenario.
-
-- **Quelle**: Die Entität (Benutzer, System oder Ereignis), die das
-  Szenario auslöst.
-
-- **Stimulus**: Das auslösende Ereignis oder die Bedingung, auf die das
-  System reagieren muss.
-
-- **Umgebung**: Der betriebliche Kontext oder die Bedingungen, unter
-  denen das System den Stimulus erlebt.
-
-- **Artefakt**: Die Bausteine oder anderen Elemente des Systems, die von
-  dem Stimulus betroffen sind.
-
-- **Reaktion**: Das Ergebnis oder Verhalten, das das System als Reaktion
-  auf den Stimulus zeigt.
-
-- **Antwortmaß**: Das Kriterium oder die Metrik, nach der die Antwort
-  des Systems bewertet wird.
+- **Kontext/Hintergrund:** Um welche Art von System oder Komponente handelt es sich, wie sieht die Umgebung oder Situation aus?
+- **Quelle/Stimulus:** Wer oder was initiiert oder löst ein Verhalten, eine Reaktion oder eine Aktion aus?
+- **Metrik/Akzeptanzkriterien:** Welche Reaktion wird erwartet und anhand welcher Maßnahme oder Metrik wird sie bewertet?
 
 <div class="formalpara-title">
 
-**Beispiele**
+**QS-01 – Konto- und WG-Erstellung in kurzer Zeit**
 
 </div>
 
-Ausführliche Beispiele für Qualitätsanforderungen finden Sie auf [der
-Website zum Qualitätsmodell Q42](https://quality.arc42.org).
+**Kontext/Hintergrund:**
+FlatMate ist eine browserbasierte Webanwendung für den WG-Alltag. Neue Nutzer sollen schnell starten können, ohne einen komplexen Einrichtungsprozess durchlaufen zu müssen.
 
-- Len Bass, Paul Clements, Rick Kazman: „Software Architecture in
-  Practice“, 4. Auflage, Addison-Wesley, 2021.
+**Quelle/Stimulus:**
+Ein neuer Benutzer registriert sich und erstellt anschließend seine erste WG.
+
+**Metrik/Akzeptanzkriterien:**
+Die Erstellung eines Accounts und einer ersten WG soll für einen durchschnittlichen Nutzer in weniger als 5 Minuten möglich sein.
+
+<div class="formalpara-title">
+
+**QS-02 – Verständlicher Invite-Flow ohne Anleitung**
+
+</div>
+
+**Kontext/Hintergrund:**
+Einladungen sind ein zentraler Mechanismus, um neue Mitglieder in eine bestehende WG aufzunehmen.
+
+**Quelle/Stimulus:**
+Ein Benutzer öffnet einen Invite-Link im Browser.
+
+**Metrik/Akzeptanzkriterien:**
+Der Invite-Flow soll ohne zusätzliche Anleitung verständlich sein. Der Benutzer soll klar erkennen können, ob er sich anmelden, registrieren oder direkt beitreten kann.
+
+<div class="formalpara-title">
+
+**QS-03 – Sofortige Sichtbarkeit der eigenen WGs nach dem Login**
+
+</div>
+
+**Kontext/Hintergrund:**
+Nach erfolgreicher Anmeldung soll der Benutzer direkt in seinen Arbeitskontext gelangen.
+
+**Quelle/Stimulus:**
+Ein bestehender Benutzer loggt sich erfolgreich ein.
+
+**Metrik/Akzeptanzkriterien:**
+Der Benutzer sieht unmittelbar nach dem Login seine WGs in der Benutzerübersicht, ohne zusätzliche Navigation.
+
+<div class="formalpara-title">
+
+**QS-04 – Schutz vor unberechtigtem Zugriff auf WG-Daten**
+
+</div>
+
+**Kontext/Hintergrund:**
+WG-Daten enthalten personenbezogene und organisationsbezogene Informationen, z. B. Mitglieder, Einladungen und Events.
+
+**Quelle/Stimulus:**
+Ein nicht eingeloggter oder nicht berechtigter Benutzer versucht, eine geschützte WG-Seite oder einen geschützten WG-Endpunkt aufzurufen.
+
+**Metrik/Akzeptanzkriterien:**
+Nicht eingeloggte Benutzer dürfen keine WG-Daten sehen. Bei unberechtigtem Zugriff wird der Zugriff verweigert und es werden keine geschützten Daten ausgeliefert.
+
+<div class="formalpara-title">
+
+**QS-05 – Schutz administrativer Aktionen**
+
+</div>
+
+**Kontext/Hintergrund:**
+Bestimmte Aktionen beeinflussen die Struktur einer WG erheblich und dürfen daher nicht von allen Benutzern ausgeführt werden.
+
+**Quelle/Stimulus:**
+Ein Benutzer versucht, eine WG zu löschen oder Invite-Links zu erzeugen.
+
+**Metrik/Akzeptanzkriterien:**
+Nur der administrative Besitzer bzw. ein entsprechend berechtigter Administrator darf eine WG löschen oder Invite-Links erzeugen. Die Berechtigungsprüfung erfolgt serverseitig.
+
+<div class="formalpara-title">
+
+**QS-06 – Zuverlässige Rollenübergabe beim Verlassen des letzten Admins**
+
+</div>
+
+**Kontext/Hintergrund:**
+Eine WG muss auch dann konsistent administrierbar bleiben, wenn der letzte Administrator die WG verlässt.
+
+**Quelle/Stimulus:**
+Der letzte Admin verlässt eine WG, in der noch weitere Mitglieder vorhanden sind.
+
+**Metrik/Akzeptanzkriterien:**
+Die Admin-Rolle wird automatisch an den Benutzer übertragen, der sich am letzten hinzugefügt wurde. Dadurch bleibt die WG administrierbar.
+
+<div class="formalpara-title">
+
+**QS-07 – Einfache Ergänzbarkeit neuer WG-Module**
+
+</div>
+
+**Kontext/Hintergrund:**
+FlatMate soll über den MVP hinaus um weitere Funktionen erweitert werden können.
+
+**Quelle/Stimulus:**
+Das Entwicklerteam ergänzt ein neues WG-Modul.
+
+**Metrik/Akzeptanzkriterien:**
+Ein neues Modul soll mit geringem Änderungsaufwand außerhalb des betroffenen Fachbereichs integriert werden können.
+
+<div class="formalpara-title">
+
+**QS-08 – Änderbarkeit der Backend-Logik ohne vollständigen UI-Umbau**
+
+</div>
+
+**Kontext/Hintergrund:**
+Im Projektverlauf können fachliche Regeln, Rollenlogik oder Datenverarbeitung angepasst werden müssen.
+
+**Quelle/Stimulus:**
+Eine bestehende Backend-Regel wird geändert oder erweitert.
+
+**Metrik/Akzeptanzkriterien:**
+Die Backend-Logik soll lokal änderbar sein, ohne dass die gesamte Benutzeroberfläche neu implementiert werden muss.
+
+<div class="formalpara-title">
+
+**QS-09 – Zeitnahes Feedback bei typischen Kerninteraktionen**
+
+</div>
+
+**Kontext/Hintergrund:**
+FlatMate wird im Alltag genutzt und muss daher schnell und reaktionsfreudig wirken.
+
+**Quelle/Stimulus:**
+Ein Benutzer führt eine typische Kernaktion aus, z. B. Login, WG laden, Invite beitreten oder Event erstellen.
+
+**Metrik/Akzeptanzkriterien:**
+Typische Kerninteraktionen sollen im Normalfall innerhalb von etwa 1 bis 2 Sekunden sichtbar verarbeitet werden.
 
 # Risiken und technische Schulden
 

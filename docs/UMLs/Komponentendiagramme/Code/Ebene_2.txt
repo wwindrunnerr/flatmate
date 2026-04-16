@@ -1,0 +1,71 @@
+@startuml
+title Ebene 2: Whitebox app
+skinparam componentStyle rectangle
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam defaultTextAlignment left
+left to right direction
+
+package "app" {
+  component "Öffentliche Seiten" as PublicPages
+  component "Benutzerbereich" as UserArea
+  component "WG-Bereich" as WGArea
+  component "API-Endpunkte" as ApiLayer
+  component "Styles / Layouts" as Styles
+}
+
+PublicPages --> ApiLayer : nutzt
+UserArea --> ApiLayer : nutzt
+WGArea --> ApiLayer : nutzt
+
+PublicPages --> Styles : verwendet
+UserArea --> Styles : verwendet
+WGArea --> Styles : verwendet
+
+note bottom of PublicPages
+Beispiele:
+- page.tsx
+- login/page.tsx
+- register/page.tsx
+- invite/[code]/page.tsx
+- create_wg/page.tsx
+end note
+
+note bottom of UserArea
+Beispiel:
+- user/page.tsx
+end note
+
+note bottom of WGArea
+Beispiele:
+- wg/[id]/layout.tsx
+- wg/[id]/AppShell.tsx
+- wg/[id]/page.tsx
+- wg/[id]/WGDashboard.tsx
+- kosten
+- putzplan
+- einkaufsliste
+end note
+
+note bottom of ApiLayer
+Beispiele:
+- api/register
+- api/login
+- api/logout
+- api/me
+- api/create_wg
+- api/wgs
+- api/invites
+end note
+
+note bottom of Styles
+Beispiele:
+- globals.css
+- register.css
+- user.css
+- create_wg.css
+- invite.css
+- wg.css
+end note
+
+@enduml

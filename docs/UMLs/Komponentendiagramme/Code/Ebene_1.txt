@@ -1,0 +1,59 @@
+@startuml
+title Ebene 1: Whitebox Gesamtsystem
+skinparam componentStyle rectangle
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam defaultTextAlignment left
+
+package "Flatmate WG-Verwaltung" {
+  package "app" as APP
+  package "components" as COMPONENTS
+  package "lib" as LIB
+  package "models" as MODELS
+  package "public" as PUBLIC
+}
+
+APP --> COMPONENTS : nutzt UI-Bausteine
+APP --> LIB : nutzt Auth,\nValidierung,\nPrisma-Zugriff
+APP --> MODELS : nutzt Domänenmodelle
+APP --> PUBLIC : nutzt statische Assets
+
+note right of APP
+Enthält:
+- Seiten
+- Layouts
+- WG-Bereich
+- API-Route-Handler
+end note
+
+note right of COMPONENTS
+Enthält:
+- Card
+- Icons
+end note
+
+note right of LIB
+Enthält:
+- auth/
+- prisma.ts
+- validation/
+end note
+
+note right of MODELS
+Enthält:
+- event
+- user
+- wg
+- transaction
+- putzplan
+- good
+- note
+end note
+
+note right of PUBLIC
+Enthält:
+- SVG/Icons
+- statische Dateien
+end note
+
+@enduml

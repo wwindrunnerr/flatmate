@@ -1,0 +1,57 @@
+@startuml
+title Sequenz: WG beitreten über Invite-Link
+
+actor "Bewohner (eingeladen)" as Guest
+participant "Browser(Guest)\nInvite-Seite" as BG
+participant "API /me" as MeAPI
+participant "Join Invite API\n/api/invites/[code]/join" as JoinAPI
+participant "Session Management\nlib/auth/session.ts" as Session
+participant "Prisma / Persistence" as DB
+
+Guest -> BG : Invite-Link öffnen
+BG -> MeAPI : Sessionstatus prüfen
+
+alt nicht eingeloggt
+  MeAPI --> BG : kein Benutzer
+  BG --> Guest : Login/Registrierung anzeigen
+  Guest -> BG : nach Login/Registrierung zurückkehren
+else eingeloggt
+  MeAPI --> BG : Benutzer vorhanden
+  BG --> Guest : „WG beitreten“ anzeigen
+end
+
+Guest -> BG : „WG beitreten“ klicken
+BG -> JoinAPI : POST /api/invites/{code}/join
+JoinAPI -> Session : aktuellen Benutzer bestimmen
+
+alt keine gültige Session
+  Session --> JoinAPI : kein Benutzer
+  JoinAPI --> BG : 401 Nicht eingeloggt
+  BG --> Guest : Fehlermeldung anzeigen
+else gültige Session
+  Session --> JoinAPI : Benutzer vorhanden
+  JoinAPI -> DB : Invite laden
+  DB --> JoinAPI : Invite gefunden / nicht gefunden
+
+  alt Invite ungültig oder abgelaufen
+    JoinAPI --> BG : 400/404 Fehler
+    BG --> Guest : „Invite ungültig oder abgelaufen“
+  else Invite gültig
+    JoinAPI -> DB : bestehende Membership prüfen
+
+    alt Benutzer bereits Mitglied
+      DB --> JoinAPI : Membership vorhanden
+      JoinAPI --> BG : 400 „bereits Mitglied“
+      BG --> Guest : Hinweis anzeigen
+    else Benutzer noch kein Mitglied
+      DB --> JoinAPI : keine Membership
+      JoinAPI -> DB : Membership(userId=Guest,\nwgId, role=MEMBER) anlegen
+      JoinAPI -> DB : usedCount des Invites erhöhen
+      DB --> JoinAPI : OK
+      JoinAPI --> BG : 200 Erfolg + WG
+      BG --> Guest : Weiterleitung zur WG
+    end
+  end
+end
+
+@enduml
