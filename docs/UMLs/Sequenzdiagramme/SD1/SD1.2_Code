@@ -1,0 +1,62 @@
+@startuml
+title Sequenz: WG anlegen -> Einladung erzeugen -> WG beitreten (aktualisiert)
+
+actor Admin
+actor "Bewohner (eingeladen)" as Guest
+participant "Browser(Admin)" as BA
+participant "Browser(Guest)" as BG
+participant "WGApp (Server)" as S
+database "DB (WG, User, Einladung)" as DB
+collections "Messenger/Email" as MSG
+
+== WG anlegen ==
+Admin -> BA : Seite „WG anlegen“ öffnen
+BA -> S : GET /wg/new
+S --> BA : Formular (WG.name)
+
+Admin -> BA : Name eingeben & absenden
+BA -> S : POST /wg {name}
+S -> S : Validierung (Name uniq?)
+alt gültig
+  S -> DB : INSERT WG(name)
+  DB --> S : wgId
+  S -> DB : INSERT Membership(userId=Admin, wgId, role='ADMIN')
+  DB --> S : OK
+  S --> BA : 201 Created (wgId)
+else ungültig
+  S --> BA : 400 Fehler „Name ungültig“
+  return
+end
+
+== Einladung erzeugen ==
+Admin -> BA : „Einladen“ klicken
+BA -> S : POST /wg/{wgId}/invites
+S -> S : Rate/Limit + Rechte prüfen
+alt Limit erreicht
+  S --> BA : 429 Hinweis „Invite-Limit erreicht“
+else ok
+  S -> S : InviteCode + Ablaufdatum generieren
+  S -> DB : INSERT Einladung(wgId, code, expiresAt)
+  DB --> S : OK
+  S --> BA : Invite-Link (code, expiresAt)
+  opt Teilen
+    BA -> MSG : Link an Gäste senden
+  end
+end
+
+== Beitreten per Code ==
+Guest -> BG : Link öffnen / Code eingeben
+BG -> S : POST /invites/{code}/accept
+S -> DB : SELECT Einladung JOIN WG
+DB --> S : gefunden?/gültig?
+alt gültig & aktiv
+  S -> DB : INSERT Membership(userId=Guest, wgId, role='BEWOHNER')
+  DB --> S : OK
+  par Antwort & Protokoll
+    S --> BG : 200 Beitritt bestätigt (WG-Übersicht)
+    S -> DB : INSERT Log("invite_accepted")
+  end
+else ungültig/abgelaufen
+  S --> BG : 410 „Code ungültig oder abgelaufen“
+end
+@enduml
