@@ -100,8 +100,10 @@
 > 
 > ![Mocup_Putzplan.png](./mocups/Mocup_Putzplan.png)
 > 
-> ![Aktivitätsdiagramm 3](./UMLs/Aktivitätsdiagramme/AD3_UC7.png)
-> 
+> ![Aktivitätsdiagramm 3](./UMLs/Aktivitätsdiagramme/AD3_UC7/AD3_UC7.png)
+> ![Aktivitätsdiagramm 3 Beschreibung](./UMLs/Aktivitätsdiagramme/AD3_UC7/AD3_Beschreibung.md)
+>
+>
 > [Use Case 7: "Putzplan"](./useCases/UC7_PutzPlan.md)
 
 #### F03 Budgetverwaltung
@@ -113,9 +115,13 @@
 > 
 >[Use Case 5: "Salden anzeigen und ausgleichen"](./useCases/UC5_Salden_anzeigen_und_ausgleichen.md)
 > 
->![Sequenzdiagramm 2](UMLs/Sequenzdiagramme/SD2.2.png)
+>![Sequenzdiagramm 2](UMLs/Sequenzdiagramme/SD2/SD2.2.png)
+>![Sequenzdiagramm 2 Beschreibung](UMLs/Sequenzdiagramme/SD2/SD2.2_Beschreibung.md)
 > 
->![Aktivitätsdiagramm 2](./UMLs/Aktivitätsdiagramme/AD2_UC4_UC5.png)
+
+>![Aktivitätsdiagramm 2](./UMLs/Aktivitätsdiagramme/AD2_UC4_UC5/AD2_UC4_UC5.png)
+>![Aktivitätsdiagramm 2 Beschreibung](./UMLs/Aktivitätsdiagramme/AD2_UC4_UC5/AD2_Beschreibung.md)
+
 
 #### F04 Einkaufsliste
 > Die Anwendung stellt eine gemeinsame Einkaufsliste zur Verfügung, in der WG-Mitglieder Artikel hinzufügen, bearbeiten und abhaken können. Änderungen sollen in Echtzeit für alle synchronisiert werden.
@@ -134,9 +140,11 @@
 > 
 > [Use Case 3: "WG beitreten"](./useCases/UC3_WG_beitreten.md)
 > 
-> ![Sequenzdiagramm 1](UMLs/Sequenzdiagramme/SD1.2.png)
+> ![Sequenzdiagramm 1](UMLs/Sequenzdiagramme/SD1/SD1.2.png)
+> ![Sequenzdiagramm 1 Beschreibung](UMLs/Sequenzdiagramme/SD1/SD1.1_Beschreibung.md)
 > 
-> ![Aktivitätsdiagramm 1](./UMLs/Aktivitätsdiagramme/AD1_UC1_UC2_UC3.png)
+> ![Aktivitätsdiagramm 1](./UMLs/Aktivitätsdiagramme/AD1_UC1_UC3/AD1_UC1_UC2_UC3.png)
+> ![Aktivitätsdiagramm 1 Beschreibung](./UMLs/Aktivitätsdiagramme/AD1_UC1_UC3/AD1_Beschreibung.md)
 
 ### 3. Nicht-funktionale Anforderungen
 

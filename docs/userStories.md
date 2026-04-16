@@ -72,3 +72,13 @@ Definition of Done:
 * Erinnerungen können stummgeschaltet werden.
 * Änderungen werden protokolliert.
 * Salden aktualisieren sich sofort nach einer Änderung.
+
+## US_7 – Einkaufsliste gemeinsam verwalten (5 Story Points)
+> Als Bewohner möchte ich Artikel zur gemeinsamen Einkaufsliste hinzufügen, bearbeiten und abhaken, damit Einkäufe in der WG koordiniert und transparent organisiert werden können.
+
+Definition of Done:
+* Artikel können hinzugefügt werden.
+* Artikel können bearbeitet werden.
+* Artikel können als erledigt markiert werden.
+* Änderungen sind für alle WG-Mitglieder sichtbar.
+* Ungültige Eingaben werden verständlich angezeigt.
