@@ -105,10 +105,7 @@ function getWeekTypeByOffset(
     }
 }
 
-function buildBaseSchedule(
-    members: WGMember[],
-    rooms: string[]
-): WeekPlan[] {
+function buildBaseSchedule(members: WGMember[], rooms: string[]): WeekPlan[] {
     if (members.length === 0) return [];
 
     const cleanedRooms = rooms.map((r) => r.trim()).filter(Boolean);
@@ -180,7 +177,7 @@ export default function PutzplanPage() {
 
     const [members, setMembers] = useState<WGMember[]>([]);
     const [rooms, setRooms] = useState<string[]>([]);
-    const [draftRooms, setDraftRooms] = useState<string[]>([]);
+    const [roomDrafts, setRoomDrafts] = useState<Record<number, string>>({});
     const [newRoomName, setNewRoomName] = useState("");
 
     const [weekOverrides, setWeekOverrides] = useState<WeekOverridesMap>({});
@@ -214,7 +211,9 @@ export default function PutzplanPage() {
                 const data: PutzplanApiResponse = await res.json();
                 setMembers(data.members);
                 setRooms(data.rooms);
-                setDraftRooms(data.rooms);
+                setRoomDrafts(
+                    Object.fromEntries(data.rooms.map((room, index) => [index, room]))
+                );
 
                 const overrideMap: WeekOverridesMap = {};
                 for (const override of data.weekOverrides) {
@@ -327,25 +326,9 @@ export default function PutzplanPage() {
         }
     }
 
-    function updateDraftRoom(index: number, value: string) {
-        setDraftRooms((prev) => prev.map((room, i) => (i === index ? value : room)));
-    }
-
-    function deleteDraftRoom(index: number) {
-        setDraftRooms((prev) => prev.filter((_, i) => i !== index));
-    }
-
-    function addDraftRoom() {
-        const value = newRoomName.trim();
-        if (!value) return;
-
-        setDraftRooms((prev) => [...prev, value]);
-        setNewRoomName("");
-    }
-
-    async function saveBaseRooms() {
+    async function persistRooms(nextRooms: string[]) {
         try {
-            const cleaned = draftRooms.map((r) => r.trim()).filter(Boolean);
+            const cleaned = nextRooms.map((r) => r.trim()).filter(Boolean);
 
             const res = await fetch(`/api/wgs/${wgId}/putzplan`, {
                 method: "PUT",
@@ -362,16 +345,98 @@ export default function PutzplanPage() {
 
             if (!res.ok) {
                 setSaveMsg(data.error || "Räume konnten nicht gespeichert werden.");
-                return;
+                return false;
             }
 
             setRooms(data.rooms);
-            setDraftRooms(data.rooms);
+            setRoomDrafts(
+                Object.fromEntries(data.rooms.map((room: string, index: number) => [index, room]))
+            );
             setSaveMsg("Basisräume gespeichert.");
+            return true;
         } catch (err) {
             console.error("PUTZPLAN_ROOMS_SAVE_ERROR", err);
             setSaveMsg("Räume konnten nicht gespeichert werden.");
+            return false;
         }
+    }
+
+    function handleRoomDraftChange(index: number, value: string) {
+        setRoomDrafts((prev) => ({
+            ...prev,
+            [index]: value,
+        }));
+    }
+
+    async function handleRoomUpdate(index: number) {
+        const draftValue = (roomDrafts[index] ?? rooms[index] ?? "").trim();
+        if (!draftValue) return;
+
+        const previousRooms = rooms;
+        const nextRooms = rooms.map((room, i) => (i === index ? draftValue : room));
+
+        setRooms(nextRooms);
+
+        const ok = await persistRooms(nextRooms);
+
+        if (!ok) {
+            setRooms(previousRooms);
+            setRoomDrafts(
+                Object.fromEntries(previousRooms.map((room, i) => [i, room]))
+            );
+            return;
+        }
+
+        setRoomDrafts(
+            Object.fromEntries(nextRooms.map((room, i) => [i, room]))
+        );
+    }
+
+    async function handleDeleteRoom(index: number) {
+        const previousRooms = rooms;
+        const nextRooms = rooms.filter((_, i) => i !== index);
+
+        setRooms(nextRooms);
+
+        const ok = await persistRooms(nextRooms);
+
+        if (!ok) {
+            setRooms(previousRooms);
+            setRoomDrafts(
+                Object.fromEntries(previousRooms.map((room, i) => [i, room]))
+            );
+            return;
+        }
+
+        setRoomDrafts(
+            Object.fromEntries(nextRooms.map((room, i) => [i, room]))
+        );
+    }
+
+    async function handleAddRoom() {
+        const value = newRoomName.trim();
+        if (!value) return;
+
+        const previousRooms = rooms;
+        const nextRooms = [...rooms, value];
+
+        setRooms(nextRooms);
+        setNewRoomName("");
+
+        const ok = await persistRooms(nextRooms);
+
+        if (!ok) {
+            setRooms(previousRooms);
+            setRoomDrafts(
+                Object.fromEntries(previousRooms.map((room, i) => [i, room]))
+            );
+            setNewRoomName(value);
+            return;
+        }
+
+        setRoomDrafts(
+            Object.fromEntries(nextRooms.map((room, i) => [i, room]))
+        );
     }
 
     if (loading) {
@@ -452,26 +517,42 @@ export default function PutzplanPage() {
                     <h3 className="putzplan-editor-title">Basisräume verwalten</h3>
 
                     <div className="putzplan-editor-list">
-                        {draftRooms.map((room, index) => (
-                            <div key={`${room}-${index}`} className="putzplan-editor-row">
-                                <div className="putzplan-editor-label">Raum {index + 1}</div>
+                        {rooms.map((room, index) => {
+                            const draftValue = roomDrafts[index] ?? room;
+                            const canUpdate =
+                                draftValue.trim() !== "" && draftValue.trim() !== room;
 
-                                <div className="putzplan-editor-controls">
-                                    <input
-                                        className="wg-input"
-                                        value={room}
-                                        onChange={(e) => updateDraftRoom(index, e.target.value)}
-                                        placeholder="Raumname"
-                                    />
-                                    <button
-                                        className="wg-btn-danger"
-                                        onClick={() => deleteDraftRoom(index)}
-                                    >
-                                        Löschen
-                                    </button>
+                            return (
+                                <div key={`${room}-${index}`} className="putzplan-editor-row">
+                                    <div className="putzplan-editor-label">Raum {index + 1}</div>
+
+                                    <div className="putzplan-editor-controls">
+                                        <input
+                                            className="wg-input"
+                                            value={draftValue}
+                                            onChange={(e) => handleRoomDraftChange(index, e.target.value)}
+                                            placeholder="Raumname"
+                                        />
+
+                                        {canUpdate && (
+                                            <button
+                                                className="wg-btn-secondary"
+                                                onClick={() => handleRoomUpdate(index)}
+                                            >
+                                                Update
+                                            </button>
+                                        )}
+
+                                        <button
+                                            className="wg-btn-danger"
+                                            onClick={() => handleDeleteRoom(index)}
+                                        >
+                                            Löschen
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
 
                     <div className="putzplan-editor-add">
@@ -481,14 +562,8 @@ export default function PutzplanPage() {
                             onChange={(e) => setNewRoomName(e.target.value)}
                             placeholder="Neuen Basisraum hinzufügen"
                         />
-                        <button className="wg-btn-primary" onClick={addDraftRoom}>
+                        <button className="wg-btn-primary" onClick={handleAddRoom}>
                             Hinzufügen
-                        </button>
-                    </div>
-
-                    <div className="wg-actions-row">
-                        <button className="wg-btn-primary" onClick={saveBaseRooms}>
-                            Räume speichern
                         </button>
                     </div>
                 </div>

@@ -576,7 +576,6 @@
         width: 100%;
     }
 }
-
 .putzplan-table {
     display: grid;
     gap: 14px;
@@ -666,6 +665,15 @@
     transform: translateY(-1px);
 }
 
+.putzplan-current-week {
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.22) inset;
+}
+
+.putzplan-week-title-current {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
 .putzplan-rest {
     color: #8a7d97;
     font-style: italic;
@@ -705,7 +713,7 @@
 
 .putzplan-editor-controls {
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: 1fr auto auto;
     gap: 12px;
     align-items: center;
 }
@@ -750,13 +758,4 @@
     .putzplan-editor-add {
         grid-template-columns: 1fr;
     }
-}
-
-.putzplan-current-week {
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.22) inset;
-}
-
-.putzplan-week-title-current {
-    text-decoration: underline;
-    text-underline-offset: 4px;
 }
