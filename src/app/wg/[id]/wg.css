@@ -576,3 +576,121 @@
         width: 100%;
     }
 }
+
+.putzplan-table {
+    display: grid;
+    gap: 14px;
+    margin-top: 8px;
+}
+
+.putzplan-row {
+    display: grid;
+    grid-template-columns: 220px repeat(auto-fit, minmax(140px, 1fr));
+    gap: 14px;
+    align-items: stretch;
+}
+
+.putzplan-header {
+    align-items: center;
+}
+
+.putzplan-cell {
+    border-radius: 18px;
+    padding: 18px 16px;
+    min-height: 88px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: rgba(244, 236, 250, 1);
+    border: 1px solid rgba(186, 30, 213, 0.08);
+    color: #2c2234;
+    font-weight: 600;
+}
+
+.putzplan-week-cell {
+    background: linear-gradient(135deg, #b62fe2 0%, #d53df1 100%);
+    color: white;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    text-align: left;
+}
+
+.putzplan-user-cell {
+    background: rgba(255, 255, 255, 0.9);
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.putzplan-room-cell {
+    font-size: 16px;
+}
+
+.putzplan-week-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.putzplan-week-range {
+    font-size: 14px;
+    opacity: 0.95;
+}
+
+.putzplan-unassigned {
+    margin-top: 8px;
+    font-size: 13px;
+    opacity: 0.95;
+}
+
+.putzplan-rest {
+    color: #8a7d97;
+    font-style: italic;
+}
+
+.putzplan-editor {
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(70, 48, 88, 0.08);
+    display: grid;
+    gap: 14px;
+    animation: fadeSlideIn 0.18s ease;
+}
+
+.putzplan-editor-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #2c2234;
+}
+
+.putzplan-editor-list {
+    display: grid;
+    gap: 12px;
+}
+
+.putzplan-editor-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    align-items: center;
+}
+
+.putzplan-editor-add {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    align-items: center;
+}
+
+@media (max-width: 980px) {
+    .putzplan-row {
+        grid-template-columns: 1fr;
+    }
+
+    .putzplan-editor-row,
+    .putzplan-editor-add {
+        grid-template-columns: 1fr;
+    }
+}
