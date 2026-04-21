@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth/session";
 import { createWGSchema } from "@/lib/validation/wg";
 
+const DEFAULT_ROOMS = ["Küche", "Bad", "Wohnzimmer"];
+
 export async function POST(req: Request) {
     try {
         const user = await getSessionUser();
@@ -43,6 +45,14 @@ export async function POST(req: Request) {
                     wgId: createdWG.id,
                     role: "ADMIN",
                 },
+            });
+
+            await tx.cleaningRoom.createMany({
+                data: DEFAULT_ROOMS.map((name, index) => ({
+                    wgId: createdWG.id,
+                    name,
+                    sortOrder: index,
+                })),
             });
 
             return createdWG;
