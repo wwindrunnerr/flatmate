@@ -10,13 +10,17 @@ type WGMember = {
     role: "ADMIN" | "MEMBER";
 };
 
-type WGResponse = {
-    wg: {
-        id: string;
-        title: string;
-        currentUserRole: "ADMIN" | "MEMBER";
-        members: WGMember[];
-    };
+type WeekOverride = {
+    weekStart: string;
+    assignments: Record<string, string | null>;
+    unassignedRooms: string[];
+    expiresAt: string;
+};
+
+type PutzplanApiResponse = {
+    members: WGMember[];
+    rooms: string[];
+    weekOverrides: WeekOverride[];
 };
 
 type Assignment = {
@@ -26,14 +30,15 @@ type Assignment = {
 };
 
 type WeekPlan = {
+    weekIndex: number;
     weekLabel: string;
+    weekStartIso: string;
     dateRange: string;
     assignments: Assignment[];
     unassignedRooms: string[];
 };
 
-const STORAGE_PREFIX = "flatmate_putzplan_rooms_";
-const DEFAULT_ROOMS = ["Küche", "Bad", "Wohnzimmer"];
+type WeekOverridesMap = Record<string, WeekOverride>;
 
 function getMonday(date: Date) {
     const d = new Date(date);
@@ -69,7 +74,7 @@ function rotateArray<T>(arr: T[], offset: number): T[] {
     return [...arr.slice(normalized), ...arr.slice(0, normalized)];
 }
 
-function buildSchedule(
+function buildBaseSchedule(
     members: WGMember[],
     rooms: string[],
     weekCount: number
@@ -89,6 +94,7 @@ function buildSchedule(
     return Array.from({ length: weekCount }, (_, weekIndex) => {
         const rotatedRooms = rotateArray(paddedRooms, weekIndex);
         const weekStart = addDays(startMonday, weekIndex * 7);
+        const weekStartIso = weekStart.toISOString();
 
         const assignments: Assignment[] = members.map((member, memberIndex) => ({
             userId: member.id,
@@ -101,10 +107,37 @@ function buildSchedule(
             .filter((room): room is string => Boolean(room));
 
         return {
+            weekIndex,
             weekLabel: `KW ${weekIndex + 1}`,
+            weekStartIso,
             dateRange: formatWeekRange(weekStart),
             assignments,
             unassignedRooms,
+        };
+    });
+}
+
+function applyWeekOverrides(
+    baseSchedule: WeekPlan[],
+    overrides: WeekOverridesMap
+): WeekPlan[] {
+    return baseSchedule.map((week) => {
+        const override = overrides[week.weekStartIso];
+        if (!override) return week;
+
+        return {
+            ...week,
+            assignments: week.assignments.map((assignment) => ({
+                ...assignment,
+                room:
+                    override.assignments[assignment.userId] !== undefined
+                        ? override.assignments[assignment.userId]
+                        : assignment.room,
+            })),
+            unassignedRooms:
+                override.unassignedRooms.length > 0
+                    ? override.unassignedRooms
+                    : week.unassignedRooms,
         };
     });
 }
@@ -114,20 +147,25 @@ export default function PutzplanPage() {
     const wgId = params.id;
 
     const [members, setMembers] = useState<WGMember[]>([]);
-    const [currentUserRole, setCurrentUserRole] = useState<"ADMIN" | "MEMBER" | null>(null);
+    const [rooms, setRooms] = useState<string[]>([]);
+    const [draftRooms, setDraftRooms] = useState<string[]>([]);
+    const [newRoomName, setNewRoomName] = useState("");
+
+    const [weekOverrides, setWeekOverrides] = useState<WeekOverridesMap>({});
+    const [selectedWeekStartIso, setSelectedWeekStartIso] = useState<string | null>(null);
+    const [modalAssignments, setModalAssignments] = useState<Record<string, string | null>>({});
+    const [modalUnassignedRooms, setModalUnassignedRooms] = useState<string[]>([]);
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-
-    const [rooms, setRooms] = useState<string[]>(DEFAULT_ROOMS);
-    const [newRoomName, setNewRoomName] = useState("");
-    const [isEditorOpen, setIsEditorOpen] = useState(false);
+    const [saveMsg, setSaveMsg] = useState("");
 
     const weekCount = 6;
 
     useEffect(() => {
-        async function loadWG() {
+        async function loadPutzplan() {
             try {
-                const res = await fetch(`/api/wgs/${wgId}`, {
+                const res = await fetch(`/api/wgs/${wgId}/putzplan`, {
                     credentials: "include",
                     cache: "no-store",
                 });
@@ -138,26 +176,21 @@ export default function PutzplanPage() {
                 }
 
                 if (!res.ok) {
-                    setError("WG konnte nicht geladen werden.");
+                    setError("Putzplan konnte nicht geladen werden.");
                     setLoading(false);
                     return;
                 }
 
-                const data: WGResponse = await res.json();
-                setMembers(data.wg.members);
-                setCurrentUserRole(data.wg.currentUserRole);
+                const data: PutzplanApiResponse = await res.json();
+                setMembers(data.members);
+                setRooms(data.rooms.length > 0 ? data.rooms : ["Küche", "Bad", "Wohnzimmer"]);
+                setDraftRooms(data.rooms.length > 0 ? data.rooms : ["Küche", "Bad", "Wohnzimmer"]);
 
-                const savedRooms = localStorage.getItem(`${STORAGE_PREFIX}${wgId}`);
-                if (savedRooms) {
-                    try {
-                        const parsed = JSON.parse(savedRooms);
-                        if (Array.isArray(parsed)) {
-                            setRooms(parsed);
-                        }
-                    } catch {
-                        // ignore broken localStorage
-                    }
+                const overrideMap: WeekOverridesMap = {};
+                for (const override of data.weekOverrides) {
+                    overrideMap[override.weekStart] = override;
                 }
+                setWeekOverrides(overrideMap);
 
                 setLoading(false);
             } catch (err) {
@@ -167,29 +200,147 @@ export default function PutzplanPage() {
             }
         }
 
-        loadWG();
+        loadPutzplan();
     }, [wgId]);
 
-    useEffect(() => {
-        localStorage.setItem(`${STORAGE_PREFIX}${wgId}`, JSON.stringify(rooms));
-    }, [rooms, wgId]);
+    const schedule = useMemo(() => {
+        const base = buildBaseSchedule(members, rooms, weekCount);
+        return applyWeekOverrides(base, weekOverrides);
+    }, [members, rooms, weekOverrides]);
 
-    const schedule = useMemo(() => buildSchedule(members, rooms, weekCount), [members, rooms]);
+    const selectedWeek =
+        selectedWeekStartIso !== null
+            ? schedule.find((week) => week.weekStartIso === selectedWeekStartIso) ?? null
+            : null;
 
-    function handleRoomRename(index: number, value: string) {
-        setRooms((prev) => prev.map((room, i) => (i === index ? value : room)));
+    function openWeekModal(week: WeekPlan) {
+        setSelectedWeekStartIso(week.weekStartIso);
+
+        const assignments: Record<string, string | null> = {};
+        for (const assignment of week.assignments) {
+            assignments[assignment.userId] = assignment.room;
+        }
+
+        setModalAssignments(assignments);
+        setModalUnassignedRooms([...week.unassignedRooms]);
+        setSaveMsg("");
     }
 
-    function handleDeleteRoom(index: number) {
-        setRooms((prev) => prev.filter((_, i) => i !== index));
+    function closeWeekModal() {
+        setSelectedWeekStartIso(null);
+        setModalAssignments({});
+        setModalUnassignedRooms([]);
+        setSaveMsg("");
     }
 
-    function handleAddRoom() {
+    function updateModalAssignment(userId: string, value: string) {
+        setModalAssignments((prev) => ({
+            ...prev,
+            [userId]: value.trim() === "" ? null : value,
+        }));
+    }
+
+    function updateModalUnassignedRoom(index: number, value: string) {
+        setModalUnassignedRooms((prev) => prev.map((room, i) => (i === index ? value : room)));
+    }
+
+    function addModalUnassignedRoom() {
+        setModalUnassignedRooms((prev) => [...prev, "Neuer Raum"]);
+    }
+
+    function deleteModalUnassignedRoom(index: number) {
+        setModalUnassignedRooms((prev) => prev.filter((_, i) => i !== index));
+    }
+
+    async function saveWeekOverride() {
+        if (!selectedWeek) return;
+
+        try {
+            const res = await fetch(`/api/wgs/${wgId}/putzplan`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                credentials: "include",
+                body: JSON.stringify({
+                    weekOverride: {
+                        weekStart: selectedWeek.weekStartIso,
+                        assignments: modalAssignments,
+                        unassignedRooms: modalUnassignedRooms.map((r) => r.trim()).filter(Boolean),
+                    },
+                }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                setSaveMsg(data.error || "Woche konnte nicht gespeichert werden.");
+                return;
+            }
+
+            const override: WeekOverride = {
+                weekStart: selectedWeek.weekStartIso,
+                assignments: modalAssignments,
+                unassignedRooms: modalUnassignedRooms.map((r) => r.trim()).filter(Boolean),
+                expiresAt: "",
+            };
+
+            setWeekOverrides((prev) => ({
+                ...prev,
+                [selectedWeek.weekStartIso]: override,
+            }));
+
+            closeWeekModal();
+        } catch (err) {
+            console.error("PUTZPLAN_WEEK_SAVE_ERROR", err);
+            setSaveMsg("Woche konnte nicht gespeichert werden.");
+        }
+    }
+
+    function updateDraftRoom(index: number, value: string) {
+        setDraftRooms((prev) => prev.map((room, i) => (i === index ? value : room)));
+    }
+
+    function deleteDraftRoom(index: number) {
+        setDraftRooms((prev) => prev.filter((_, i) => i !== index));
+    }
+
+    function addDraftRoom() {
         const value = newRoomName.trim();
         if (!value) return;
 
-        setRooms((prev) => [...prev, value]);
+        setDraftRooms((prev) => [...prev, value]);
         setNewRoomName("");
+    }
+
+    async function saveBaseRooms() {
+        try {
+            const cleaned = draftRooms.map((r) => r.trim()).filter(Boolean);
+
+            const res = await fetch(`/api/wgs/${wgId}/putzplan`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                credentials: "include",
+                body: JSON.stringify({
+                    rooms: cleaned,
+                }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                setSaveMsg(data.error || "Räume konnten nicht gespeichert werden.");
+                return;
+            }
+
+            setRooms(cleaned);
+            setSaveMsg("Basisräume gespeichert.");
+        } catch (err) {
+            console.error("PUTZPLAN_ROOMS_SAVE_ERROR", err);
+            setSaveMsg("Räume konnten nicht gespeichert werden.");
+        }
     }
 
     if (loading) {
@@ -210,15 +361,6 @@ export default function PutzplanPage() {
                             Rotationssystem für Zimmer, Pausen und nicht zugeteilte Räume.
                         </p>
                     </div>
-
-                    {currentUserRole === "ADMIN" && (
-                        <button
-                            className="wg-card-action"
-                            onClick={() => setIsEditorOpen((prev) => !prev)}
-                        >
-                            {isEditorOpen ? "Schließen" : "Edit"}
-                        </button>
-                    )}
                 </div>
 
                 <div className="putzplan-table">
@@ -232,10 +374,18 @@ export default function PutzplanPage() {
                     </div>
 
                     {schedule.map((week) => (
-                        <div key={week.weekLabel} className="putzplan-row">
+                        <div key={week.weekStartIso} className="putzplan-row">
                             <div className="putzplan-cell putzplan-week-cell">
+                                <button
+                                    className="putzplan-week-edit-btn"
+                                    onClick={() => openWeekModal(week)}
+                                >
+                                    Edit
+                                </button>
+
                                 <div className="putzplan-week-title">{week.weekLabel}</div>
                                 <div className="putzplan-week-range">{week.dateRange}</div>
+
                                 {week.unassignedRooms.length > 0 && (
                                     <div className="putzplan-unassigned">
                                         Nicht zugeteilt: {week.unassignedRooms.join(", ")}
@@ -256,50 +406,129 @@ export default function PutzplanPage() {
                     ))}
                 </div>
 
-                {rooms.length === 0 && (
-                    <p className="wg-note">
-                        Es sind aktuell keine Räume definiert. Öffne „Edit“, um Räume hinzuzufügen.
-                    </p>
-                )}
+                <div className="putzplan-base-editor">
+                    <h3 className="putzplan-editor-title">Basisräume verwalten</h3>
 
-                {isEditorOpen && currentUserRole === "ADMIN" && (
-                    <div className="putzplan-editor">
-                        <h3 className="putzplan-editor-title">Räume bearbeiten</h3>
+                    <div className="putzplan-editor-list">
+                        {draftRooms.map((room, index) => (
+                            <div key={`${room}-${index}`} className="putzplan-editor-row">
+                                <div className="putzplan-editor-label">Raum {index + 1}</div>
 
-                        <div className="putzplan-editor-list">
-                            {rooms.map((room, index) => (
-                                <div key={`${room}-${index}`} className="putzplan-editor-row">
+                                <div className="putzplan-editor-controls">
                                     <input
                                         className="wg-input"
                                         value={room}
-                                        onChange={(e) => handleRoomRename(index, e.target.value)}
+                                        onChange={(e) => updateDraftRoom(index, e.target.value)}
                                         placeholder="Raumname"
                                     />
-
                                     <button
                                         className="wg-btn-danger"
-                                        onClick={() => handleDeleteRoom(index)}
+                                        onClick={() => deleteDraftRoom(index)}
                                     >
                                         Löschen
                                     </button>
                                 </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="putzplan-editor-add">
+                        <input
+                            className="wg-input"
+                            value={newRoomName}
+                            onChange={(e) => setNewRoomName(e.target.value)}
+                            placeholder="Neuen Basisraum hinzufügen"
+                        />
+                        <button className="wg-btn-primary" onClick={addDraftRoom}>
+                            Hinzufügen
+                        </button>
+                    </div>
+
+                    <div className="wg-actions-row">
+                        <button className="wg-btn-primary" onClick={saveBaseRooms}>
+                            Räume speichern
+                        </button>
+                    </div>
+                </div>
+
+                {saveMsg && (
+                    <p className={saveMsg.includes("gespeichert") ? "wg-success" : "wg-error"}>
+                        {saveMsg}
+                    </p>
+                )}
+            </div>
+
+            {selectedWeek && (
+                <div className="putzplan-modal-overlay" onClick={closeWeekModal}>
+                    <div
+                        className="putzplan-modal"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="wg-card-title-row">
+                            <div>
+                                <h3 className="putzplan-editor-title">
+                                    {selectedWeek.weekLabel} bearbeiten
+                                </h3>
+                                <p className="wg-card-subtitle">{selectedWeek.dateRange}</p>
+                            </div>
+
+                            <button className="wg-btn-secondary" onClick={closeWeekModal}>
+                                Schließen
+                            </button>
+                        </div>
+
+                        <div className="putzplan-editor-list">
+                            {selectedWeek.assignments.map((assignment) => (
+                                <div key={assignment.userId} className="putzplan-editor-row">
+                                    <div className="putzplan-editor-label">{assignment.userName}</div>
+                                    <input
+                                        className="wg-input"
+                                        value={modalAssignments[assignment.userId] ?? ""}
+                                        onChange={(e) =>
+                                            updateModalAssignment(assignment.userId, e.target.value)
+                                        }
+                                        placeholder="Raumname oder leer für Pause"
+                                    />
+                                </div>
+                            ))}
+
+                            {modalUnassignedRooms.map((room, index) => (
+                                <div key={`${room}-${index}`} className="putzplan-editor-row">
+                                    <div className="putzplan-editor-label">
+                                        Nicht zugeteilt {index + 1}
+                                    </div>
+
+                                    <div className="putzplan-editor-controls">
+                                        <input
+                                            className="wg-input"
+                                            value={room}
+                                            onChange={(e) =>
+                                                updateModalUnassignedRoom(index, e.target.value)
+                                            }
+                                            placeholder="Raumname"
+                                        />
+                                        <button
+                                            className="wg-btn-danger"
+                                            onClick={() => deleteModalUnassignedRoom(index)}
+                                        >
+                                            Löschen
+                                        </button>
+                                    </div>
+                                </div>
                             ))}
                         </div>
 
-                        <div className="putzplan-editor-add">
-                            <input
-                                className="wg-input"
-                                value={newRoomName}
-                                onChange={(e) => setNewRoomName(e.target.value)}
-                                placeholder="Neuen Raum hinzufügen"
-                            />
-                            <button className="wg-btn-primary" onClick={handleAddRoom}>
-                                Hinzufügen
+                        <div className="wg-actions-row">
+                            <button className="wg-btn-secondary" onClick={addModalUnassignedRoom}>
+                                Nicht zugeteilten Raum hinzufügen
+                            </button>
+                            <button className="wg-btn-primary" onClick={saveWeekOverride}>
+                                Woche speichern
                             </button>
                         </div>
                     </div>
-                )}
-            </div>
+                </div>
+            )}
         </div>
     );
 }

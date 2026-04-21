@@ -585,7 +585,7 @@
 
 .putzplan-row {
     display: grid;
-    grid-template-columns: 220px repeat(auto-fit, minmax(140px, 1fr));
+    grid-template-columns: 240px repeat(auto-fit, minmax(140px, 1fr));
     gap: 14px;
     align-items: stretch;
 }
@@ -609,12 +609,14 @@
 }
 
 .putzplan-week-cell {
+    position: relative;
     background: linear-gradient(135deg, #b62fe2 0%, #d53df1 100%);
     color: white;
     flex-direction: column;
     align-items: flex-start;
     justify-content: center;
     text-align: left;
+    padding-top: 52px;
 }
 
 .putzplan-user-cell {
@@ -644,18 +646,37 @@
     opacity: 0.95;
 }
 
+.putzplan-week-edit-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    border: none;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.22);
+    color: white;
+    padding: 8px 14px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.18s ease, transform 0.14s ease;
+}
+
+.putzplan-week-edit-btn:hover {
+    background: rgba(255, 255, 255, 0.32);
+    transform: translateY(-1px);
+}
+
 .putzplan-rest {
     color: #8a7d97;
     font-style: italic;
 }
 
-.putzplan-editor {
-    margin-top: 18px;
+.putzplan-base-editor {
+    margin-top: 24px;
     padding-top: 18px;
     border-top: 1px solid rgba(70, 48, 88, 0.08);
     display: grid;
     gap: 14px;
-    animation: fadeSlideIn 0.18s ease;
 }
 
 .putzplan-editor-title {
@@ -672,6 +693,18 @@
 
 .putzplan-editor-row {
     display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 12px;
+    align-items: center;
+}
+
+.putzplan-editor-label {
+    font-weight: 600;
+    color: #43354f;
+}
+
+.putzplan-editor-controls {
+    display: grid;
     grid-template-columns: 1fr auto;
     gap: 12px;
     align-items: center;
@@ -684,12 +717,36 @@
     align-items: center;
 }
 
+.putzplan-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(24, 18, 31, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 1000;
+}
+
+.putzplan-modal {
+    width: min(100%, 820px);
+    max-height: 85vh;
+    overflow-y: auto;
+    background: rgba(255, 255, 255, 0.96);
+    border-radius: 24px;
+    padding: 24px;
+    box-shadow: 0 18px 48px rgba(28, 18, 38, 0.18);
+    border: 1px solid rgba(186, 30, 213, 0.08);
+    animation: fadeSlideIn 0.18s ease;
+}
+
 @media (max-width: 980px) {
     .putzplan-row {
         grid-template-columns: 1fr;
     }
 
     .putzplan-editor-row,
+    .putzplan-editor-controls,
     .putzplan-editor-add {
         grid-template-columns: 1fr;
     }
