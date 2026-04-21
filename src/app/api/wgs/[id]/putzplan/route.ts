@@ -11,8 +11,6 @@ type PutzplanUpdateBody = {
     };
 };
 
-const DEFAULT_ROOMS = ["Küche", "Bad", "Wohnzimmer"];
-
 function startOfDay(value: Date) {
     const d = new Date(value);
     d.setHours(0, 0, 0, 0);
@@ -93,22 +91,6 @@ async function cleanupExpiredOverrides(wgId: string) {
     });
 }
 
-async function ensureDefaultRooms(wgId: string) {
-    const existingCount = await prisma.cleaningRoom.count({
-        where: { wgId },
-    });
-
-    if (existingCount > 0) return;
-
-    await prisma.cleaningRoom.createMany({
-        data: DEFAULT_ROOMS.map((name, index) => ({
-            wgId,
-            name,
-            sortOrder: index,
-        })),
-    });
-}
-
 export async function GET(
     _req: Request,
     context: { params: Promise<{ id: string }> }
@@ -120,7 +102,6 @@ export async function GET(
         if (auth.error) return auth.error;
 
         await cleanupExpiredOverrides(wgId);
-        await ensureDefaultRooms(wgId);
 
         const [memberships, rooms, overrides] = await Promise.all([
             prisma.membership.findMany({
@@ -192,15 +173,15 @@ export async function PUT(
                     where: { wgId },
                 });
 
-                const finalRooms = cleanedRooms.length > 0 ? cleanedRooms : DEFAULT_ROOMS;
-
-                await tx.cleaningRoom.createMany({
-                    data: finalRooms.map((name, index) => ({
-                        wgId,
-                        name,
-                        sortOrder: index,
-                    })),
-                });
+                if (cleanedRooms.length > 0) {
+                    await tx.cleaningRoom.createMany({
+                        data: cleanedRooms.map((name, index) => ({
+                            wgId,
+                            name,
+                            sortOrder: index,
+                        })),
+                    });
+                }
             });
         }
 
