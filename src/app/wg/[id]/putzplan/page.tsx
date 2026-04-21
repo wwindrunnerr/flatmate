@@ -610,7 +610,7 @@ export default function PutzplanPage() {
                             ))}
 
                             {modalUnassignedRooms.map((room, index) => (
-                                <div key={`${room}-${index}`} className="putzplan-editor-row">
+                                <div key={index} className="putzplan-editor-row">
                                     <div className="putzplan-editor-label">
                                         Nicht zugeteilt {index + 1}
                                     </div>
