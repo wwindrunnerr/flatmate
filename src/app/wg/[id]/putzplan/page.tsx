@@ -637,7 +637,7 @@ export default function PutzplanPage() {
 
                         <div className="wg-actions-row">
                             <button className="wg-btn-secondary" onClick={addModalUnassignedRoom}>
-                                Nicht zugeteilten Raum hinzufügen
+                                Raum hinzufügen
                             </button>
                             <button className="wg-btn-primary" onClick={saveWeekOverride}>
                                 Woche speichern
