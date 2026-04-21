@@ -31,6 +31,7 @@ type Assignment = {
 
 type WeekPlan = {
     weekIndex: number;
+    weekType: "previous" | "current" | "next" | "after-next";
     weekLabel: string;
     weekStartIso: string;
     dateRange: string;
@@ -74,10 +75,39 @@ function rotateArray<T>(arr: T[], offset: number): T[] {
     return [...arr.slice(normalized), ...arr.slice(0, normalized)];
 }
 
+function getWeekLabelByOffset(offset: number) {
+    switch (offset) {
+        case -1:
+            return "Letzte Woche";
+        case 0:
+            return "Diese Woche";
+        case 1:
+            return "Nächste Woche";
+        case 2:
+            return "Übernächste Woche";
+        default:
+            return `Woche ${offset}`;
+    }
+}
+
+function getWeekTypeByOffset(
+    offset: number
+): "previous" | "current" | "next" | "after-next" {
+    switch (offset) {
+        case -1:
+            return "previous";
+        case 0:
+            return "current";
+        case 1:
+            return "next";
+        default:
+            return "after-next";
+    }
+}
+
 function buildBaseSchedule(
     members: WGMember[],
-    rooms: string[],
-    weekCount: number
+    rooms: string[]
 ): WeekPlan[] {
     if (members.length === 0) return [];
 
@@ -89,11 +119,12 @@ function buildBaseSchedule(
         ...Array(Math.max(0, slotCount - cleanedRooms.length)).fill(null),
     ];
 
-    const startMonday = getMonday(new Date());
+    const currentMonday = getMonday(new Date());
+    const weekOffsets = [-1, 0, 1, 2];
 
-    return Array.from({ length: weekCount }, (_, weekIndex) => {
-        const rotatedRooms = rotateArray(paddedRooms, weekIndex);
-        const weekStart = addDays(startMonday, weekIndex * 7);
+    return weekOffsets.map((offset, visualIndex) => {
+        const rotatedRooms = rotateArray(paddedRooms, offset);
+        const weekStart = addDays(currentMonday, offset * 7);
         const weekStartIso = weekStart.toISOString();
 
         const assignments: Assignment[] = members.map((member, memberIndex) => ({
@@ -107,8 +138,9 @@ function buildBaseSchedule(
             .filter((room): room is string => Boolean(room));
 
         return {
-            weekIndex,
-            weekLabel: `KW ${weekIndex + 1}`,
+            weekIndex: visualIndex,
+            weekType: getWeekTypeByOffset(offset),
+            weekLabel: getWeekLabelByOffset(offset),
             weekStartIso,
             dateRange: formatWeekRange(weekStart),
             assignments,
@@ -160,8 +192,6 @@ export default function PutzplanPage() {
     const [error, setError] = useState("");
     const [saveMsg, setSaveMsg] = useState("");
 
-    const weekCount = 6;
-
     useEffect(() => {
         async function loadPutzplan() {
             try {
@@ -183,8 +213,8 @@ export default function PutzplanPage() {
 
                 const data: PutzplanApiResponse = await res.json();
                 setMembers(data.members);
-                setRooms(data.rooms.length > 0 ? data.rooms : ["Küche", "Bad", "Wohnzimmer"]);
-                setDraftRooms(data.rooms.length > 0 ? data.rooms : ["Küche", "Bad", "Wohnzimmer"]);
+                setRooms(data.rooms);
+                setDraftRooms(data.rooms);
 
                 const overrideMap: WeekOverridesMap = {};
                 for (const override of data.weekOverrides) {
@@ -204,7 +234,7 @@ export default function PutzplanPage() {
     }, [wgId]);
 
     const schedule = useMemo(() => {
-        const base = buildBaseSchedule(members, rooms, weekCount);
+        const base = buildBaseSchedule(members, rooms);
         return applyWeekOverrides(base, weekOverrides);
     }, [members, rooms, weekOverrides]);
 
@@ -335,7 +365,8 @@ export default function PutzplanPage() {
                 return;
             }
 
-            setRooms(cleaned);
+            setRooms(data.rooms);
+            setDraftRooms(data.rooms);
             setSaveMsg("Basisräume gespeichert.");
         } catch (err) {
             console.error("PUTZPLAN_ROOMS_SAVE_ERROR", err);
@@ -358,14 +389,14 @@ export default function PutzplanPage() {
                     <div>
                         <h2 className="wg-card-title">Aktueller Putzplan</h2>
                         <p className="wg-card-subtitle">
-                            Rotationssystem für Zimmer, Pausen und nicht zugeteilte Räume.
+                            Letzte, aktuelle und kommende Wochen im Rotationssystem.
                         </p>
                     </div>
                 </div>
 
                 <div className="putzplan-table">
                     <div className="putzplan-row putzplan-header">
-                        <div className="putzplan-cell putzplan-week-cell">Wochen</div>
+                        <div className="putzplan-cell putzplan-week-cell">Kalenderwochen</div>
                         {members.map((member) => (
                             <div key={member.id} className="putzplan-cell putzplan-user-cell">
                                 {member.name}
@@ -375,7 +406,11 @@ export default function PutzplanPage() {
 
                     {schedule.map((week) => (
                         <div key={week.weekStartIso} className="putzplan-row">
-                            <div className="putzplan-cell putzplan-week-cell">
+                            <div
+                                className={`putzplan-cell putzplan-week-cell ${
+                                    week.weekType === "current" ? "putzplan-current-week" : ""
+                                }`}
+                            >
                                 <button
                                     className="putzplan-week-edit-btn"
                                     onClick={() => openWeekModal(week)}
@@ -383,7 +418,14 @@ export default function PutzplanPage() {
                                     Edit
                                 </button>
 
-                                <div className="putzplan-week-title">{week.weekLabel}</div>
+                                <div
+                                    className={`putzplan-week-title ${
+                                        week.weekType === "current" ? "putzplan-week-title-current" : ""
+                                    }`}
+                                >
+                                    {week.weekLabel}
+                                </div>
+
                                 <div className="putzplan-week-range">{week.dateRange}</div>
 
                                 {week.unassignedRooms.length > 0 && (
