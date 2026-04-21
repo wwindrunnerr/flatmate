@@ -1142,8 +1142,37 @@ Typische Kerninteraktionen sollen im Normalfall innerhalb von etwa 1 bis 2 Sekun
 
 </div>
 
-Eine nach Prioritäten geordnete Liste der erkannten Architekturrisiken
-und/oder technischen Schulden.
+Dieser Abschnitt beschreibt die wichtigsten erkannten Risiken und technischen Schulden von FlatMate.
+Berücksichtigt werden dabei sowohl architekturrelevante Projektrisiken als auch Risiken, die sich aus dem gewählten Technologie-Stack, der Sicherheitslogik, der fachlichen Kernfunktionalität und dem organisatorischen Projektrahmen ergeben.
+
+Für FlatMate sind insbesondere solche Risiken relevant, die
+
+die Umsetzung des MVP gefährden,
+die Korrektheit fachlicher Kernprozesse beeinträchtigen,
+die Sicherheit von WG-, Rollen- und Benutzerdaten schwächen,
+die Wartbarkeit und Erweiterbarkeit des Systems verschlechtern,
+oder durch Zeitdruck zu technischer Schuld führen.
+
+> ![Risikomanagement](./Risikomanagement.pdf)
+
+
+<div class="formalpara-title">
+
+Motivation
+
+</div>
+
+FlatMate wird im Rahmen eines studentischen Software-Engineering-Projekts entwickelt.
+Daraus ergeben sich besondere Risiken: begrenzte Entwicklungszeit im Semester, parallele Belastung durch andere Module, sich weiterentwickelnde Anforderungen sowie teilweise noch aufzubauende Erfahrung mit Technologien und Architekturmustern.
+
+Gleichzeitig besitzt FlatMate mehrere fachlich und technisch sensible Kernbereiche.
+Dazu gehören insbesondere Authentifizierung, Rollen- und Rechteprüfung, WG-Beitritt per Invite sowie die korrekte Verarbeitung von Ausgaben, Anteilen und Salden.
+Fehler in diesen Bereichen würden nicht nur einzelne Funktionen betreffen, sondern die Verlässlichkeit des gesamten Systems in Frage stellen.
+
+Zusätzlich besteht das Risiko technischer Schulden.
+Diese entstehen insbesondere dann, wenn unter Zeitdruck schnelle Workarounds gewählt werden, die kurzfristig funktional sind, aber langfristig Wartbarkeit, Verständlichkeit und Erweiterbarkeit der Codebasis verschlechtern.
+
+
 
 > Risikomanagement ist Projektmanagement für Erwachsene.
 >
