@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../generated/prisma"
 }
 
@@ -7,29 +7,24 @@ datasource db {
   provider = "sqlite"
 }
 
-
-
-
 model User {
-  id               String          @id @default(cuid())
-  email            String          @unique
-  passwordHash     String
-  name             String
-  birthDate        DateTime?
-  avatarUrl        String?
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  name         String
+  birthDate    DateTime?
+  avatarUrl    String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
-  memberships           Membership[]
-  invitesSent           Invite[]        @relation("InviteCreator")
-  sessions              Session[]
-  eventsCreated         Event[]
-  expensesPaid          Expense[]            @relation("ExpensePaidBy")
-  expenseParticipations ExpenseParticipant[] @relation("ExpenseParticipation")
+  memberships              Membership[]
+  invitesSent              Invite[]             @relation("InviteCreator")
+  sessions                 Session[]
+  eventsCreated            Event[]
+  expensesPaid             Expense[]            @relation("ExpensePaidBy")
+  expenseParticipations    ExpenseParticipant[] @relation("ExpenseParticipation")
+  shoppingListItemsCreated ShoppingListItem[]   @relation("ShoppingListItemCreatedBy")
 }
-
-
-
 
 model Session {
   id        String   @id @default(cuid())
@@ -57,8 +52,9 @@ model WG {
   cleaningWeekOverrides CleaningWeekOverride[]
 
   expenses Expense[]
-}
 
+  shoppingListItems ShoppingListItem[]
+}
 
 model Membership {
   id       String   @id @default(cuid())
@@ -118,9 +114,6 @@ model CleaningRoom {
   @@index([wgId, sortOrder])
 }
 
-
-
-
 model CleaningWeekOverride {
   id                  String   @id @default(cuid())
   weekStart           DateTime
@@ -137,39 +130,55 @@ model CleaningWeekOverride {
   @@index([expiresAt])
 }
 
-
-
-
 model Expense {
-  id                String      @id @default(cuid())
-  description       String
-  amountCents       Int
-  createdAt         DateTime    @default(now())
+  id          String   @id @default(cuid())
+  description String
+  amountCents Int
+  createdAt   DateTime @default(now())
 
-  wgId              String
-  paidByUserId      String
+  wgId         String
+  paidByUserId String
 
-  wg                WG          @relation(fields: [wgId], references: [id], onDelete: Cascade)
-  paidBy            User        @relation("ExpensePaidBy", fields: [paidByUserId], references: [id], onDelete: Cascade)
-  participants      ExpenseParticipant[]
+  wg           WG                   @relation(fields: [wgId], references: [id], onDelete: Cascade)
+  paidBy       User                 @relation("ExpensePaidBy", fields: [paidByUserId], references: [id], onDelete: Cascade)
+  participants ExpenseParticipant[]
 
   @@index([wgId, createdAt])
   @@index([paidByUserId])
 }
 
-
-
-
 model ExpenseParticipant {
-  id                String      @id @default(cuid())
-  sortOrder         Int
+  id        String @id @default(cuid())
+  sortOrder Int
 
-  expenseId         String
-  userId            String
+  expenseId String
+  userId    String
 
-  expense           Expense     @relation(fields: [expenseId], references: [id], onDelete: Cascade)
-  user              User        @relation("ExpenseParticipation", fields: [userId], references: [id], onDelete: Cascade)
+  expense Expense @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  user    User    @relation("ExpenseParticipation", fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([expenseId, userId])
   @@index([userId])
+}
+
+model ShoppingListItem {
+  id        String             @id @default(cuid())
+  name      String
+  status    ShoppingItemStatus @default(TO_BUY)
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  wgId        String
+  createdById String
+
+  wg        WG   @relation(fields: [wgId], references: [id], onDelete: Cascade)
+  createdBy User @relation("ShoppingListItemCreatedBy", fields: [createdById], references: [id], onDelete: Cascade)
+
+  @@index([wgId, status, createdAt])
+  @@index([createdById])
+}
+
+enum ShoppingItemStatus {
+  TO_BUY
+  INVENTORY
 }
