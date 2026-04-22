@@ -576,9 +576,9 @@ export default function PutzplanPage() {
             </div>
 
             {selectedWeek && (
-                <div className="putzplan-modal-overlay" onClick={closeWeekModal}>
+                <div className="popup-overlay" onClick={closeWeekModal}>
                     <div
-                        className="putzplan-modal"
+                        className="popup-modal"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="wg-card-title-row">
