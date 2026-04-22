@@ -40,10 +40,52 @@ interface SessionUser {
     name: string;
 }
 
+interface BudgetSummaryItem {
+    otherUserId: string;
+    otherUserName: string;
+    direction: "you_owe" | "owes_you" | "settled";
+    amountCents: number;
+    amount: number;
+}
+
+interface ExpensesResponse {
+    expenses: Array<{
+        id: string;
+        description: string;
+        amountCents: number;
+        amount: number;
+        createdAt: string;
+        paidBy: {
+            id: string;
+            name: string;
+            email: string;
+        };
+        participantUserIds: string[];
+        participantNames: string[];
+    }>;
+    pairwiseBalances: Array<{
+        fromUserId: string;
+        fromUserName: string;
+        toUserId: string;
+        toUserName: string;
+        amountCents: number;
+        amount: number;
+    }>;
+    currentUserSummary: BudgetSummaryItem[];
+}
+
+function formatEuro(amount: number) {
+    return new Intl.NumberFormat("de-DE", {
+        style: "currency",
+        currency: "EUR",
+    }).format(amount);
+}
+
 export default function WGDashboard({ id }: { id: string }) {
     const [wg, setWG] = useState<WGData | null>(null);
     const [user, setUser] = useState<SessionUser | null>(null);
     const [events, setEvents] = useState<WGEvent[]>([]);
+    const [budgetSummary, setBudgetSummary] = useState<BudgetSummaryItem[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
 
@@ -97,10 +139,16 @@ export default function WGDashboard({ id }: { id: string }) {
                 const wgData = await wgRes.json();
                 setWG(wgData.wg);
 
-                const eventsRes = await fetch(`/api/wgs/${id}/events`, {
-                    credentials: "include",
-                    cache: "no-store",
-                });
+                const [eventsRes, budgetRes] = await Promise.all([
+                    fetch(`/api/wgs/${id}/events`, {
+                        credentials: "include",
+                        cache: "no-store",
+                    }),
+                    fetch(`/api/wgs/${id}/expenses`, {
+                        credentials: "include",
+                        cache: "no-store",
+                    }),
+                ]);
 
                 if (!eventsRes.ok) {
                     setError("Events konnten nicht geladen werden.");
@@ -110,6 +158,14 @@ export default function WGDashboard({ id }: { id: string }) {
 
                 const eventsData = await eventsRes.json();
                 setEvents(eventsData.events ?? []);
+
+                if (budgetRes.ok) {
+                    const budgetData: ExpensesResponse = await budgetRes.json();
+                    setBudgetSummary(budgetData.currentUserSummary ?? []);
+                } else {
+                    setBudgetSummary([]);
+                }
+
                 setLoading(false);
             } catch (err) {
                 console.error("WG_DASHBOARD_LOAD_ERROR", err);
@@ -275,18 +331,33 @@ export default function WGDashboard({ id }: { id: string }) {
                         <h2 className="wg-card-title">Budget</h2>
                     </div>
 
-                    <div className="wg-row">
-                        <span className="wg-row-label">Zum Denis</span>
-                        <span className="wg-row-value">78 €</span>
-                    </div>
-                    <div className="wg-row">
-                        <span className="wg-row-label">Zum Yaroslav</span>
-                        <span className="wg-row-value">67 €</span>
-                    </div>
-                    <div className="wg-row">
-                        <span className="wg-row-label">Von Mykyta</span>
-                        <span className="wg-row-value">2000 €</span>
-                    </div>
+                    {budgetSummary.length === 0 ? (
+                        <p className="wg-note">Aktuell gibt es keine offenen Schulden.</p>
+                    ) : (
+                        <div className="wg-dashboard-budget-list">
+                            {budgetSummary.slice(0, 4).map((item) => (
+                                <div key={item.otherUserId} className="wg-dashboard-budget-item">
+                                    {item.direction === "you_owe" && (
+                                        <p className="wg-row-label">
+                                            Du schuldest {item.otherUserName} {formatEuro(item.amount)}
+                                        </p>
+                                    )}
+
+                                    {item.direction === "owes_you" && (
+                                        <p className="wg-row-label">
+                                            Du bekommst von {item.otherUserName} {formatEuro(item.amount)}
+                                        </p>
+                                    )}
+
+                                    {item.direction === "settled" && (
+                                        <p className="wg-row-label">
+                                            Du bist quitt mit {item.otherUserName}
+                                        </p>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 <div className="wg-card">
