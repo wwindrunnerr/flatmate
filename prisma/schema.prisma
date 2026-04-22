@@ -7,21 +7,29 @@ datasource db {
   provider = "sqlite"
 }
 
-model User {
-  id           String    @id @default(cuid())
-  email        String    @unique
-  passwordHash String
-  name         String
-  birthDate    DateTime?
-  avatarUrl    String?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
 
-  memberships   Membership[]
-  invitesSent   Invite[]     @relation("InviteCreator")
-  sessions      Session[]
-  eventsCreated Event[]
+
+
+model User {
+  id               String          @id @default(cuid())
+  email            String          @unique
+  passwordHash     String
+  name             String
+  birthDate        DateTime?
+  avatarUrl        String?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  memberships           Membership[]
+  invitesSent           Invite[]        @relation("InviteCreator")
+  sessions              Session[]
+  eventsCreated         Event[]
+  expensesPaid          Expense[]            @relation("ExpensePaidBy")
+  expenseParticipations ExpenseParticipant[] @relation("ExpenseParticipation")
 }
+
+
+
 
 model Session {
   id        String   @id @default(cuid())
@@ -47,7 +55,10 @@ model WG {
 
   cleaningRooms         CleaningRoom[]
   cleaningWeekOverrides CleaningWeekOverride[]
+
+  expenses Expense[]
 }
+
 
 model Membership {
   id       String   @id @default(cuid())
@@ -107,6 +118,9 @@ model CleaningRoom {
   @@index([wgId, sortOrder])
 }
 
+
+
+
 model CleaningWeekOverride {
   id                  String   @id @default(cuid())
   weekStart           DateTime
@@ -121,4 +135,41 @@ model CleaningWeekOverride {
 
   @@unique([wgId, weekStart])
   @@index([expiresAt])
+}
+
+
+
+
+model Expense {
+  id                String      @id @default(cuid())
+  description       String
+  amountCents       Int
+  createdAt         DateTime    @default(now())
+
+  wgId              String
+  paidByUserId      String
+
+  wg                WG          @relation(fields: [wgId], references: [id], onDelete: Cascade)
+  paidBy            User        @relation("ExpensePaidBy", fields: [paidByUserId], references: [id], onDelete: Cascade)
+  participants      ExpenseParticipant[]
+
+  @@index([wgId, createdAt])
+  @@index([paidByUserId])
+}
+
+
+
+
+model ExpenseParticipant {
+  id                String      @id @default(cuid())
+  sortOrder         Int
+
+  expenseId         String
+  userId            String
+
+  expense           Expense     @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  user              User        @relation("ExpenseParticipation", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([expenseId, userId])
+  @@index([userId])
 }
