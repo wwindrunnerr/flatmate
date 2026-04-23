@@ -10,6 +10,7 @@ interface WGMember {
     avatarUrl: string | null;
     role: "ADMIN" | "MEMBER";
     joinedAt: string;
+    birthDate: string | null;
 }
 
 interface WGData {
@@ -27,6 +28,7 @@ interface WGEvent {
     startsAt: string;
     createdAt: string;
     createdById: string;
+    isBirthday?: boolean;
     createdBy: {
         id: string;
         name: string;
@@ -81,6 +83,30 @@ function formatEuro(amount: number) {
     }).format(amount);
 }
 
+function getNextBirthdayDate(birthDate: string) {
+    const original = new Date(birthDate);
+    if (Number.isNaN(original.getTime())) return null;
+
+    const now = new Date();
+    const currentYear = now.getFullYear();
+
+    const nextBirthday = new Date(
+        currentYear,
+        original.getMonth(),
+        original.getDate(),
+        12,
+        0,
+        0,
+        0
+    );
+
+    if (nextBirthday < now) {
+        nextBirthday.setFullYear(currentYear + 1);
+    }
+
+    return nextBirthday;
+}
+
 export default function WGDashboard({ id }: { id: string }) {
     const [wg, setWG] = useState<WGData | null>(null);
     const [user, setUser] = useState<SessionUser | null>(null);
@@ -100,6 +126,7 @@ export default function WGDashboard({ id }: { id: string }) {
     const [eventMsg, setEventMsg] = useState("");
     const [eventLoading, setEventLoading] = useState(false);
     const [isEventFormOpen, setIsEventFormOpen] = useState(false);
+    const [isAllEventsOpen, setIsAllEventsOpen] = useState(false);
 
     useEffect(() => {
         async function loadDashboard() {
@@ -312,12 +339,39 @@ export default function WGDashboard({ id }: { id: string }) {
         }
     }
 
+    const birthdayEvents = useMemo(() => {
+        if (!wg) return [];
+
+        return wg.members
+            .filter((member) => member.birthDate)
+            .map((member) => {
+                const nextBirthday = getNextBirthdayDate(member.birthDate as string);
+                if (!nextBirthday) return null;
+
+                return {
+                    id: `birthday-${member.id}`,
+                    title: `🎂 Geburtstag: ${member.name}`,
+                    description: `${member.name} hat Geburtstag`,
+                    startsAt: nextBirthday.toISOString(),
+                    createdAt: nextBirthday.toISOString(),
+                    createdById: member.id,
+                    createdBy: {
+                        id: member.id,
+                        name: member.name,
+                        email: member.email,
+                    },
+                    isBirthday: true,
+                } as WGEvent;
+            })
+            .filter(Boolean) as WGEvent[];
+    }, [wg]);
+
     const sortedEvents = useMemo(() => {
-        return [...events].sort(
+        return [...events, ...birthdayEvents].sort(
             (a, b) =>
                 new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime()
         );
-    }, [events]);
+    }, [events, birthdayEvents]);
 
     if (loading) return <div className="wg-loading">Lade WG...</div>;
     if (error) return <div className="wg-loading wg-error">{error}</div>;
@@ -411,38 +465,58 @@ export default function WGDashboard({ id }: { id: string }) {
                     {sortedEvents.length === 0 ? (
                         <p className="wg-note">Noch keine Events vorhanden.</p>
                     ) : (
-                        <div className="wg-events-list">
-                            {sortedEvents.slice(0, 5).map((event) => {
-                                const canDelete =
-                                    wg.currentUserRole === "ADMIN" || user?.id === event.createdById;
+                        <>
+                            <div className="wg-events-list">
+                                {sortedEvents.slice(0, 5).map((event) => {
+                                    const canDelete =
+                                        !event.isBirthday &&
+                                        (wg.currentUserRole === "ADMIN" || user?.id === event.createdById);
 
-                                return (
-                                    <div key={event.id} className="wg-event-item">
-                                        <div className="wg-event-main">
-                                            <p className="wg-event-title">{event.title}</p>
-                                            <p className="wg-event-date">
-                                                {formatEventDate(event.startsAt)}
-                                            </p>
-                                            {event.description && (
-                                                <p className="wg-event-description">{event.description}</p>
+                                    return (
+                                        <div key={event.id} className="wg-event-item">
+                                            <div className="wg-event-main">
+                                                <p className="wg-event-title">{event.title}</p>
+                                                <p className="wg-event-date">
+                                                    {formatEventDate(event.startsAt)}
+                                                </p>
+                                                {event.description && (
+                                                    <p className="wg-event-description">{event.description}</p>
+                                                )}
+                                                <p className="wg-event-meta">
+                                                    {event.isBirthday
+                                                        ? "Automatisch aus Geburtsdatum erzeugt"
+                                                        : `Erstellt von ${event.createdBy.name}`}
+                                                </p>
+                                            </div>
+
+                                            {canDelete && (
+                                                <button
+                                                    className="wg-btn-danger"
+                                                    onClick={() => handleDeleteEvent(event.id)}
+                                                >
+                                                    Löschen
+                                                </button>
                                             )}
-                                            <p className="wg-event-meta">
-                                                Erstellt von {event.createdBy.name}
-                                            </p>
                                         </div>
+                                    );
+                                })}
+                            </div>
 
-                                        {canDelete && (
-                                            <button
-                                                className="wg-btn-danger"
-                                                onClick={() => handleDeleteEvent(event.id)}
-                                            >
-                                                Löschen
-                                            </button>
-                                        )}
-                                    </div>
-                                );
-                            })}
-                        </div>
+                            <div
+                                style={{
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    marginTop: "16px",
+                                }}
+                            >
+                                <button
+                                    className="wg-btn-secondary"
+                                    onClick={() => setIsAllEventsOpen(true)}
+                                >
+                                    Alle Events anzeigen
+                                </button>
+                            </div>
+                        </>
                     )}
 
                     {isEventFormOpen && (
@@ -525,15 +599,15 @@ export default function WGDashboard({ id }: { id: string }) {
                                 </div>
 
                                 <div className="wg-member-meta">
-                  <span
-                      className={`wg-badge ${
-                          member.role === "ADMIN"
-                              ? "wg-badge-admin"
-                              : "wg-badge-member"
-                      }`}
-                  >
-                    {member.role}
-                  </span>
+                                    <span
+                                        className={`wg-badge ${
+                                            member.role === "ADMIN"
+                                                ? "wg-badge-admin"
+                                                : "wg-badge-member"
+                                        }`}
+                                    >
+                                        {member.role}
+                                    </span>
                                 </div>
                             </li>
                         ))}
@@ -590,6 +664,77 @@ export default function WGDashboard({ id }: { id: string }) {
                     </div>
                 )}
             </section>
+
+            {isAllEventsOpen && (
+                <div className="popup-overlay" onClick={() => setIsAllEventsOpen(false)}>
+                    <div
+                        className="popup-modal"
+                        onClick={(e) => e.stopPropagation()}
+                        style={{
+                            maxWidth: "720px",
+                            width: "100%",
+                            maxHeight: "80vh",
+                            overflowY: "auto",
+                        }}
+                    >
+                        <div className="wg-card-title-row" style={{ marginBottom: "16px" }}>
+                            <div>
+                                <h3 className="wg-card-title">Alle Events</h3>
+                                <p className="wg-card-subtitle">
+                                    Übersicht über alle anstehenden Events und Geburtstage.
+                                </p>
+                            </div>
+
+                            <button
+                                className="wg-btn-secondary"
+                                onClick={() => setIsAllEventsOpen(false)}
+                            >
+                                Schließen
+                            </button>
+                        </div>
+
+                        {sortedEvents.length === 0 ? (
+                            <p className="wg-note">Noch keine Events vorhanden.</p>
+                        ) : (
+                            <div className="wg-events-list">
+                                {sortedEvents.map((event) => {
+                                    const canDelete =
+                                        !event.isBirthday &&
+                                        (wg.currentUserRole === "ADMIN" || user?.id === event.createdById);
+
+                                    return (
+                                        <div key={event.id} className="wg-event-item">
+                                            <div className="wg-event-main">
+                                                <p className="wg-event-title">{event.title}</p>
+                                                <p className="wg-event-date">
+                                                    {formatEventDate(event.startsAt)}
+                                                </p>
+                                                {event.description && (
+                                                    <p className="wg-event-description">{event.description}</p>
+                                                )}
+                                                <p className="wg-event-meta">
+                                                    {event.isBirthday
+                                                        ? "Automatisch aus Geburtsdatum erzeugt"
+                                                        : `Erstellt von ${event.createdBy.name}`}
+                                                </p>
+                                            </div>
+
+                                            {canDelete && (
+                                                <button
+                                                    className="wg-btn-danger"
+                                                    onClick={() => handleDeleteEvent(event.id)}
+                                                >
+                                                    Löschen
+                                                </button>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
         </>
     );
 }
