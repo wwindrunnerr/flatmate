@@ -164,3 +164,45 @@
     background: #ffeaea;
     border-color: #e7aaaa;
 }
+
+.birthdate-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 4px 0;
+}
+
+.birthdate-edit-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    border: 1px solid #d9cfdf;
+    background: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.birthdate-edit-btn:hover {
+    background: #f7f2fb;
+    border-color: #cdb6dc;
+}
+
+.birthdate-edit-icon {
+    width: 18px;
+    height: 18px;
+    display: block;
+}
+
+.btn-primary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.btn-primary:hover {
+    text-decoration: none;
+}

@@ -1,19 +1,25 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
-import PencilIcon from "@/components/icons/PencilIcon";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import "./user.css";
 
-type UserData = {
+type Membership = {
+    id: string;
+    role: "ADMIN" | "MEMBER";
+    wg: {
+        id: string;
+        title: string;
+    };
+};
+
+type MeUser = {
     id: string;
     name: string;
     email: string;
     birthDate: string | null;
-};
-
-type WGItem = {
-    id: string;
-    title: string;
+    memberships: Membership[];
 };
 
 function formatBirthDate(value: string | null) {
@@ -34,127 +40,101 @@ function formatBirthDate(value: string | null) {
 
 function toInputDate(value: string | null) {
     if (!value) return "";
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) return "";
-
-    return date.toISOString().split("T")[0];
+    return new Date(value).toISOString().slice(0, 10);
 }
 
 export default function UserPage() {
-    const [user, setUser] = useState<UserData | null>(null);
-    const [wgs, setWgs] = useState<WGItem[]>([]);
-    const [loading, setLoading] = useState(true);
+    const router = useRouter();
 
+    const [user, setUser] = useState<MeUser | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+
+    // State fürs Modal
     const [isBirthDateOpen, setIsBirthDateOpen] = useState(false);
     const [birthDateInput, setBirthDateInput] = useState("");
     const [savingBirthDate, setSavingBirthDate] = useState(false);
     const [birthDateMsg, setBirthDateMsg] = useState("");
 
-    useEffect(() => {
-        async function loadUserData() {
-            try {
-                const [meRes, wgsRes] = await Promise.all([
-                    fetch("/api/me", {
-                        credentials: "include",
-                        cache: "no-store",
-                    }),
-                    fetch("/api/wgs", {
-                        credentials: "include",
-                        cache: "no-store",
-                    }),
-                ]);
-
-                if (meRes.status === 401 || wgsRes.status === 401) {
-                    window.location.href = "/login";
-                    return;
-                }
-
-                const meData = await meRes.json();
-                const wgsData = await wgsRes.json();
-
-                setUser(meData.user ?? null);
-                setWgs(wgsData.wgs ?? []);
-                setBirthDateInput(toInputDate(meData.user?.birthDate ?? null));
-                setLoading(false);
-            } catch (error) {
-                console.error("USER_PAGE_LOAD_ERROR", error);
-                setLoading(false);
-            }
-        }
-
-        loadUserData();
-    }, []);
-
-    async function handleSaveBirthDate() {
+    async function loadUser() {
         try {
-            setSavingBirthDate(true);
-            setBirthDateMsg("");
+            setLoading(true);
+            setError("");
 
             const res = await fetch("/api/me", {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json",
-                },
                 credentials: "include",
-                body: JSON.stringify({
-                    birthDate: birthDateInput ? birthDateInput : null,
-                }),
+                cache: "no-store",
             });
+
+            if (res.status === 401) {
+                window.location.href = "/login";
+                return;
+            }
 
             const data = await res.json();
 
             if (!res.ok) {
-                setBirthDateMsg(data.error || "Geburtsdatum konnte nicht gespeichert werden.");
-                setSavingBirthDate(false);
+                setError(data.error || "Benutzerdaten konnten nicht geladen werden.");
+                setLoading(false);
                 return;
             }
 
             setUser(data.user ?? null);
-            setBirthDateInput(toInputDate(data.user?.birthDate ?? null));
-            setBirthDateMsg("Geburtsdatum erfolgreich gespeichert.");
-            setIsBirthDateOpen(false);
-        } catch (error) {
-            console.error("SAVE_BIRTHDATE_ERROR", error);
-            setBirthDateMsg("Geburtsdatum konnte nicht gespeichert werden.");
-        } finally {
-            setSavingBirthDate(false);
+            // Input-Feld mit bestehendem Datum vorbefüllen
+            if (data.user?.birthDate) {
+                setBirthDateInput(toInputDate(data.user.birthDate));
+            }
+            setLoading(false);
+        } catch (err) {
+            console.error("USER_PAGE_LOAD_ERROR", err);
+            setError("Benutzerdaten konnten nicht geladen werden.");
+            setLoading(false);
         }
     }
 
-    async function handleDeleteBirthDate() {
-        try {
-            setSavingBirthDate(true);
-            setBirthDateMsg("");
+    useEffect(() => {
+        loadUser();
+    }, []);
 
+  async function handleSaveBirthDate() {
+        setSavingBirthDate(true);
+        setBirthDateMsg("");
+        
+        try {
             const res = await fetch("/api/me", {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                credentials: "include",
-                body: JSON.stringify({
-                    birthDate: null,
-                }),
+                // Das Datum an die API senden
+                body: JSON.stringify({ birthDate: birthDateInput }),
             });
 
-            const data = await res.json();
+            // -- NEU: Sichereres Lesen der Server-Antwort --
+            const text = await res.text();
+            let data: any = {};
+            
+            if (text) {
+                try {
+                    data = JSON.parse(text);
+                } catch (parseError) {
+                    console.error("Die Serverantwort war kein JSON. Antwort war:", text);
+                }
+            }
 
             if (!res.ok) {
-                setBirthDateMsg(data.error || "Geburtsdatum konnte nicht gelöscht werden.");
+                setBirthDateMsg(data.error || `Fehler beim Speichern (Status: ${res.status})`);
                 setSavingBirthDate(false);
                 return;
             }
 
-            setUser(data.user ?? null);
-            setBirthDateInput("");
-            setBirthDateMsg("Geburtsdatum wurde gelöscht.");
-            setIsBirthDateOpen(false);
-        } catch (error) {
-            console.error("DELETE_BIRTHDATE_ERROR", error);
-            setBirthDateMsg("Geburtsdatum konnte nicht gelöscht werden.");
-        } finally {
+            // Erfolgreich gespeichert
+            await loadUser(); 
+            setIsBirthDateOpen(false); 
+            setSavingBirthDate(false);
+        } catch (err) {
+            console.error("SAVE_BIRTHDATE_ERROR", err);
+            setBirthDateMsg("Ein unerwarteter Verbindungsfehler ist aufgetreten.");
             setSavingBirthDate(false);
         }
     }
@@ -169,202 +149,204 @@ export default function UserPage() {
                 credentials: "include",
             });
 
+            const text = await res.text();
+            const data = text ? JSON.parse(text) : {};
+
             if (!res.ok) {
-                alert("WG konnte nicht verlassen werden.");
+                alert(data.error || "WG konnte nicht verlassen werden.");
                 return;
             }
 
-            setWgs((prev) => prev.filter((wg) => wg.id !== wgId));
-        } catch (error) {
-            console.error("LEAVE_WG_ERROR", error);
+            await loadUser();
+        } catch (err) {
+            console.error("LEAVE_WG_ERROR", err);
             alert("WG konnte nicht verlassen werden.");
         }
     }
 
+    async function handleDeleteWG(wgId: string) {
+        const confirmed = window.confirm("Möchtest du diese WG wirklich löschen?");
+        if (!confirmed) return;
+
+        try {
+            const res = await fetch(`/api/wgs/${wgId}`, {
+                method: "DELETE",
+                credentials: "include",
+            });
+
+            const text = await res.text();
+            const data = text ? JSON.parse(text) : {};
+
+            if (!res.ok) {
+                alert(data.error || "WG konnte nicht gelöscht werden.");
+                return;
+            }
+
+            await loadUser();
+        } catch (err) {
+            console.error("DELETE_WG_ERROR", err);
+            alert("WG konnte nicht gelöscht werden.");
+        }
+    }
+
+    async function handleLogout() {
+        try {
+            const res = await fetch("/api/logout", {
+                method: "POST",
+                credentials: "include",
+            });
+
+            if (!res.ok) {
+                alert("Abmelden fehlgeschlagen.");
+                return;
+            }
+
+            window.location.href = "/login";
+        } catch (err) {
+            console.error("LOGOUT_ERROR", err);
+            alert("Abmelden fehlgeschlagen.");
+        }
+    }
+
     if (loading) {
-        return <div className="wg-loading">Lade Benutzerprofil...</div>;
+        return <div className="user-page">Lade Profil...</div>;
+    }
+
+    if (error) {
+        return <div className="user-page">{error}</div>;
     }
 
     if (!user) {
-        return <div className="wg-loading wg-error">Benutzerdaten konnten nicht geladen werden.</div>;
+        return <div className="user-page">Kein Benutzer gefunden.</div>;
     }
 
     return (
-        <div className="wg-stack">
-            <div className="wg-card">
-                <h1 className="wg-title" style={{ marginBottom: "12px" }}>
-                    Willkommen, {user.name}!
-                </h1>
+        <>
+            <div className="user-page">
+                <div className="user-card">
+                    <h1 className="user-title">Willkommen, {user.name}!</h1>
+                    <p className="user-subtitle">
+                        Hier findest du eine Übersicht über dein Profil und deine WGs.
+                    </p>
 
-                <p className="wg-subtitle" style={{ marginBottom: "32px" }}>
-                    Hier findest du eine Übersicht über dein Profil und deine WGs.
-                </p>
-
-                <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "24px" }}>
-                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                        <strong>E-Mail:</strong>
-                        <span>{user.email}</span>
+                    <div className="user-info">
+                        <p>
+                            <span className="info-label">E-Mail:</span> {user.email}
+                        </p>
+                        <p>
+                            <span className="info-label">Geburtsdatum:</span>{" "}
+                            {formatBirthDate(user.birthDate)}
+                            <button
+                                type="button"
+                                className="edit-birthdate-btn"
+                                onClick={() => setIsBirthDateOpen(true)}
+                                style={{ marginLeft: "10px" }}
+                            >
+                                {user.birthDate ? "Bearbeiten" : "Hinzufügen"}
+                            </button>
+                        </p>
                     </div>
 
-                    <div style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
-                        <strong>Geburtsdatum:</strong>
-                        <span>{formatBirthDate(user.birthDate)}</span>
+                    <div className="section">
+                        <h2 className="section-title">Deine WGs</h2>
+
+                        {user.memberships.length === 0 ? (
+                            <p className="muted-text">Du bist aktuell in keiner WG.</p>
+                        ) : (
+                            <ul className="wg-list">
+                                {user.memberships.map((membership) => (
+                                    <li key={membership.id} className="wg-item">
+                                        <div className="wg-card">
+                                            <Link
+                                                href={`/wg/${membership.wg.id}`}
+                                                className="btn-primary"
+                                            >
+                                                {membership.wg.title}
+                                            </Link>
+
+                                            <button
+                                                className="wg-leave-btn"
+                                                onClick={() => handleLeaveWG(membership.wg.id)}
+                                            >
+                                                WG verlassen
+                                            </button>
+
+                                            {membership.role === "ADMIN" && (
+                                                <button
+                                                    className="wg-delete-btn"
+                                                    onClick={() => handleDeleteWG(membership.wg.id)}
+                                                >
+                                                    WG löschen
+                                                </button>
+                                            )}
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
 
                         <button
-                            className="wg-btn-secondary"
-                            onClick={() => {
-                                setBirthDateInput(toInputDate(user.birthDate));
-                                setBirthDateMsg("");
-                                setIsBirthDateOpen(true);
-                            }}
-                            style={{
-                                display: "inline-flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                padding: "8px 10px",
-                                minWidth: "44px",
-                            }}
-                            aria-label="Geburtsdatum bearbeiten"
-                            title="Geburtsdatum bearbeiten"
+                            className="btn-secondary full-width"
+                            onClick={() => router.push("/create_wg")}
                         >
-                            <PencilIcon />
+                            Neue WG erstellen
                         </button>
                     </div>
-                </div>
 
-                {birthDateMsg && (
-                    <p className={birthDateMsg.includes("erfolgreich") || birthDateMsg.includes("gelöscht") ? "wg-success" : "wg-error"}>
-                        {birthDateMsg}
-                    </p>
-                )}
+                    <button className="logout-btn" onClick={handleLogout}>
+                        Abmelden
+                    </button>
+                </div>
             </div>
 
-            <div className="wg-card">
-                <h2 className="wg-card-title" style={{ marginBottom: "20px" }}>
-                    Deine WGs
-                </h2>
-
-                <div
-                    style={{
-                        display: "flex",
-                        flexWrap: "wrap",
-                        gap: "20px",
-                        marginBottom: "24px",
-                    }}
-                >
-                    {wgs.map((wg) => (
-                        <div
-                            key={wg.id}
-                            style={{
-                                width: "250px",
-                                minHeight: "260px",
-                                borderRadius: "28px",
-                                border: "1px solid #eeddf4",
-                                padding: "24px",
-                                background: "#fff",
-                                display: "flex",
-                                flexDirection: "column",
-                                alignItems: "center",
-                                justifyContent: "flex-start",
-                                gap: "14px",
-                            }}
-                        >
-                            <Link
-                                href={`/wg/${wg.id}`}
-                                style={{
-                                    width: "100%",
-                                    background: "linear-gradient(180deg, #c92be3 0%, #b11fda 100%)",
-                                    color: "#fff",
-                                    textDecoration: "none",
-                                    borderRadius: "16px",
-                                    padding: "22px 16px",
-                                    textAlign: "center",
-                                    fontWeight: 700,
-                                    fontSize: "18px",
-                                }}
-                            >
-                                {wg.title}
-                            </Link>
-
-                            <button
-                                className="wg-btn-secondary"
-                                onClick={() => handleLeaveWG(wg.id)}
-                                style={{ width: "100%" }}
-                            >
-                                WG verlassen
-                            </button>
-                        </div>
-                    ))}
-                </div>
-
-                <Link
-                    href="/create_wg"
-                    className="wg-btn-secondary"
-                    style={{
-                        width: "100%",
-                        display: "inline-flex",
-                        justifyContent: "center",
-                        textDecoration: "none",
-                    }}
-                >
-                    Neue WG erstellen
-                </Link>
-            </div>
-
+            {/* NEU: Das Modal für das Geburtsdatum */}
             {isBirthDateOpen && (
-                <div className="popup-overlay" onClick={() => setIsBirthDateOpen(false)}>
-                    <div
-                        className="popup-modal"
-                        onClick={(e) => e.stopPropagation()}
-                        style={{ maxWidth: "520px", width: "100%" }}
+                <div 
+                    style={{
+                        position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+                        backgroundColor: "rgba(0,0,0,0.5)", display: "flex",
+                        alignItems: "center", justifyContent: "center", zIndex: 1000
+                    }}
+                >
+                    <div 
+                        style={{
+                            background: "white", padding: "2rem", borderRadius: "8px", 
+                            width: "90%", maxWidth: "400px", color: "black"
+                        }}
                     >
-                        <div className="wg-card-title-row" style={{ marginBottom: "16px" }}>
-                            <div>
-                                <h3 className="wg-card-title">Geburtsdatum bearbeiten</h3>
-                                <p className="wg-card-subtitle">
-                                    Hier kannst du dein Geburtsdatum angeben, ändern oder löschen.
-                                </p>
-                            </div>
-                        </div>
+                        <h3>Geburtsdatum {user.birthDate ? "bearbeiten" : "hinzufügen"}</h3>
+                        
+                        <input
+                            type="date"
+                            value={birthDateInput}
+                            onChange={(e) => setBirthDateInput(e.target.value)}
+                            style={{ 
+                                width: "100%", padding: "0.5rem", marginTop: "1rem", 
+                                marginBottom: "1rem", border: "1px solid #ccc", borderRadius: "4px" 
+                            }}
+                        />
 
-                        <div className="wg-event-form">
-                            <input
-                                className="wg-input"
-                                type="date"
-                                value={birthDateInput}
-                                onChange={(e) => setBirthDateInput(e.target.value)}
+                        {birthDateMsg && <p style={{ color: "red", fontSize: "0.9rem" }}>{birthDateMsg}</p>}
+
+                        <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
+                            <button
+                                onClick={() => setIsBirthDateOpen(false)}
+                                className="btn-secondary"
                                 disabled={savingBirthDate}
-                            />
-
-                            <div className="wg-actions-row">
-                                <button
-                                    className="wg-btn-danger"
-                                    onClick={handleDeleteBirthDate}
-                                    disabled={savingBirthDate}
-                                >
-                                    Löschen
-                                </button>
-
-                                <button
-                                    className="wg-btn-secondary"
-                                    onClick={() => setIsBirthDateOpen(false)}
-                                    disabled={savingBirthDate}
-                                >
-                                    Abbrechen
-                                </button>
-
-                                <button
-                                    className="wg-btn-primary"
-                                    onClick={handleSaveBirthDate}
-                                    disabled={savingBirthDate}
-                                >
-                                    {savingBirthDate ? "Wird gespeichert..." : "Speichern"}
-                                </button>
-                            </div>
+                            >
+                                Abbrechen
+                            </button>
+                            <button
+                                onClick={handleSaveBirthDate}
+                                className="btn-primary"
+                                disabled={savingBirthDate}
+                            >
+                                {savingBirthDate ? "Speichert..." : "Speichern"}
+                            </button>
                         </div>
                     </div>
                 </div>
             )}
-        </div>
+        </>
     );
 }

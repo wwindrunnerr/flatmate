@@ -14,13 +14,30 @@ export async function GET() {
         }
 
         const user = await prisma.user.findUnique({
-            where: { id: sessionUser.id },
+            where: {
+                id: sessionUser.id,
+            },
             select: {
                 id: true,
                 name: true,
                 email: true,
                 birthDate: true,
-                avatarUrl: true,
+                memberships: {
+                    orderBy: {
+                        joinedAt: "asc",
+                    },
+                    select: {
+                        id: true,
+                        role: true,
+                        wg: {
+                            select: {
+                                id: true,
+                                title: true,
+                                deletedAt: true,
+                            },
+                        },
+                    },
+                },
             },
         });
 
@@ -31,67 +48,57 @@ export async function GET() {
             );
         }
 
-        return NextResponse.json({ user });
+        return NextResponse.json({
+            user: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                birthDate: user.birthDate,
+                memberships: user.memberships
+                    .filter((membership) => membership.wg.deletedAt === null)
+                    .map((membership) => ({
+                        id: membership.id,
+                        role: membership.role,
+                        wg: {
+                            id: membership.wg.id,
+                            title: membership.wg.title,
+                        },
+                    })),
+            },
+        });
     } catch (error) {
-        console.error("ME_GET_ERROR", error);
+        console.error("ME_ERROR", error);
         return NextResponse.json(
             { error: "Interner Serverfehler" },
             { status: 500 }
         );
     }
 }
-
 export async function PATCH(req: Request) {
     try {
         const sessionUser = await getSessionUser();
 
         if (!sessionUser) {
-            return NextResponse.json(
-                { error: "Nicht eingeloggt" },
-                { status: 401 }
-            );
+            return NextResponse.json({ error: "Nicht eingeloggt" }, { status: 401 });
         }
 
         const body = await req.json();
-        const { birthDate } = body as { birthDate?: string | null };
-
-        let parsedBirthDate: Date | null = null;
-
-        if (birthDate) {
-            const date = new Date(birthDate);
-
-            if (Number.isNaN(date.getTime())) {
-                return NextResponse.json(
-                    { error: "Ungültiges Geburtsdatum" },
-                    { status: 400 }
-                );
-            }
-
-            parsedBirthDate = date;
-        }
+        
+        // Falls ein Datum kommt, umwandeln, sonst null (wenn der User es löscht)
+        const parsedDate = body.birthDate ? new Date(body.birthDate) : null;
 
         const updatedUser = await prisma.user.update({
             where: { id: sessionUser.id },
-            data: {
-                birthDate: parsedBirthDate,
-            },
-            select: {
-                id: true,
-                name: true,
-                email: true,
-                birthDate: true,
-                avatarUrl: true,
-            },
+            data: { birthDate: parsedDate },
+            select: { id: true, birthDate: true }
         });
 
-        return NextResponse.json({
-            success: true,
-            user: updatedUser,
-        });
+        return NextResponse.json({ user: updatedUser });
     } catch (error) {
-        console.error("ME_PATCH_ERROR", error);
+        // HIER WIRD DER FEHLER IM TERMINAL ANGEZEIGT
+        console.error("UPDATE_BIRTHDATE_ERROR", error);
         return NextResponse.json(
-            { error: "Interner Serverfehler" },
+            { error: "Fehler beim Speichern in der Datenbank" },
             { status: 500 }
         );
     }
