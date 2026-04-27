@@ -8,6 +8,10 @@
 > * [Querschnittliche Konzepte](#querschnittliche-konzepte)
 > * [Architekturentscheidungen](#architekturentscheidungen)
 > * [Qualitätsanforderungen](#qualitätsanforderungen)
+> * [Risiken und technische Schulden](#risiken-und-technische-schulden)
+> * [Glossar](#glossar)
+
+
 
 # Einführung und Ziele
 
@@ -1210,11 +1214,8 @@ online-Dokumentation (auf Englisch!).
 
 </div>
 
-Die wesentlichen fachlichen und technischen Begriffe, die Stakeholder im
-Zusammenhang mit dem System verwenden.
-
-Nutzen Sie das Glossar ebenfalls als Übersetzungsreferenz, falls Sie in
-mehrsprachigen Teams arbeiten.
+Die folgenden Begriffe definieren die wichtigsten fachlichen und technischen Konzepte des Systems **FlatMate**.  
+Sie dienen dazu, ein einheitliches Verständnis zentraler Begriffe im Projekt sicherzustellen und Missverständnisse bei Entwicklung, Dokumentation und Nutzung zu vermeiden.
 
 <div class="formalpara-title">
 
@@ -1222,32 +1223,26 @@ mehrsprachigen Teams arbeiten.
 
 </div>
 
-Sie sollten relevante Begriffe klar definieren, so dass alle Beteiligten
+Da im Projekt sowohl fachliche Konzepte der WG-Verwaltung als auch technische Begriffe aus Webentwicklung, Datenmodellierung und Zugriffssteuerung verwendet werden, ist eine einheitliche Terminologie besonders wichtig.  
+Das Glossar unterstützt alle Beteiligten dabei, Begriffe konsistent zu verwenden und dieselben Sachverhalte nicht unterschiedlich zu benennen.
 
-- diese Begriffe identisch verstehen, und
 
-- vermeiden, mehrere Begriffe für die gleiche Sache zu haben.
-
-<div class="formalpara-title">
-
-**Form**
-
-</div>
-
-Zweispaltige Tabelle mit \<Begriff\> und \<Definition\>.
-
-Eventuell weitere Spalten mit Übersetzungen, falls notwendig.
-
-<div class="formalpara-title">
-
-**Weiterführende Informationen**
-
-</div>
-
-Siehe [Glossar](https://docs.arc42.org/section-12/) in der
-online-Dokumentation (auf Englisch!).
-
-| Begriff         | Definition         |
-|-----------------|--------------------|
-| *\<Begriff-1\>* | *\<Definition-1\>* |
-| *\<Begriff-2*   | *\<Definition-2\>* |
+| Begriff                      | Definition |
+|------------------------------|------------|
+| **1. FlatMate**              | Name der entwickelten Webanwendung zur Verwaltung einer Wohngemeinschaft. Die Anwendung unterstützt unter anderem WG-Erstellung, Einladungen, Budget, Putzplan, Einkaufsliste und Termine. |
+| **2. WG**                    | Eine Wohngemeinschaft innerhalb des Systems. Sie bildet die zentrale organisatorische Einheit, zu der Mitglieder, Ausgaben, Einladungen, Räume und weitere Funktionen gehören. |
+| **3. Mitglied**              | Ein registrierter Nutzer, der einer bestimmten WG beigetreten ist. Mitglieder können abhängig von ihrer Rolle auf WG-Funktionen zugreifen. |
+| **4. Admin**                 | Ein WG-Mitglied mit erweiterten Rechten. Admins dürfen beispielsweise Einladungslinks erstellen. |
+| **5. Mitgliedsrolle**        | Die Rolle eines Nutzers innerhalb einer WG. Im aktuellen System wird zwischen `ADMIN` und `MEMBER` unterschieden. |
+| **6. Invite**                | Ein erzeugter Link bzw. Code, über den neue Nutzer einer WG beitreten können. Der Invite ist einer bestimmten WG zugeordnet und wird von einem Mitglied mit entsprechenden Rechten erstellt. |
+| **7. Budget**                | Das Fachmodul zur Verwaltung gemeinsamer Ausgaben und zur Berechnung offener Schulden zwischen WG-Mitgliedern. Es basiert auf erfassten Ausgaben und nicht auf manuell eingegebenen Schulden. |
+| **8. Ausgabe**               | Ein einzelner erfasster Kostenposten im Budget-Modul. Eine Ausgabe enthält unter anderem Beschreibung, Betrag, zahlende Person und die Mitglieder, zwischen denen die Kosten aufgeteilt werden. |
+| **9. Schulden**              | Die aus den Ausgaben berechneten finanziellen Verpflichtungen zwischen WG-Mitgliedern. Sie werden automatisch aggregiert und zeigen, wer wem aktuell Geld schuldet oder von wem Geld erhält. |
+| **10. Split**                | Die Zuordnung, zwischen welchen Mitgliedern eine Ausgabe aufgeteilt wird. Ein Split bestimmt, welche Personen an den Kosten einer Ausgabe beteiligt sind. |
+| **11. Expense**              | Technischer Datenbankbegriff für eine gespeicherte Ausgabe im Budget-Modul. Ein `Expense` enthält die Kerndaten einer Ausgabe und ist mit einer WG sowie dem zahlenden Nutzer verknüpft. |
+| **12. ExpenseParticipant**   | Technische Zuordnungstabelle, die speichert, welche Nutzer an einer bestimmten Ausgabe beteiligt sind. Sie bildet die Aufteilung einer Ausgabe auf mehrere Mitglieder ab. |
+| **13. Putzplan**             | Das Fachmodul zur Organisation von Reinigungsaufgaben innerhalb der WG. Es verteilt Räume oder Aufgaben auf Mitglieder und unterstützt rotierende Zuständigkeiten pro Kalenderwoche. |
+| **14. CleaningRoom**         | Technischer Datenbankbegriff für einen Raum, der im Putzplan berücksichtigt wird. Beispiele sind Küche, Bad oder Wohnzimmer. |
+| **15. CleaningWeekOverride** | Technischer Begriff für eine wochenbezogene Überschreibung des Putzplans. Damit kann die Standardrotation für eine bestimmte Woche manuell angepasst werden. |
+| **16. Event**                | Ein Termin oder Ereignis innerhalb einer WG, z. B. Waschtag, Hausmeisterbesuch oder Geburtstag. Events können erstellt und innerhalb der WG angezeigt werden. |
+| **17. Mockup**               | Ein visueller Entwurf der Benutzeroberfläche. Mockups dienen im Projekt als Vorlage für Layout, Bedienlogik und die schrittweise Umsetzung einzelner Screens. |
