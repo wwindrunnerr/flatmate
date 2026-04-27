@@ -42,6 +42,14 @@ interface SessionUser {
     name: string;
 }
 
+interface ShoppingItem {
+    id: string;
+    name: string;
+    status: "TO_BUY" | "INVENTORY";
+    createdAt: string;
+    updatedAt: string;
+}
+
 interface BudgetSummaryItem {
     otherUserId: string;
     otherUserName: string;
@@ -112,6 +120,7 @@ export default function WGDashboard({ id }: { id: string }) {
     const [user, setUser] = useState<SessionUser | null>(null);
     const [events, setEvents] = useState<WGEvent[]>([]);
     const [budgetSummary, setBudgetSummary] = useState<BudgetSummaryItem[]>([]);
+    const [shoppingItems, setShoppingItems] = useState<ShoppingItem[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
 
@@ -127,6 +136,7 @@ export default function WGDashboard({ id }: { id: string }) {
     const [eventLoading, setEventLoading] = useState(false);
     const [isEventFormOpen, setIsEventFormOpen] = useState(false);
     const [isAllEventsOpen, setIsAllEventsOpen] = useState(false);
+    const [isShoppingExpanded, setIsShoppingExpanded] = useState(false);
 
     useEffect(() => {
         async function loadDashboard() {
@@ -166,12 +176,16 @@ export default function WGDashboard({ id }: { id: string }) {
                 const wgData = await wgRes.json();
                 setWG(wgData.wg);
 
-                const [eventsRes, budgetRes] = await Promise.all([
+                const [eventsRes, budgetRes, shoppingRes] = await Promise.all([
                     fetch(`/api/wgs/${id}/events`, {
                         credentials: "include",
                         cache: "no-store",
                     }),
                     fetch(`/api/wgs/${id}/expenses`, {
+                        credentials: "include",
+                        cache: "no-store",
+                    }),
+                    fetch(`/api/wgs/${id}/shopping-list`, {
                         credentials: "include",
                         cache: "no-store",
                     }),
@@ -191,6 +205,13 @@ export default function WGDashboard({ id }: { id: string }) {
                     setBudgetSummary(budgetData.currentUserSummary ?? []);
                 } else {
                     setBudgetSummary([]);
+                }
+
+                if (shoppingRes.ok) {
+                    const shoppingData = await shoppingRes.json();
+                    setShoppingItems(shoppingData.toBuyItems ?? []);
+                } else {
+                    setShoppingItems([]);
                 }
 
                 setLoading(false);
@@ -417,19 +438,87 @@ export default function WGDashboard({ id }: { id: string }) {
                 <div className="wg-card">
                     <div className="wg-card-title-row">
                         <h2 className="wg-card-title">Einkaufsliste</h2>
+                        <Link href={`/wg/${id}/einkaufsliste`} className="wg-card-action">
+                            Alle anzeigen
+                        </Link>
                     </div>
 
-                    <ul className="wg-link-list">
-                        <li className="wg-link-item">
-                            <Link href={`/wg/${id}/einkaufsliste`}>Wocheneinkauf</Link>
-                        </li>
-                        <li className="wg-link-item">
-                            <Link href={`/wg/${id}/einkaufsliste`}>Putzmittel</Link>
-                        </li>
-                        <li className="wg-link-item">
-                            <Link href={`/wg/${id}/einkaufsliste`}>Vorräte</Link>
-                        </li>
-                    </ul>
+                    {shoppingItems.length === 0 ? (
+                        <p className="wg-note">Keine Artikel auf der Einkaufsliste.</p>
+                    ) : (
+                        <>
+                            <div className="budget-list">
+                                {shoppingItems
+                                    .slice(0, isShoppingExpanded ? 10 : 3)
+                                    .map((item) => (
+                                        <div
+                                            key={item.id}
+                                            className="budget-balance-item"
+                                            style={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "space-between",
+                                                gap: "12px",
+                                            }}
+                                        >
+                                            <p className="budget-balance-text" style={{ margin: 0, flex: 1 }}>
+                                                {item.name}
+                                            </p>
+                                            <button
+                                                className="wg-btn-primary"
+                                                style={{ fontSize: "0.875rem", padding: "6px 12px" }}
+                                                onClick={async () => {
+                                                    try {
+                                                        const res = await fetch(
+                                                            `/api/wgs/${id}/shopping-list/${item.id}`,
+                                                            {
+                                                                method: "PATCH",
+                                                                headers: {
+                                                                    "Content-Type": "application/json",
+                                                                },
+                                                                credentials: "include",
+                                                                body: JSON.stringify({
+                                                                    status: "INVENTORY",
+                                                                }),
+                                                            }
+                                                        );
+
+                                                        if (res.ok) {
+                                                            setShoppingItems((prev) =>
+                                                                prev.filter((i) => i.id !== item.id)
+                                                            );
+                                                        }
+                                                    } catch (err) {
+                                                        console.error("MOVE_TO_INVENTORY_ERROR", err);
+                                                    }
+                                                }}
+                                            >
+                                                Gekauft
+                                            </button>
+                                        </div>
+                                    ))}
+                            </div>
+
+                            {shoppingItems.length > 3 && (
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        justifyContent: "center",
+                                        marginTop: "12px",
+                                    }}
+                                >
+                                    <button
+                                        className="wg-btn-secondary"
+                                        onClick={() => setIsShoppingExpanded((prev) => !prev)}
+                                    >
+                                        {isShoppingExpanded
+                                            ? "Weniger anzeigen"
+                                            : `${shoppingItems.length - 3} weitere anzeigen`}
+                                    </button>
+                                </div>
+                            )}
+                        </>
+                    )}
                 </div>
 
                 <div className="wg-card">
