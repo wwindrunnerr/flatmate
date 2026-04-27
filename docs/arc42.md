@@ -790,10 +790,7 @@ Solche Konzepte betreffen oft mehrere Bausteine. Dazu können vielerlei
 Themen gehören, wie beispielsweise die Themen aus dem nachfolgenden
 Diagramm:
 
-<figure>
-<img src="images/08-concepts-DE.drawio.png"
-alt="Mögliche Themen für querschnittliche Konzepte" />
-</figure>
+
 
 <div class="formalpara-title">
 
