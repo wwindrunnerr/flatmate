@@ -830,6 +830,15 @@
     min-width: 0;
 }
 
+.putzplan-modal-actions {
+    justify-content: flex-end;
+    margin-top: 16px;
+}
+
+.wg-actions-row {
+    gap: 12px;
+}
+
 @media (max-width: 980px) {
     .putzplan-dnd-layout {
         grid-template-columns: 1fr;

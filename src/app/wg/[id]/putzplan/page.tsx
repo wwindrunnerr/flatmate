@@ -273,6 +273,17 @@ export default function PutzplanPage() {
         if (!selectedWeek) return;
 
         try {
+            const cleanedAssignments = Object.fromEntries(
+                Object.entries(modalAssignments).map(([userId, userRooms]) => [
+                    userId,
+                    userRooms.map((room) => room.trim()).filter(Boolean),
+                ])
+            );
+
+            const cleanedUnassignedRooms = modalUnassignedRooms
+                .map((room) => room.trim())
+                .filter(Boolean);
+
             const res = await fetch(`/api/wgs/${wgId}/putzplan`, {
                 method: "PUT",
                 headers: {
@@ -282,8 +293,8 @@ export default function PutzplanPage() {
                 body: JSON.stringify({
                     weekOverride: {
                         weekStart: selectedWeek.weekStartIso,
-                        assignments: modalAssignments,
-                        unassignedRooms: modalUnassignedRooms.map((r) => r.trim()).filter(Boolean),
+                        assignments: cleanedAssignments,
+                        unassignedRooms: cleanedUnassignedRooms,
                     },
                 }),
             });
@@ -297,8 +308,8 @@ export default function PutzplanPage() {
 
             const override: WeekOverride = {
                 weekStart: selectedWeek.weekStartIso,
-                assignments: modalAssignments,
-                unassignedRooms: modalUnassignedRooms.map((r) => r.trim()).filter(Boolean),
+                assignments: cleanedAssignments,
+                unassignedRooms: cleanedUnassignedRooms,
                 expiresAt: "",
             };
 
@@ -446,21 +457,38 @@ export default function PutzplanPage() {
         if (!draggedRoom) return;
 
         if (draggedRoom.sourceType === "user") {
+            let removed = false;
+
             setModalAssignments((prev) => ({
                 ...prev,
                 [draggedRoom.sourceUserId]: (prev[draggedRoom.sourceUserId] ?? []).filter(
-                    (room) => room !== draggedRoom.roomName
+                    (room) => {
+                        if (!removed && room === draggedRoom.roomName) {
+                            removed = true;
+                            return false;
+                        }
+                        return true;
+                    }
                 ),
             }));
-        } else {
-            setModalUnassignedRooms((prev) =>
-                prev.filter((room) => room !== draggedRoom.roomName)
-            );
+            return;
         }
+
+        let removed = false;
+        setModalUnassignedRooms((prev) =>
+            prev.filter((room) => {
+                if (!removed && room === draggedRoom.roomName) {
+                    removed = true;
+                    return false;
+                }
+                return true;
+            })
+        );
     }
 
     function dropRoomToUser(targetUserId: string) {
         if (!draggedRoom) return;
+
         if (draggedRoom.sourceType === "user" && draggedRoom.sourceUserId === targetUserId) {
             setDraggedRoom(null);
             return;
@@ -508,6 +536,13 @@ export default function PutzplanPage() {
 
     function deleteUnassignedRoom(roomIndex: number) {
         setModalUnassignedRooms((prev) => prev.filter((_, index) => index !== roomIndex));
+    }
+
+    function addAssignedRoom(userId: string) {
+        setModalAssignments((prev) => ({
+            ...prev,
+            [userId]: [...(prev[userId] ?? []), ""],
+        }));
     }
 
     if (loading) {
@@ -646,7 +681,7 @@ export default function PutzplanPage() {
                 )}
             </div>
 
-            {isModalOpen(selectedWeekStartIso) && selectedWeek && (
+            {selectedWeekStartIso !== null && selectedWeek && (
                 <div className="putzplan-modal-overlay" onClick={closeWeekModal}>
                     <div className="putzplan-modal putzplan-modal-wide" onClick={(e) => e.stopPropagation()}>
                         <div className="wg-card-title-row">
@@ -680,7 +715,7 @@ export default function PutzplanPage() {
                                                 ) : (
                                                     (modalAssignments[member.id] ?? []).map((room, roomIndex) => (
                                                         <div
-                                                            key={`${member.id}-${roomIndex}-${room}`}
+                                                            key={`${member.id}-${roomIndex}`}
                                                             className="putzplan-room-chip"
                                                             draggable
                                                             onDragStart={() =>
@@ -690,6 +725,7 @@ export default function PutzplanPage() {
                                                             <input
                                                                 className="wg-input putzplan-room-chip-input"
                                                                 value={room}
+                                                                placeholder="Raumnamen eingeben"
                                                                 onChange={(e) =>
                                                                     updateAssignedRoomName(
                                                                         member.id,
@@ -710,6 +746,14 @@ export default function PutzplanPage() {
                                                     ))
                                                 )}
                                             </div>
+
+                                            <button
+                                                type="button"
+                                                className="wg-btn-secondary"
+                                                onClick={() => addAssignedRoom(member.id)}
+                                            >
+                                                Raum hinzufügen
+                                            </button>
                                         </div>
                                     ))}
                                 </div>
@@ -729,7 +773,7 @@ export default function PutzplanPage() {
                                         ) : (
                                             modalUnassignedRooms.map((room, roomIndex) => (
                                                 <div
-                                                    key={`unassigned-${roomIndex}-${room}`}
+                                                    key={`unassigned-${roomIndex}`}
                                                     className="putzplan-room-chip"
                                                     draggable
                                                     onDragStart={() => handleDragStartFromUnassigned(room)}
@@ -737,6 +781,7 @@ export default function PutzplanPage() {
                                                     <input
                                                         className="wg-input putzplan-room-chip-input"
                                                         value={room}
+                                                        placeholder="Raumnamen eingeben"
                                                         onChange={(e) =>
                                                             updateUnassignedRoomName(
                                                                 roomIndex,
@@ -764,7 +809,7 @@ export default function PutzplanPage() {
                             </p>
                         )}
 
-                        <div className="wg-actions-row">
+                        <div className="wg-actions-row putzplan-modal-actions">
                             <button className="wg-btn-secondary" onClick={closeWeekModal}>
                                 Abbrechen
                             </button>
@@ -777,8 +822,4 @@ export default function PutzplanPage() {
             )}
         </div>
     );
-}
-
-function isModalOpen(selectedWeekStartIso: string | null) {
-    return selectedWeekStartIso !== null;
 }
