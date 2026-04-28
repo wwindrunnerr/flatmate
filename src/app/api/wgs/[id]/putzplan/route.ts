@@ -6,7 +6,7 @@ type PutzplanUpdateBody = {
     rooms?: string[];
     weekOverride?: {
         weekStart: string;
-        assignments: Record<string, string | null>;
+        assignments: Record<string, string[]>;
         unassignedRooms: string[];
     };
 };
@@ -32,15 +32,19 @@ function safeParseJsonArray(value: string): string[] {
     }
 }
 
-function safeParseAssignments(value: string): Record<string, string | null> {
+function safeParseAssignments(value: string): Record<string, string[]> {
     try {
         const parsed = JSON.parse(value);
         if (!parsed || typeof parsed !== "object") return {};
 
-        const result: Record<string, string | null> = {};
+        const result: Record<string, string[]> = {};
+
         for (const [key, val] of Object.entries(parsed)) {
-            result[key] = typeof val === "string" ? val : val === null ? null : null;
+            result[key] = Array.isArray(val)
+                ? val.filter((item) => typeof item === "string")
+                : [];
         }
+
         return result;
     } catch {
         return {};
