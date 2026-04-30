@@ -43,13 +43,15 @@ type WeekOverridesMap = Record<string, WeekOverride>;
 
 type DragRoomState =
     | {
-    roomName: string;
     sourceType: "user";
     sourceUserId: string;
+    sourceRoomIndex: number;
+    roomName: string;
 }
     | {
-    roomName: string;
     sourceType: "unassigned";
+    sourceRoomIndex: number;
+    roomName: string;
 }
     | null;
 
@@ -184,7 +186,7 @@ export default function PutzplanPage() {
     const [newRoomName, setNewRoomName] = useState("");
 
     const [weekOverrides, setWeekOverrides] = useState<WeekOverridesMap>({});
-    const [selectedWeekStartIso, setSelectedWeekStartIso] = useState<string | null>(null);
+    const [selectedWeek, setSelectedWeek] = useState<WeekPlan | null>(null);
 
     const [modalAssignments, setModalAssignments] = useState<Record<string, string[]>>({});
     const [modalUnassignedRooms, setModalUnassignedRooms] = useState<string[]>([]);
@@ -242,13 +244,8 @@ export default function PutzplanPage() {
         return applyWeekOverrides(base, weekOverrides);
     }, [members, rooms, weekOverrides]);
 
-    const selectedWeek =
-        selectedWeekStartIso !== null
-            ? schedule.find((week) => week.weekStartIso === selectedWeekStartIso) ?? null
-            : null;
-
     function openWeekModal(week: WeekPlan) {
-        setSelectedWeekStartIso(week.weekStartIso);
+        setSelectedWeek(week);
 
         const assignmentMap: Record<string, string[]> = {};
         for (const assignment of week.assignments) {
@@ -262,7 +259,7 @@ export default function PutzplanPage() {
     }
 
     function closeWeekModal() {
-        setSelectedWeekStartIso(null);
+        setSelectedWeek(null);
         setModalAssignments({});
         setModalUnassignedRooms([]);
         setDraggedRoom(null);
@@ -438,18 +435,24 @@ export default function PutzplanPage() {
         );
     }
 
-    function handleDragStartFromUser(userId: string, roomName: string) {
+    function handleDragStartFromUser(
+        userId: string,
+        roomIndex: number,
+        roomName: string
+    ) {
         setDraggedRoom({
-            roomName,
             sourceType: "user",
             sourceUserId: userId,
+            sourceRoomIndex: roomIndex,
+            roomName,
         });
     }
 
-    function handleDragStartFromUnassigned(roomName: string) {
+    function handleDragStartFromUnassigned(roomIndex: number, roomName: string) {
         setDraggedRoom({
-            roomName,
             sourceType: "unassigned",
+            sourceRoomIndex: roomIndex,
+            roomName,
         });
     }
 
@@ -457,32 +460,17 @@ export default function PutzplanPage() {
         if (!draggedRoom) return;
 
         if (draggedRoom.sourceType === "user") {
-            let removed = false;
-
-            setModalAssignments((prev) => ({
+            setModalAssignments((prev: Record<string, string[]>) => ({
                 ...prev,
                 [draggedRoom.sourceUserId]: (prev[draggedRoom.sourceUserId] ?? []).filter(
-                    (room) => {
-                        if (!removed && room === draggedRoom.roomName) {
-                            removed = true;
-                            return false;
-                        }
-                        return true;
-                    }
+                    (_room: string, index: number) => index !== draggedRoom.sourceRoomIndex
                 ),
             }));
             return;
         }
 
-        let removed = false;
-        setModalUnassignedRooms((prev) =>
-            prev.filter((room) => {
-                if (!removed && room === draggedRoom.roomName) {
-                    removed = true;
-                    return false;
-                }
-                return true;
-            })
+        setModalUnassignedRooms((prev: string[]) =>
+            prev.filter((_room: string, index: number) => index !== draggedRoom.sourceRoomIndex)
         );
     }
 
@@ -494,11 +482,12 @@ export default function PutzplanPage() {
             return;
         }
 
+        const roomName = draggedRoom.roomName;
         removeDraggedRoomFromSource();
 
-        setModalAssignments((prev) => ({
+        setModalAssignments((prev: Record<string, string[]>) => ({
             ...prev,
-            [targetUserId]: [...(prev[targetUserId] ?? []), draggedRoom.roomName],
+            [targetUserId]: [...(prev[targetUserId] ?? []), roomName],
         }));
 
         setDraggedRoom(null);
@@ -507,8 +496,10 @@ export default function PutzplanPage() {
     function dropRoomToUnassigned() {
         if (!draggedRoom) return;
 
+        const roomName = draggedRoom.roomName;
         removeDraggedRoomFromSource();
-        setModalUnassignedRooms((prev) => [...prev, draggedRoom.roomName]);
+
+        setModalUnassignedRooms((prev: string[]) => [...prev, roomName]);
         setDraggedRoom(null);
     }
 
@@ -681,9 +672,12 @@ export default function PutzplanPage() {
                 )}
             </div>
 
-            {selectedWeekStartIso !== null && selectedWeek && (
-                <div className="putzplan-modal-overlay" onClick={closeWeekModal}>
-                    <div className="putzplan-modal putzplan-modal-wide" onClick={(e) => e.stopPropagation()}>
+            {selectedWeek && (
+                <div className="popup-overlay" onClick={closeWeekModal}>
+                    <div
+                        className="popup-modal putzplan-modal-wide"
+                        onClick={(e) => e.stopPropagation()}
+                    >
                         <div className="wg-card-title-row">
                             <div>
                                 <h3 className="putzplan-editor-title">
@@ -719,9 +713,27 @@ export default function PutzplanPage() {
                                                             className="putzplan-room-chip"
                                                             draggable
                                                             onDragStart={() =>
-                                                                handleDragStartFromUser(member.id, room)
+                                                                handleDragStartFromUser(
+                                                                    member.id,
+                                                                    roomIndex,
+                                                                    room
+                                                                )
                                                             }
                                                         >
+                                                            <button
+                                                                type="button"
+                                                                className="putzplan-room-drag-handle"
+                                                                aria-label="Raum verschieben"
+                                                                title="Raum verschieben"
+                                                            >
+                                                                <span></span>
+                                                                <span></span>
+                                                                <span></span>
+                                                                <span></span>
+                                                                <span></span>
+                                                                <span></span>
+                                                            </button>
+
                                                             <input
                                                                 className="wg-input putzplan-room-chip-input"
                                                                 value={room}
@@ -733,12 +745,16 @@ export default function PutzplanPage() {
                                                                         e.target.value
                                                                     )
                                                                 }
+                                                                onDragStart={(e) => e.stopPropagation()}
+                                                                onMouseDown={(e) => e.stopPropagation()}
                                                             />
+
                                                             <button
                                                                 className="wg-btn-danger"
                                                                 onClick={() =>
                                                                     deleteAssignedRoom(member.id, roomIndex)
                                                                 }
+                                                                onMouseDown={(e) => e.stopPropagation()}
                                                             >
                                                                 Löschen
                                                             </button>
@@ -776,8 +792,24 @@ export default function PutzplanPage() {
                                                     key={`unassigned-${roomIndex}`}
                                                     className="putzplan-room-chip"
                                                     draggable
-                                                    onDragStart={() => handleDragStartFromUnassigned(room)}
+                                                    onDragStart={() =>
+                                                        handleDragStartFromUnassigned(roomIndex, room)
+                                                    }
                                                 >
+                                                    <button
+                                                        type="button"
+                                                        className="putzplan-room-drag-handle"
+                                                        aria-label="Raum verschieben"
+                                                        title="Raum verschieben"
+                                                    >
+                                                        <span></span>
+                                                        <span></span>
+                                                        <span></span>
+                                                        <span></span>
+                                                        <span></span>
+                                                        <span></span>
+                                                    </button>
+
                                                     <input
                                                         className="wg-input putzplan-room-chip-input"
                                                         value={room}
@@ -788,10 +820,16 @@ export default function PutzplanPage() {
                                                                 e.target.value
                                                             )
                                                         }
+                                                        onDragStart={(e) => e.stopPropagation()}
+                                                        onMouseDown={(e) => e.stopPropagation()}
                                                     />
+
                                                     <button
                                                         className="wg-btn-danger"
-                                                        onClick={() => deleteUnassignedRoom(roomIndex)}
+                                                        onClick={() =>
+                                                            deleteUnassignedRoom(roomIndex)
+                                                        }
+                                                        onMouseDown={(e) => e.stopPropagation()}
                                                     >
                                                         Löschen
                                                     </button>

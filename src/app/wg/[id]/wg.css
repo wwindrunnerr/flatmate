@@ -877,7 +877,7 @@
 
 .putzplan-room-chip {
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: auto 1fr auto;
     gap: 10px;
     align-items: center;
     padding: 10px;
@@ -909,6 +909,52 @@
     .putzplan-dnd-layout {
         grid-template-columns: 1fr;
     }
+}
+
+.putzplan-room-chip {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 10px;
+    align-items: center;
+    padding: 10px;
+    border-radius: 16px;
+    background: #ffffff;
+    border: 1px solid #ddd6e3;
+    box-shadow: 0 4px 12px #1c122608;
+}
+
+.putzplan-room-drag-handle {
+    width: 28px;
+    min-width: 28px;
+    height: 36px;
+    border: 1px solid #ddd6e3;
+    border-radius: 10px;
+    background: #f8f4fc;
+    display: grid;
+    grid-template-columns: repeat(2, 4px);
+    grid-template-rows: repeat(3, 4px);
+    justify-content: center;
+    align-content: center;
+    gap: 4px;
+    cursor: grab;
+    padding: 0;
+    user-select: none;
+}
+
+.putzplan-room-drag-handle span {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #8d13aa;
+    opacity: 0.75;
+}
+
+.putzplan-room-drag-handle:active {
+    cursor: grabbing;
+}
+
+.putzplan-room-chip-input {
+    min-width: 0;
 }
 
 /* =========================================================
