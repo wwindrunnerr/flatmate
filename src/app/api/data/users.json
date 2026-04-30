@@ -70,7 +70,9 @@
     "gender": "männlich",
     "email": "test@test.com",
     "password": "123",
-    "wgIds": [],
+    "wgIds": [
+      "97c28706-1bbe-4245-8c13-e6697b99a1a7"
+    ],
     "invitations": []
   }
 ]

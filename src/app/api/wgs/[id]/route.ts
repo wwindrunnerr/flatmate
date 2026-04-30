@@ -45,6 +45,8 @@ export async function GET(
                                         name: true,
                                         email: true,
                                         avatarUrl: true,
+                                        birthDate: true,
+
                                     },
                                 },
                             },
@@ -80,6 +82,7 @@ export async function GET(
                     avatarUrl: member.user.avatarUrl,
                     role: member.role,
                     joinedAt: member.joinedAt,
+                    birthDate: member.user.birthDate,
                 })),
             },
         });
