@@ -84,6 +84,34 @@ interface ExpensesResponse {
     currentUserSummary: BudgetSummaryItem[];
 }
 
+interface WeekOverride {
+    weekStart: string;
+    assignments: Record<string, string[]>;
+    unassignedRooms: string[];
+    expiresAt: string;
+}
+
+interface Assignment {
+    userId: string;
+    userName: string;
+    rooms: string[];
+}
+
+interface WeekPlan {
+    weekIndex: number;
+    weekType: "previous" | "current" | "next" | "after-next";
+    weekLabel: string;
+    weekStartIso: string;
+    assignments: Assignment[];
+    unassignedRooms: string[];
+}
+
+interface LeaderboardEntry {
+    userId: string;
+    userName: string;
+    average: number | null;
+}
+
 function formatEuro(amount: number) {
     return new Intl.NumberFormat("de-DE", {
         style: "currency",
@@ -115,12 +143,113 @@ function getNextBirthdayDate(birthDate: string) {
     return nextBirthday;
 }
 
+function getMonday(date: Date) {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = day === 0 ? -6 : 1 - day;
+    d.setDate(d.getDate() + diff);
+    d.setHours(0, 0, 0, 0);
+    return d;
+}
+
+function addDays(date: Date, days: number) {
+    const d = new Date(date);
+    d.setDate(d.getDate() + days);
+    return d;
+}
+
+function formatDate(date: Date) {
+    return new Intl.DateTimeFormat("de-DE", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "2-digit",
+    }).format(date);
+}
+
+function formatWeekRange(start: Date) {
+    const end = addDays(start, 6);
+    return `${formatDate(start)} – ${formatDate(end)}`;
+}
+
+function getWeekTypeByOffset(offset: number): "previous" | "current" | "next" | "after-next" {
+    switch (offset) {
+        case -1: return "previous";
+        case 0: return "current";
+        case 1: return "next";
+        default: return "after-next";
+    }
+}
+
+const EPOCH_MONDAY = new Date(2024, 0, 1);
+
+function buildBaseSchedule(members: WGMember[], rooms: string[]): WeekPlan[] {
+    if (members.length === 0) return [];
+
+    const cleanedRooms = rooms.map((r) => r.trim()).filter(Boolean);
+    //const currentMonday = getMonday(new Date()); 
+    const currentMonday = getMonday(new Date());
+    const weekOffsets = [-1, 0, 1, 2];
+
+    return weekOffsets.map((offset, visualIndex) => {
+        const weekStart = addDays(currentMonday, offset * 7);
+        const weekStartIso = weekStart.toISOString();
+
+        const diffTime = weekStart.getTime() - EPOCH_MONDAY.getTime();
+        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+        const absoluteWeekIndex = Math.floor(diffDays / 7);
+
+        const assignments: Assignment[] = members.map((member) => ({
+            userId: member.id,
+            userName: member.name,
+            rooms: [],
+        }));
+
+        cleanedRooms.forEach((room, roomIndex) => {
+            const memberIndex = ((roomIndex + absoluteWeekIndex) % members.length + members.length) % members.length;
+            assignments[memberIndex].rooms.push(room);
+        });
+
+        return {
+            weekIndex: visualIndex,
+            weekType: getWeekTypeByOffset(offset),
+            weekLabel: offset === 0 ? "Diese Woche" : offset === 1 ? "Nächste Woche" : "Übernächste Woche",
+            weekStartIso,
+            assignments,
+            unassignedRooms: [],
+        };
+    });
+}
+
+function applyWeekOverrides(baseSchedule: WeekPlan[], overrides: Record<string, WeekOverride>): WeekPlan[] {
+    return baseSchedule.map((week) => {
+        const override = overrides[week.weekStartIso];
+        if (!override) return week;
+
+        return {
+            ...week,
+            assignments: week.assignments.map((assignment) => ({
+                ...assignment,
+                rooms: override.assignments[assignment.userId] !== undefined
+                    ? override.assignments[assignment.userId]
+                    : assignment.rooms,
+            })),
+            unassignedRooms: override.unassignedRooms ?? [],
+        };
+    });
+}
+
 export default function WGDashboard({ id }: { id: string }) {
     const [wg, setWG] = useState<WGData | null>(null);
     const [user, setUser] = useState<SessionUser | null>(null);
     const [events, setEvents] = useState<WGEvent[]>([]);
     const [budgetSummary, setBudgetSummary] = useState<BudgetSummaryItem[]>([]);
     const [shoppingItems, setShoppingItems] = useState<ShoppingItem[]>([]);
+    
+    // Putzplan States
+    const [schedule, setSchedule] = useState<WeekPlan[]>([]);
+    const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+    const [myRatings, setMyRatings] = useState<Record<string, number>>({});
+    
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
 
@@ -176,7 +305,7 @@ export default function WGDashboard({ id }: { id: string }) {
                 const wgData = await wgRes.json();
                 setWG(wgData.wg);
 
-                const [eventsRes, budgetRes, shoppingRes] = await Promise.all([
+                const [eventsRes, budgetRes, shoppingRes, putzplanRes] = await Promise.all([
                     fetch(`/api/wgs/${id}/events`, {
                         credentials: "include",
                         cache: "no-store",
@@ -186,6 +315,10 @@ export default function WGDashboard({ id }: { id: string }) {
                         cache: "no-store",
                     }),
                     fetch(`/api/wgs/${id}/shopping-list`, {
+                        credentials: "include",
+                        cache: "no-store",
+                    }),
+                    fetch(`/api/wgs/${id}/putzplan`, {
                         credentials: "include",
                         cache: "no-store",
                     }),
@@ -214,6 +347,27 @@ export default function WGDashboard({ id }: { id: string }) {
                     setShoppingItems([]);
                 }
 
+                if (putzplanRes.ok) {
+                    const putzplanData = await putzplanRes.json();
+                    const base = buildBaseSchedule(putzplanData.members, putzplanData.rooms);
+                    
+                    const overrideMap: Record<string, WeekOverride> = {};
+                    for (const override of putzplanData.weekOverrides) {
+                        overrideMap[override.weekStart] = override;
+                    }
+                    
+                    const finalSchedule = applyWeekOverrides(base, overrideMap);
+                    setSchedule(finalSchedule);
+                    setLeaderboard(putzplanData.leaderboard || []);
+                    
+                    // NEU: Mapped die API-Antwort auf einen Key, der die Person UND die Woche enthält
+                    const ratingsMap: Record<string, number> = {};
+                    for (const r of (putzplanData.myRatings || [])) {
+                        ratingsMap[`${r.ratedUserId}-${r.weekStart}`] = r.score;
+                    }
+                    setMyRatings(ratingsMap);
+                }
+
                 setLoading(false);
             } catch (err) {
                 console.error("WG_DASHBOARD_LOAD_ERROR", err);
@@ -224,6 +378,24 @@ export default function WGDashboard({ id }: { id: string }) {
 
         loadDashboard();
     }, [id]);
+
+    async function handleRateUser(ratedUserId: string, score: number, weekStartIso: string) {
+        // Optimistisches UI Update
+        setMyRatings((prev) => ({ ...prev, [`${ratedUserId}-${weekStartIso}`]: score }));
+
+        try {
+            await fetch(`/api/wgs/${id}/putzplan`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({
+                    rating: { ratedUserId, score, weekStart: weekStartIso },
+                }),
+            });
+        } catch (error) {
+            console.error("RATING_ERROR", error);
+        }
+    }
 
     async function handleCreateInvite() {
         try {
@@ -398,6 +570,9 @@ export default function WGDashboard({ id }: { id: string }) {
     if (error) return <div className="wg-loading wg-error">{error}</div>;
     if (!wg) return <div className="wg-empty-state">Keine WG-Daten verfügbar.</div>;
 
+    const currentWeekInfo = schedule.find(w => w.weekType === "current");
+    const currentWeekIso = currentWeekInfo?.weekStartIso || "";
+
     return (
         <>
             <section className="wg-dashboard-grid">
@@ -523,17 +698,122 @@ export default function WGDashboard({ id }: { id: string }) {
 
                 <div className="wg-card">
                     <div className="wg-card-title-row">
-                        <h2 className="wg-card-title">Noch zum Putzen</h2>
+                        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                            <h2 className="wg-card-title" style={{ margin: 0 }}>Putzplan</h2>
+                            {currentWeekInfo && (
+                                <span style={{ fontSize: "0.875rem", color: "#6b7280", fontWeight: 500, backgroundColor: "#f3f4f6", padding: "2px 8px", borderRadius: "12px" }}>
+                                    {formatWeekRange(new Date(currentWeekInfo.weekStartIso))}
+                                </span>
+                            )}
+                        </div>
+                        <Link href={`/wg/${id}/putzplan`} className="wg-card-action">
+                            Zum Plan
+                        </Link>
                     </div>
 
-                    <div className="wg-row">
-                        <span className="wg-row-label">Bad</span>
-                        <input className="wg-checkbox" type="checkbox" />
-                    </div>
-                    <div className="wg-row">
-                        <span className="wg-row-label">Küche</span>
-                        <input className="wg-checkbox" type="checkbox" defaultChecked />
-                    </div>
+                    {schedule.length === 0 ? (
+                        <p className="wg-note">Kein Putzplan verfügbar.</p>
+                    ) : (
+                        <>
+                            {/* MATRIX FÜR DIESE WOCHE */}
+                            <div style={{ marginBottom: "24px" }}>
+                                <h3 style={{ fontSize: "0.875rem", color: "#666", marginBottom: "8px", textTransform: "uppercase", letterSpacing: "0.05em" }}>Diese Woche</h3>
+                                <div style={{ border: "1px solid #eee", borderRadius: "8px", overflow: "hidden" }}>
+                                    {currentWeekInfo?.assignments.map((assignment, index) => {
+                                        const isMe = assignment.userId === user?.id;
+                                        const hasRooms = assignment.rooms.length > 0;
+                                        // Holt das exakte Rating für diesen User in dieser spezifischen Woche
+                                        const currentRating = myRatings[`${assignment.userId}-${currentWeekIso}`] || 0;
+
+                                        return (
+                                            <div 
+                                                key={assignment.userId} 
+                                                style={{ 
+                                                    display: "flex", 
+                                                    alignItems: "center",
+                                                    padding: "10px", 
+                                                    borderBottom: index < currentWeekInfo.assignments.length - 1 ? "1px solid #eee" : "none",
+                                                    backgroundColor: isMe ? "#f9f0ff" : "transparent"
+                                                }}
+                                            >
+                                                <span style={{ width: "35%", fontWeight: "500", color: "#333" }}>{assignment.userName}</span>
+                                                <span style={{ width: "40%", color: "#555" }}>
+                                                    {hasRooms ? assignment.rooms.join(", ") : <span style={{ color: "#aaa", fontStyle: "italic" }}>Pause</span>}
+                                                </span>
+                                                
+                                                {/* STERNE BEWERTUNG */}
+                                                <span style={{ width: "25%", display: "flex", justifyContent: "flex-end" }}>
+                                                    {!isMe && hasRooms && (
+                                                        <div style={{ display: 'flex', gap: '2px' }}>
+                                                            {[1, 2, 3, 4, 5].map(star => {
+                                                                const isFilled = star <= currentRating;
+                                                                return (
+                                                                    <button
+                                                                        key={star}
+                                                                        // Übergibt jetzt auch das Datum der aktuellen Woche an das Backend
+                                                                        onClick={() => handleRateUser(assignment.userId, star, currentWeekIso)}
+                                                                        style={{ 
+                                                                            background: 'none', 
+                                                                            border: 'none', 
+                                                                            cursor: 'pointer', 
+                                                                            color: isFilled ? '#f59e0b' : '#e5e7eb', 
+                                                                            fontSize: '1.1rem', 
+                                                                            padding: 0,
+                                                                            transition: 'color 0.2s'
+                                                                        }}
+                                                                    >
+                                                                        ★
+                                                                    </button>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    )}
+                                                </span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            {/* VORSCHAU FÜR DEN AKTUELLEN USER */}
+                            <div style={{ marginBottom: "24px" }}>
+                                <h3 style={{ fontSize: "0.875rem", color: "#666", marginBottom: "8px", textTransform: "uppercase", letterSpacing: "0.05em" }}>Deine nächsten Wochen</h3>
+                                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                                    <div style={{ display: "flex", justifyContent: "space-between" }}>
+                                        <span style={{ color: "#555" }}>Nächste Woche:</span>
+                                        <span style={{ fontWeight: "500" }}>
+                                            {schedule.find(w => w.weekType === "next")?.assignments.find(a => a.userId === user?.id)?.rooms.join(", ") || "Pause"}
+                                        </span>
+                                    </div>
+                                    <div style={{ display: "flex", justifyContent: "space-between" }}>
+                                        <span style={{ color: "#555" }}>Übernächste Woche:</span>
+                                        <span style={{ fontWeight: "500" }}>
+                                            {schedule.find(w => w.weekType === "after-next")?.assignments.find(a => a.userId === user?.id)?.rooms.join(", ") || "Pause"}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* LEADERBOARD */}
+                            <div style={{ backgroundColor: "#fafafa", padding: "12px", borderRadius: "8px" }}>
+                                <h3 style={{ fontSize: "0.875rem", color: "#666", marginBottom: "12px", textTransform: "uppercase", letterSpacing: "0.05em" }}>Leaderboard (Letzte 6 Wochen)</h3>
+                                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                                    {leaderboard.length === 0 ? (
+                                        <p className="wg-note" style={{ margin: 0 }}>Noch keine Bewertungen.</p>
+                                    ) : (
+                                        leaderboard.map(entry => (
+                                            <div key={entry.userId} style={{ display: "flex", justifyContent: "space-between" }}>
+                                                <span style={{ color: "#555" }}>{entry.userName}</span>
+                                                <span style={{ fontWeight: "600", color: entry.average ? "#f59e0b" : "#aaa" }}>
+                                                    {entry.average ? `${entry.average.toFixed(1)} ★` : "-"}
+                                                </span>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+                        </>
+                    )}
                 </div>
 
                 <div className="wg-card">

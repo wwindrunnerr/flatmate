@@ -123,13 +123,22 @@ function buildBaseSchedule(members: WGMember[], rooms: string[]): WeekPlan[] {
     if (members.length === 0) return [];
 
     const cleanedRooms = rooms.map((r) => r.trim()).filter(Boolean);
+    //const currentMonday = getMonday(new Date());
     const currentMonday = getMonday(new Date());
     const weekOffsets = [-1, 0, 1, 2];
 
+    // Fester Startpunkt (ein beliebiger Montag), um eine stetige Rotation 
+    // über die echte Zeit zu garantieren, nicht nur relativ zu "heute".
+    const EPOCH_MONDAY = new Date(2024, 0, 1); // 1. Januar 2024 (war ein Montag)
+
     return weekOffsets.map((offset, visualIndex) => {
-        const rotatedRooms = rotateArray(cleanedRooms, offset);
         const weekStart = addDays(currentMonday, offset * 7);
         const weekStartIso = weekStart.toISOString();
+
+        // Zuverlässige Berechnung der absoluten Wochennummer (so umgehen wir Sommer-/Winterzeit-Bugs)
+        const diffTime = weekStart.getTime() - EPOCH_MONDAY.getTime();
+        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+        const absoluteWeekIndex = Math.floor(diffDays / 7);
 
         const assignments: Assignment[] = members.map((member) => ({
             userId: member.id,
@@ -137,8 +146,10 @@ function buildBaseSchedule(members: WGMember[], rooms: string[]): WeekPlan[] {
             rooms: [],
         }));
 
-        rotatedRooms.forEach((room, roomIndex) => {
-            const memberIndex = roomIndex % members.length;
+        cleanedRooms.forEach((room, roomIndex) => {
+            // Wir berechnen den Mitglieds-Index basierend auf dem Raum und der absoluten Woche.
+            // Das (+ members.length) verhindert Fehler mit negativen Modulo-Werten.
+            const memberIndex = ((roomIndex + absoluteWeekIndex) % members.length + members.length) % members.length;
             assignments[memberIndex].rooms.push(room);
         });
 
@@ -153,7 +164,6 @@ function buildBaseSchedule(members: WGMember[], rooms: string[]): WeekPlan[] {
         };
     });
 }
-
 function applyWeekOverrides(
     baseSchedule: WeekPlan[],
     overrides: WeekOverridesMap

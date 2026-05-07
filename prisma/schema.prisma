@@ -182,3 +182,15 @@ enum ShoppingItemStatus {
   TO_BUY
   INVENTORY
 }
+model CleaningRating {
+  id          String   @id @default(cuid())
+  wgId        String
+  raterId     String   // Person, die bewertet
+  ratedUserId String   // Person, die bewertet wird
+  weekStart   DateTime // Montag der bewerteten Woche
+  score       Int      // 1 bis 5 Sterne
+  createdAt   DateTime @default(now())
+
+  // Stellt sicher, dass jeder User einen anderen pro Woche nur 1x bewerten kann
+  @@unique([wgId, raterId, ratedUserId, weekStart]) 
+}
