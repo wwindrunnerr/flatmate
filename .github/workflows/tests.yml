@@ -26,24 +26,13 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
-        working-directory: ./src
         run: npm ci
 
-      - name: Debug paths
-        working-directory: ./src
-        run: |
-          pwd
-          ls
-          ls prisma
-
       - name: Generate Prisma Client
-        working-directory: ./src
         run: npx prisma generate --schema=./prisma/schema.prisma
 
       - name: Run unit tests
-        working-directory: ./src
         run: npm run test:unit
 
       - name: Run coverage
-        working-directory: ./src
         run: npm run test:coverage
