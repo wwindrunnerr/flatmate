@@ -118,7 +118,7 @@ describe('WG Expenses API Integration Tests', () => {
             const response = await GET(request, context)
             const data = await response.json()
 
-            expect(response.status).toBe(200)
+            expect(response.status).toBe(201)
             expect(data.expenses).toHaveLength(1)
             expect(data.expenses[0].description).toBe('Groceries')
             expect(data.expenses[0].amountCents).toBe(2000)
@@ -147,7 +147,7 @@ describe('WG Expenses API Integration Tests', () => {
             const response = await GET(request, context)
             const data = await response.json()
 
-            expect(response.status).toBe(200)
+            expect(response.status).toBe(201)
             expect(data.expenses).toEqual([])
             expect(data.pairwiseBalances).toEqual([])
             expect(data.currentUserSummary).toEqual([])
@@ -272,7 +272,7 @@ describe('WG Expenses API Integration Tests', () => {
             const response = await POST(request, context)
             const data = await response.json()
 
-            expect(response.status).toBe(200)
+            expect(response.status).toBe(201)
             expect(data.expense.description).toBe('Pizza night')
             expect(data.expense.amountCents).toBe(3000)
             expect(data.expense.amount).toBe(30.0)
@@ -312,7 +312,7 @@ describe('WG Expenses API Integration Tests', () => {
             const response = await POST(request, context)
             const data = await response.json()
 
-            expect(response.status).toBe(200)
+            expect(response.status).toBe(201)
             expect(data.expense.participantUserIds).toEqual([user.id])
         })
 
@@ -342,7 +342,7 @@ describe('WG Expenses API Integration Tests', () => {
             const response = await POST(request, context)
             const data = await response.json()
 
-            expect(response.status).toBe(200)
+            expect(response.status).toBe(201)
             expect(data.expense.participantUserIds).toEqual(participantOrder)
 
             const dbExpense = await prisma.expense.findUnique({
