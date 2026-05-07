@@ -61,7 +61,7 @@
 
 Das folgende globale Anwendungsfalldiagramm bietet eine Übersicht über die wichtigsten Funktionen der FlatMate WG-App. Es zeigt die sieben zentralen Use Cases (UC1 bis UC7) innerhalb der Systemgrenze und verdeutlicht die Interaktion mit den drei Akteuren („Benutzer“, „Bewohner“ und „Admin“). Ein eingeloggter Benutzer kann grundlegende Aktionen wie das Anlegen oder den Beitritt zu einer WG ausführen. Sobald er Teil einer WG ist, erhält er als Bewohner Zugriff auf die Alltagsfunktionen (Ausgaben erfassen, Salden ausgleichen und Einkaufsliste verwalten). Der Admin, welcher die WG erstellt hat, besitzt zusätzlich erweiterte Rechte, um Einladungen zu generieren und Putzpläne zu erstellen.
 
-![Globales Anwendungsfalldiagramm](/UMLs/Anwendungsfalldiagramme/Anwendungsfall_Diagramm.png)
+![Globales Anwendungsfalldiagramm](UMLs/Anwendungsfalldiagramme/Anwendungsfall_Diagramm.png)
 
 
 | ID  | Anforderung                                               | Beschreibung                                                                                                                                            | Priorität    |
