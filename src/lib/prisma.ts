@@ -7,16 +7,24 @@ const globalForPrisma = globalThis as unknown as {
     prisma: PrismaClient | undefined;
 };
 
-const dbPath = path.resolve(process.cwd(), "dev.db");
+function resolveDatabaseUrl() {
+    const envUrl = process.env.DATABASE_URL;
 
-if (!fs.existsSync(dbPath)) {
-    throw new Error(`SQLite database not found at: ${dbPath}`);
+    if (envUrl && envUrl.startsWith("file:")) {
+        return envUrl;
+    }
+
+    const dbPath = path.resolve(process.cwd(), "dev.db");
+
+    if (!fs.existsSync(dbPath)) {
+        throw new Error(`SQLite database not found at: ${dbPath}`);
+    }
+
+    return `file:${dbPath.replace(/\\/g, "/")}`;
 }
 
-const dbUrl = `file:${dbPath.replace(/\\/g, "/")}`;
-
 const adapter = new PrismaBetterSqlite3({
-    url: dbUrl,
+    url: resolveDatabaseUrl(),
 });
 
 export const prisma =
