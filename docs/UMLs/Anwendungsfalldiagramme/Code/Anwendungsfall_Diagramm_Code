@@ -1,0 +1,35 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Benutzer\n(Eingeloggt)" as User
+actor "Bewohner" as Bewohner
+actor "Admin" as Admin
+
+' Vererbung der Akteure: Ein Admin kann alles, was ein Bewohner kann. Ein Bewohner ist ein eingeloggter Benutzer.
+Admin -up-|> Bewohner
+Bewohner -up-|> User
+
+rectangle "FlatMate WG-App" {
+  usecase "UC1: WG anlegen" as UC1
+  usecase "UC2: Einladung erzeugen" as UC2
+  usecase "UC3: WG beitreten" as UC3
+  usecase "UC4: Ausgabe erfassen & aufteilen" as UC4
+  usecase "UC5: Salden anzeigen & ausgleichen" as UC5
+  usecase "UC6: Einkaufsliste verwalten" as UC6
+  usecase "UC7: Putzplan erstellen" as UC7
+}
+
+' Grundlegende Aktionen für eingeloggte Benutzer
+User --> UC1
+User --> UC3
+
+' Spezifische Aktionen für Admins
+Admin --> UC2
+Admin --> UC7
+
+' Spezifische Aktionen für Bewohner
+Bewohner --> UC4
+Bewohner --> UC5
+Bewohner --> UC6
+@enduml
