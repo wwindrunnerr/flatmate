@@ -37,5 +37,11 @@ jobs:
       - name: Run unit tests
         run: npm run test:unit
 
+      - name: Prepare integration test database
+        run: npx prisma db push --schema=./prisma/schema.prisma
+
+      - name: Run integration tests
+        run: npm run test:integration
+
       - name: Run unit test coverage
         run: npm run test:coverage
