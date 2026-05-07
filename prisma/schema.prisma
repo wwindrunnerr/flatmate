@@ -24,6 +24,8 @@ model User {
   expensesPaid             Expense[]            @relation("ExpensePaidBy")
   expenseParticipations    ExpenseParticipant[] @relation("ExpenseParticipation")
   shoppingListItemsCreated ShoppingListItem[]   @relation("ShoppingListItemCreatedBy")
+  resetToken       String?   @unique
+  resetTokenExpiry DateTime?
 }
 
 model Session {
