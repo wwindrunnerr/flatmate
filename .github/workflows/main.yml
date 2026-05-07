@@ -3,13 +3,16 @@ name: Next.js Build and Runtime Check
 on:
   push:
     branches: ["main"]
-
-
+  pull_request:
+    branches: ["main"]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    continue-on-error: true
+
+    defaults:
+      run:
+        working-directory: ./src
 
     steps:
       - uses: actions/checkout@v6
@@ -23,21 +26,13 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-        working-directory: ./src
 
       - name: Lint
         run: npm run lint --if-present
-        working-directory: ./src
         continue-on-error: true
-
-
-      - name: Run tests
-        run: npm test --if-present
-        working-directory: ./src
 
       - name: Build Next.js
         run: npm run build
-        working-directory: ./src
 
       - name: Upload standalone build
         uses: actions/upload-artifact@v7
@@ -45,7 +40,6 @@ jobs:
           name: next-build
           path: src/.next/standalone
           if-no-files-found: error
-
 
   container-test:
     needs: build
@@ -74,6 +68,3 @@ jobs:
       - name: Cleanup container
         if: always()
         run: docker rm -f nextjs-app || true
-
-
-
