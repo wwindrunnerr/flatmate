@@ -118,7 +118,7 @@ describe('WG Expenses API Integration Tests', () => {
             const response = await GET(request, context)
             const data = await response.json()
 
-            expect(response.status).toBe(201)
+            expect(response.status).toBe(200)
             expect(data.expenses).toHaveLength(1)
             expect(data.expenses[0].description).toBe('Groceries')
             expect(data.expenses[0].amountCents).toBe(2000)
@@ -147,7 +147,7 @@ describe('WG Expenses API Integration Tests', () => {
             const response = await GET(request, context)
             const data = await response.json()
 
-            expect(response.status).toBe(201)
+            expect(response.status).toBe(200)
             expect(data.expenses).toEqual([])
             expect(data.pairwiseBalances).toEqual([])
             expect(data.currentUserSummary).toEqual([])
