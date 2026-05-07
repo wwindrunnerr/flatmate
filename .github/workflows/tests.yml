@@ -20,6 +20,7 @@ jobs:
       run:
         working-directory: ./src
 
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -30,13 +31,16 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
+        working-directory: ./src
         run: npm ci
 
       - name: Generate Prisma Client
-        run: npx prisma generate
+        run: npx prisma generate --schema=./src/prisma/schema.prisma
 
       - name: Run unit tests
+        working-directory: ./src
         run: npm run test:unit
 
       - name: Run coverage
+        working-directory: ./src
         run: npm run test:coverage
