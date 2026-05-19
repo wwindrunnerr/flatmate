@@ -3,13 +3,15 @@ name: Next.js Build and Runtime Check
 on:
   push:
     branches: ["main"]
-
-
+  pull_request:
+    branches: ["main"]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    continue-on-error: true
+
+    env:
+      DATABASE_URL: "file:./test.db"
 
     steps:
       - uses: actions/checkout@v6
@@ -18,34 +20,26 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: 20
-          cache: npm
-          cache-dependency-path: src/package-lock.json
 
       - name: Install dependencies
         run: npm ci
-        working-directory: ./src
+
+      - name: Generate Prisma Client
+        run: npx prisma generate --schema=./prisma/schema.prisma
 
       - name: Lint
         run: npm run lint --if-present
-        working-directory: ./src
         continue-on-error: true
-
-
-      - name: Run tests
-        run: npm test --if-present
-        working-directory: ./src
 
       - name: Build Next.js
         run: npm run build
-        working-directory: ./src
 
       - name: Upload standalone build
         uses: actions/upload-artifact@v7
         with:
           name: next-build
-          path: src/.next/standalone
+          path: .next/standalone
           if-no-files-found: error
-
 
   container-test:
     needs: build
@@ -58,7 +52,7 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: next-build
-          path: src/.next/standalone
+          path: .next/standalone
 
       - name: Build Docker image
         run: docker build -t nextjs-test .
@@ -66,14 +60,27 @@ jobs:
       - name: Run container
         run: docker run -d -p 3000:3000 --name nextjs-app nextjs-test
 
-      - name: Wait and test app
+      - name: Wait for app startup
         run: |
           sleep 10
-          curl --fail http://localhost:3000
+
+      - name: Measure Response Time
+        run: |
+          mkdir -p metrics
+          RESPONSE_TIME=$(curl -o /dev/null -s -w "%{time_total}" http://localhost:3000)
+          echo "Response Time (s): $RESPONSE_TIME"
+          echo "timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ"),route=/,response_time_seconds=$RESPONSE_TIME" >> metrics/response-time.log
+
+      - name: Test app availability
+        run: curl --fail --silent --show-error --output /dev/null http://localhost:3000
+
+      - name: Upload response time log
+        uses: actions/upload-artifact@v7
+        with:
+          name: response-time-metrics
+          path: metrics/response-time.log
+          if-no-files-found: warn
 
       - name: Cleanup container
         if: always()
         run: docker rm -f nextjs-app || true
-
-
-

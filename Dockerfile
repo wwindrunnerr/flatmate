@@ -1,17 +1,26 @@
 FROM node:20-alpine AS builder
+
 WORKDIR /app
 
-COPY src/package*.json ./src/
-WORKDIR /app/src
-RUN npm install
+ENV DATABASE_URL="file:./test.db"
 
-COPY src/ ./
+COPY package*.json ./
+RUN npm ci
+
+COPY . .
+RUN npx prisma generate --schema=./prisma/schema.prisma
 RUN npm run build
 
-FROM node:20-alpine
-WORKDIR /app/src
+FROM node:20-alpine AS runner
 
-COPY --from=builder /app/src ./
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV DATABASE_URL="file:./test.db"
+
+COPY --from=builder /app ./
 
 EXPOSE 3000
-CMD ["npm", "start"]
+
+CMD ["npm", "run", "start"]

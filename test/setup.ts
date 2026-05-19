@@ -1,8 +1,6 @@
-import '@testing-library/jest-dom'
-import { expect, afterEach } from 'vitest'
-import { cleanup } from '@testing-library/react'
+import { afterEach, vi } from 'vitest'
 
-// Automatically cleanup after each test
+// Optional: reset mocks after each test
 afterEach(() => {
-  cleanup()
+    vi.restoreAllMocks()
 })
