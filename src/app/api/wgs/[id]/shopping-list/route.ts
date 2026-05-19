@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
+import { writeRouteMetric } from "@/lib/metrics";
 
 async function getSessionUser() {
     const cookieStore = await cookies();
@@ -55,11 +56,16 @@ export async function GET(
     _request: NextRequest,
     context: { params: Promise<{ id: string }> }
 ) {
+    const startTime = performance.now();
+
     try {
         const { id: wgId } = await context.params;
         const auth = await requireMembershipOrResponse(wgId);
 
-        if (auth.error) return auth.error;
+        if (auth.error) {
+            writeRouteMetric("GET /api/wgs/[id]/shopping-list (auth fail)", startTime);
+            return auth.error;
+        }
 
         const items = await prisma.shoppingListItem.findMany({
             where: { wgId },
@@ -78,12 +84,15 @@ export async function GET(
             },
         });
 
+        writeRouteMetric("GET /api/wgs/[id]/shopping-list", startTime);
+
         return NextResponse.json({
             items,
             toBuyItems: items.filter((item) => item.status === "TO_BUY"),
             inventoryItems: items.filter((item) => item.status === "INVENTORY"),
         });
     } catch (error) {
+        writeRouteMetric("GET /api/wgs/[id]/shopping-list (error)", startTime);
         console.error("GET_SHOPPING_LIST_ERROR", error);
         return NextResponse.json(
             { error: "Einkaufsliste konnte nicht geladen werden." },
@@ -96,12 +105,19 @@ export async function POST(
     request: NextRequest,
     context: { params: Promise<{ id: string }> }
 ) {
+    const startTime = performance.now();
+
     try {
         const { id: wgId } = await context.params;
         const auth = await requireMembershipOrResponse(wgId);
 
-        if (auth.error) return auth.error;
+        if (auth.error) {
+            writeRouteMetric("POST /api/wgs/[id]/shopping-list (auth fail)", startTime);
+            return auth.error;
+        }
+
         if (!auth.user) {
+            writeRouteMetric("POST /api/wgs/[id]/shopping-list (no user)", startTime);
             return NextResponse.json({ error: "Nicht eingeloggt." }, { status: 401 });
         }
 
@@ -110,6 +126,7 @@ export async function POST(
         const status = body?.status === "INVENTORY" ? "INVENTORY" : "TO_BUY";
 
         if (!name) {
+            writeRouteMetric("POST /api/wgs/[id]/shopping-list (validation fail)", startTime);
             return NextResponse.json(
                 { error: "Bitte einen Artikelnamen eingeben." },
                 { status: 400 }
@@ -134,8 +151,11 @@ export async function POST(
             },
         });
 
+        writeRouteMetric("POST /api/wgs/[id]/shopping-list", startTime);
+
         return NextResponse.json({ item }, { status: 201 });
     } catch (error) {
+        writeRouteMetric("POST /api/wgs/[id]/shopping-list (error)", startTime);
         console.error("CREATE_SHOPPING_LIST_ITEM_ERROR", error);
         return NextResponse.json(
             { error: "Artikel konnte nicht erstellt werden." },
