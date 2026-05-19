@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth/session";
+import { writeRouteMetric } from "@/lib/metrics";
 
 type PutzplanUpdateBody = {
     rooms?: string[];
@@ -104,22 +105,32 @@ export async function GET(
     _req: Request,
     context: { params: Promise<{ id: string }> }
 ) {
+    const startTime = performance.now();
+
     try {
         const { id: wgId } = await context.params;
 
         const auth = await requireMembershipOrResponse(wgId);
-        if (auth.error) return auth.error;
+        if (auth.error) {
+            writeRouteMetric("GET /api/wgs/[id]/putzplan (auth fail)", startTime);
+            return auth.error;
+        }
 
         await cleanupExpiredOverrides(wgId);
 
-        const currentMonday = getMonday(new Date());
-        const sixWeeksAgo = addDays(currentMonday, -42);
-
-        const [memberships, rooms, overrides, ratings] = await Promise.all([
+        const [memberships, rooms, overrides] = await Promise.all([
             prisma.membership.findMany({
                 where: { wgId },
                 orderBy: { joinedAt: "asc" },
-                include: { user: { select: { id: true, name: true, email: true } } },
+                include: {
+                    user: {
+                        select: {
+                            id: true,
+                            name: true,
+                            email: true,
+                        },
+                    },
+                },
             }),
             prisma.cleaningRoom.findMany({
                 where: { wgId },
@@ -129,36 +140,9 @@ export async function GET(
                 where: { wgId },
                 orderBy: { weekStart: "asc" },
             }),
-            prisma.cleaningRating.findMany({
-                // Holt alle Ratings der letzten 6 Wochen (und simulierte in der Zukunft)
-                where: { wgId, weekStart: { gte: sixWeeksAgo } },
-            }),
         ]);
 
-        const userScores: Record<string, { total: number; count: number }> = {};
-        ratings.forEach((r) => {
-            if (!userScores[r.ratedUserId]) userScores[r.ratedUserId] = { total: 0, count: 0 };
-            userScores[r.ratedUserId].total += r.score;
-            userScores[r.ratedUserId].count += 1;
-        });
-
-        const leaderboard = memberships.map((m) => {
-            const stats = userScores[m.user.id];
-            return {
-                userId: m.user.id,
-                userName: m.user.name,
-                average: stats ? stats.total / stats.count : null,
-            };
-        }).sort((a, b) => (b.average || 0) - (a.average || 0));
-
-        // NEU: Gibt ALLE Ratings des aktuellen Users zurück, gepaart mit der Woche
-        const myRatings = ratings
-            .filter((r) => r.raterId === auth.user.id)
-            .map((r) => ({
-                ratedUserId: r.ratedUserId,
-                score: r.score,
-                weekStart: r.weekStart.toISOString(),
-            }));
+        writeRouteMetric("GET /api/wgs/[id]/putzplan", startTime);
 
         return NextResponse.json({
             members: memberships.map((membership) => ({
@@ -174,12 +158,14 @@ export async function GET(
                 unassignedRooms: safeParseJsonArray(override.unassignedRoomsJson),
                 expiresAt: override.expiresAt.toISOString(),
             })),
-            leaderboard,
-            myRatings,
         });
     } catch (error) {
+        writeRouteMetric("GET /api/wgs/[id]/putzplan (error)", startTime);
         console.error("PUTZPLAN_GET_ERROR", error);
-        return NextResponse.json({ error: "Interner Serverfehler" }, { status: 500 });
+        return NextResponse.json(
+            { error: "Interner Serverfehler" },
+            { status: 500 }
+        );
     }
 }
 
@@ -187,11 +173,16 @@ export async function PUT(
     req: Request,
     context: { params: Promise<{ id: string }> }
 ) {
+    const startTime = performance.now();
+
     try {
         const { id: wgId } = await context.params;
 
         const auth = await requireMembershipOrResponse(wgId);
-        if (auth.error) return auth.error;
+        if (auth.error) {
+            writeRouteMetric("PUT /api/wgs/[id]/putzplan (auth fail)", startTime);
+            return auth.error;
+        }
 
         await cleanupExpiredOverrides(wgId);
 
@@ -199,11 +190,19 @@ export async function PUT(
 
         if (body.rooms) {
             const cleanedRooms = body.rooms.map((r) => r.trim()).filter(Boolean);
+
             await prisma.$transaction(async (tx) => {
-                await tx.cleaningRoom.deleteMany({ where: { wgId } });
+                await tx.cleaningRoom.deleteMany({
+                    where: { wgId },
+                });
+
                 if (cleanedRooms.length > 0) {
                     await tx.cleaningRoom.createMany({
-                        data: cleanedRooms.map((name, index) => ({ wgId, name, sortOrder: index })),
+                        data: cleanedRooms.map((name, index) => ({
+                            wgId,
+                            name,
+                            sortOrder: index,
+                        })),
                     });
                 }
             });
@@ -211,14 +210,25 @@ export async function PUT(
 
         if (body.weekOverride) {
             const weekStart = startOfDay(new Date(body.weekOverride.weekStart));
+
             if (Number.isNaN(weekStart.getTime())) {
-                return NextResponse.json({ error: "Ungültiges weekStart-Datum" }, { status: 400 });
+                writeRouteMetric("PUT /api/wgs/[id]/putzplan (invalid date)", startTime);
+                return NextResponse.json(
+                    { error: "Ungültiges weekStart-Datum" },
+                    { status: 400 }
+                );
             }
+
             const weekEnd = addDays(weekStart, 6);
             const expiresAt = addDays(weekEnd, 7);
 
             await prisma.cleaningWeekOverride.upsert({
-                where: { wgId_weekStart: { wgId, weekStart } },
+                where: {
+                    wgId_weekStart: {
+                        wgId,
+                        weekStart,
+                    },
+                },
                 update: {
                     assignmentsJson: JSON.stringify(body.weekOverride.assignments ?? {}),
                     unassignedRoomsJson: JSON.stringify(body.weekOverride.unassignedRooms ?? []),
@@ -234,41 +244,23 @@ export async function PUT(
             });
         }
 
-        // NEU: Rating wird für die exakte Woche gespeichert, die das Frontend meldet
-        if (body.rating) {
-            const ratingWeekStart = startOfDay(new Date(body.rating.weekStart));
-            
-            await prisma.cleaningRating.upsert({
-                where: {
-                    wgId_raterId_ratedUserId_weekStart: {
-                        wgId,
-                        raterId: auth.user.id,
-                        ratedUserId: body.rating.ratedUserId,
-                        weekStart: ratingWeekStart,
-                    },
-                },
-                update: { score: body.rating.score },
-                create: {
-                    wgId,
-                    raterId: auth.user.id,
-                    ratedUserId: body.rating.ratedUserId,
-                    weekStart: ratingWeekStart,
-                    score: body.rating.score,
-                },
-            });
-        }
-
         const updatedRooms = await prisma.cleaningRoom.findMany({
             where: { wgId },
             orderBy: { sortOrder: "asc" },
         });
+
+        writeRouteMetric("PUT /api/wgs/[id]/putzplan", startTime);
 
         return NextResponse.json({
             success: true,
             rooms: updatedRooms.map((room) => room.name),
         });
     } catch (error) {
+        writeRouteMetric("PUT /api/wgs/[id]/putzplan (error)", startTime);
         console.error("PUTZPLAN_PUT_ERROR", error);
-        return NextResponse.json({ error: "Interner Serverfehler" }, { status: 500 });
+        return NextResponse.json(
+            { error: "Interner Serverfehler" },
+            { status: 500 }
+        );
     }
 }

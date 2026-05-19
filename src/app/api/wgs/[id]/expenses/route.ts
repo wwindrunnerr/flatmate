@@ -10,16 +10,22 @@ import {
     validateParticipantMembership,
     type ExpenseWithRelations,
 } from "@/lib/budget/expense-route-helpers";
+import { writeRouteMetric } from "@/lib/metrics";
 
 export async function GET(
     _req: Request,
     context: { params: Promise<{ id: string }> }
 ) {
+    const startTime = performance.now();
+
     try {
         const { id: wgId } = await context.params;
 
         const auth = await requireMembershipOrResponse(wgId);
-        if (auth.error) return auth.error;
+        if (auth.error) {
+            writeRouteMetric("GET /api/wgs/[id]/expenses (auth fail)", startTime);
+            return auth.error;
+        }
 
         const expenses = await prisma.expense.findMany({
             where: { wgId },
@@ -32,6 +38,8 @@ export async function GET(
             auth.user!.id
         );
 
+        writeRouteMetric("GET /api/wgs/[id]/expenses", startTime);
+
         return NextResponse.json({
             expenses: expenses.map((expense) =>
                 mapExpenseToResponse(expense as ExpenseWithRelations)
@@ -40,6 +48,7 @@ export async function GET(
             currentUserSummary: balances.currentUserSummary,
         });
     } catch (error) {
+        writeRouteMetric("GET /api/wgs/[id]/expenses (error)", startTime);
         console.error("GET_EXPENSES_ERROR", error);
         return NextResponse.json(
             { error: "Interner Serverfehler" },
@@ -52,16 +61,22 @@ export async function POST(
     req: Request,
     context: { params: Promise<{ id: string }> }
 ) {
+    const startTime = performance.now();
+
     try {
         const { id: wgId } = await context.params;
 
         const auth = await requireMembershipOrResponse(wgId);
-        if (auth.error) return auth.error;
+        if (auth.error) {
+            writeRouteMetric("POST /api/wgs/[id]/expenses (auth fail)", startTime);
+            return auth.error;
+        }
 
         const body = await req.json();
         const parsed = createExpenseSchema.safeParse(body);
 
         if (!parsed.success) {
+            writeRouteMetric("POST /api/wgs/[id]/expenses (validation fail)", startTime);
             return NextResponse.json(
                 {
                     error: "Ungültige Eingaben",
@@ -74,17 +89,29 @@ export async function POST(
         const { description, amountCents, participantUserIds } = parsed.data;
         const paidByUserId = auth.user!.id;
 
-        const memberIds = await loadWgMemberIds(wgId);
-        const participantValidationError = validateParticipantMembership(
-            participantUserIds,
-            memberIds
-        );
+        const memberships = await prisma.membership.findMany({
+            where: { wgId },
+            select: { userId: true },
+        });
 
-        if (participantValidationError) {
+        const memberIds = new Set(memberships.map((m) => m.userId));
+
+        if (!memberIds.has(paidByUserId)) {
+            writeRouteMetric("POST /api/wgs/[id]/expenses (payer invalid)", startTime);
             return NextResponse.json(
-                { error: participantValidationError },
+                { error: "Bezahlt-von muss Mitglied der WG sein" },
                 { status: 400 }
             );
+        }
+
+        for (const participantUserId of participantUserIds) {
+            if (!memberIds.has(participantUserId)) {
+                writeRouteMetric("POST /api/wgs/[id]/expenses (participant invalid)", startTime);
+                return NextResponse.json(
+                    { error: "Alle Teilnehmer müssen Mitglieder der WG sein" },
+                    { status: 400 }
+                );
+            }
         }
 
         const expense = await prisma.expense.create({
@@ -103,6 +130,8 @@ export async function POST(
             include: expenseInclude,
         });
 
+        writeRouteMetric("POST /api/wgs/[id]/expenses", startTime);
+
         return NextResponse.json(
             {
                 success: true,
@@ -111,6 +140,7 @@ export async function POST(
             { status: 201 }
         );
     } catch (error) {
+        writeRouteMetric("POST /api/wgs/[id]/expenses (error)", startTime);
         console.error("CREATE_EXPENSE_ERROR", error);
         return NextResponse.json(
             { error: "Interner Serverfehler" },
