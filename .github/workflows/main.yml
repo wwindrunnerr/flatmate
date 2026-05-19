@@ -72,7 +72,7 @@ jobs:
           echo "timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ"),route=/,response_time_seconds=$RESPONSE_TIME" >> metrics/response-time.log
 
       - name: Test app availability
-        run: curl --fail http://localhost:3000
+        run: curl --fail --silent --show-error --output /dev/null http://localhost:3000
 
       - name: Upload response time log
         uses: actions/upload-artifact@v7
