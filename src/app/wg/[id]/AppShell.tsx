@@ -7,6 +7,8 @@ import { DollarSignIcon } from "@/components/icons/DollarSignIcon";
 import { ClipboardIcon } from "@/components/icons/ClipboardIcon";
 import { ShoppingCartIcon } from "@/components/icons/ShoppingCartIcon";
 import { ProfileIcon } from "@/components/icons/ProfileIcon";
+// HIER: Das neue MusicIcon importieren
+import { MusicIcon } from "@/components/icons/MusicIcon"; 
 import { ReactNode } from "react";
 
 type Props = {
@@ -53,6 +55,12 @@ export default function AppShell({ children }: Props) {
             headerTitle = "Einkaufsliste";
             headerSubtitle = "Plane Einkäufe gemeinsam mit deiner WG.";
             break;
+        // HIER: Der Header für die neue Musik-Seite
+        case isActive("/musik"):
+            headerIcon = <MusicIcon className="icon" />;
+            headerTitle = "Musik";
+            headerSubtitle = "Höre synchron Musik mit deinen Mitbewohnern.";
+            break;
         default:
             headerIcon = <HomeIcon className="icon" />;
             headerTitle = "WG-App";
@@ -84,6 +92,15 @@ export default function AppShell({ children }: Props) {
                 >
                     <ShoppingCartIcon className="icon" />
                     <span>Einkaufsliste</span>
+                </Link>
+
+                {/* HIER: Der neue Link in der Sidebar */}
+                <Link
+                    href={`${base}/musik`}
+                    className={navClass("/musik")}
+                >
+                    <MusicIcon className="icon" />
+                    <span>Musik</span>
                 </Link>
             </nav>
 
