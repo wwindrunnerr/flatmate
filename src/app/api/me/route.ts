@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth/session";
+import { hash } from "bcryptjs";
 
 export async function GET() {
     try {
@@ -74,6 +75,7 @@ export async function GET() {
         );
     }
 }
+
 export async function PATCH(req: Request) {
     try {
         const sessionUser = await getSessionUser();
@@ -83,20 +85,44 @@ export async function PATCH(req: Request) {
         }
 
         const body = await req.json();
+        const { name, birthDate, password } = body;
         
-        // Falls ein Datum kommt, umwandeln, sonst null (wenn der User es löscht)
-        const parsedDate = body.birthDate ? new Date(body.birthDate) : null;
+        const updateData: any = {};
+
+        // 1. Namen aktualisieren
+        if (name !== undefined) {
+            if (name.trim() === "") {
+                return NextResponse.json({ error: "Der Name darf nicht leer sein" }, { status: 400 });
+            }
+            updateData.name = name.trim();
+        }
+
+        // 2. Geburtsdatum aktualisieren
+        if (birthDate !== undefined) {
+            updateData.birthDate = birthDate ? new Date(birthDate) : null;
+        }
+
+        // 3. Passwort aktualisieren
+        if (password) {
+            if (password.length < 6) {
+                return NextResponse.json({ error: "Das Passwort muss mindestens 6 Zeichen lang sein" }, { status: 400 });
+            }
+            updateData.password = await hash(password, 10);
+        }
+
+        if (Object.keys(updateData).length === 0) {
+             return NextResponse.json({ error: "Keine Daten zum Aktualisieren gefunden" }, { status: 400 });
+        }
 
         const updatedUser = await prisma.user.update({
             where: { id: sessionUser.id },
-            data: { birthDate: parsedDate },
-            select: { id: true, birthDate: true }
+            data: updateData,
+            select: { id: true, name: true, birthDate: true }
         });
 
         return NextResponse.json({ user: updatedUser });
     } catch (error) {
-        // HIER WIRD DER FEHLER IM TERMINAL ANGEZEIGT
-        console.error("UPDATE_BIRTHDATE_ERROR", error);
+        console.error("UPDATE_PROFILE_ERROR", error);
         return NextResponse.json(
             { error: "Fehler beim Speichern in der Datenbank" },
             { status: 500 }

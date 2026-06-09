@@ -50,11 +50,16 @@ export default function UserPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    // State fürs Modal
-    const [isBirthDateOpen, setIsBirthDateOpen] = useState(false);
+    // --- STATES FÜRS MODAL ---
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [nameInput, setNameInput] = useState("");
     const [birthDateInput, setBirthDateInput] = useState("");
-    const [savingBirthDate, setSavingBirthDate] = useState(false);
-    const [birthDateMsg, setBirthDateMsg] = useState("");
+    const [isSaving, setIsSaving] = useState(false);
+    const [errorMsg, setErrorMsg] = useState("");
+
+    // --- STATES FÜR DEN E-MAIL BUTTON ---
+    const [isSendingLink, setIsSendingLink] = useState(false);
+    const [linkSent, setLinkSent] = useState(false);
 
     async function loadUser() {
         try {
@@ -80,9 +85,15 @@ export default function UserPage() {
             }
 
             setUser(data.user ?? null);
-            // Input-Feld mit bestehendem Datum vorbefüllen
-            if (data.user?.birthDate) {
-                setBirthDateInput(toInputDate(data.user.birthDate));
+            
+            // Input-Felder mit bestehenden Daten vorbefüllen
+            if (data.user) {
+                setNameInput(data.user.name || "");
+                if (data.user.birthDate) {
+                    setBirthDateInput(toInputDate(data.user.birthDate));
+                } else {
+                    setBirthDateInput("");
+                }
             }
             setLoading(false);
         } catch (err) {
@@ -96,9 +107,10 @@ export default function UserPage() {
         loadUser();
     }, []);
 
-  async function handleSaveBirthDate() {
-        setSavingBirthDate(true);
-        setBirthDateMsg("");
+    // --- FUNKTION: PROFIL SPEICHERN ---
+    async function handleSaveProfile() {
+        setIsSaving(true);
+        setErrorMsg("");
         
         try {
             const res = await fetch("/api/me", {
@@ -106,11 +118,13 @@ export default function UserPage() {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                // Das Datum an die API senden
-                body: JSON.stringify({ birthDate: birthDateInput }),
+                body: JSON.stringify({ 
+                    name: nameInput,
+                    birthDate: birthDateInput 
+                }),
             });
 
-            // -- NEU: Sichereres Lesen der Server-Antwort --
+            // Sichereres Lesen der Server-Antwort
             const text = await res.text();
             let data: any = {};
             
@@ -123,19 +137,42 @@ export default function UserPage() {
             }
 
             if (!res.ok) {
-                setBirthDateMsg(data.error || `Fehler beim Speichern (Status: ${res.status})`);
-                setSavingBirthDate(false);
+                setErrorMsg(data.error || `Fehler beim Speichern (Status: ${res.status})`);
+                setIsSaving(false);
                 return;
             }
 
             // Erfolgreich gespeichert
             await loadUser(); 
-            setIsBirthDateOpen(false); 
-            setSavingBirthDate(false);
+            setIsEditModalOpen(false); 
+            setIsSaving(false);
         } catch (err) {
-            console.error("SAVE_BIRTHDATE_ERROR", err);
-            setBirthDateMsg("Ein unerwarteter Verbindungsfehler ist aufgetreten.");
-            setSavingBirthDate(false);
+            console.error("SAVE_PROFILE_ERROR", err);
+            setErrorMsg("Ein unerwarteter Verbindungsfehler ist aufgetreten.");
+            setIsSaving(false);
+        }
+    }
+
+    // --- FUNKTION: E-MAIL LINK SENDEN ---
+    async function handleSendResetLink() {
+        setIsSendingLink(true);
+        setErrorMsg("");
+        
+        try {
+            const res = await fetch("/api/me/reset-link", { method: "POST" });
+            const data = await res.json();
+
+            if (!res.ok) {
+                setErrorMsg(data.error || "Fehler beim Senden der E-Mail");
+            } else {
+                setLinkSent(true);
+                // Setzt den Button nach 5 Sekunden wieder auf den Ursprungszustand zurück
+                setTimeout(() => setLinkSent(false), 5000);
+            }
+        } catch (err) {
+            setErrorMsg("Verbindungsfehler beim Anfordern des Links.");
+        } finally {
+            setIsSendingLink(false);
         }
     }
 
@@ -208,17 +245,14 @@ export default function UserPage() {
         }
     }
 
-    if (loading) {
-        return <div className="user-page">Lade Profil...</div>;
-    }
+    if (loading) return <div className="user-page">Lade Profil...</div>;
+    if (error) return <div className="user-page">{error}</div>;
+    if (!user) return <div className="user-page">Kein Benutzer gefunden.</div>;
 
-    if (error) {
-        return <div className="user-page">{error}</div>;
-    }
-
-    if (!user) {
-        return <div className="user-page">Kein Benutzer gefunden.</div>;
-    }
+    const inputStyle = { 
+        width: "100%", padding: "0.6rem", marginTop: "0.3rem", 
+        marginBottom: "1rem", border: "1px solid #ccc", borderRadius: "6px" 
+    };
 
     return (
         <>
@@ -236,15 +270,16 @@ export default function UserPage() {
                         <p>
                             <span className="info-label">Geburtsdatum:</span>{" "}
                             {formatBirthDate(user.birthDate)}
-                            <button
-                                type="button"
-                                className="edit-birthdate-btn"
-                                onClick={() => setIsBirthDateOpen(true)}
-                                style={{ marginLeft: "10px" }}
-                            >
-                                {user.birthDate ? "Bearbeiten" : "Hinzufügen"}
-                            </button>
                         </p>
+                        
+                        <button
+                            type="button"
+                            className="btn-primary"
+                            onClick={() => setIsEditModalOpen(true)}
+                            style={{ marginTop: "15px" }}
+                        >
+                            Daten bearbeiten
+                        </button>
                     </div>
 
                     <div className="section">
@@ -299,8 +334,8 @@ export default function UserPage() {
                 </div>
             </div>
 
-            {/* NEU: Das Modal für das Geburtsdatum */}
-            {isBirthDateOpen && (
+            {/* Modal für Profilbearbeitung */}
+            {isEditModalOpen && (
                 <div 
                     style={{
                         position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
@@ -310,38 +345,74 @@ export default function UserPage() {
                 >
                     <div 
                         style={{
-                            background: "white", padding: "2rem", borderRadius: "8px", 
-                            width: "90%", maxWidth: "400px", color: "black"
+                            background: "white", padding: "2rem", borderRadius: "12px", 
+                            width: "90%", maxWidth: "450px", color: "black",
+                            boxShadow: "0 10px 25px rgba(0,0,0,0.2)"
                         }}
                     >
-                        <h3>Geburtsdatum {user.birthDate ? "bearbeiten" : "hinzufügen"}</h3>
+                        <h3 style={{ marginBottom: "1.5rem" }}>Profil bearbeiten</h3>
                         
+                        <label style={{ display: "block", fontWeight: "bold" }}>Name</label>
+                        <input
+                            type="text"
+                            value={nameInput}
+                            onChange={(e) => setNameInput(e.target.value)}
+                            style={inputStyle}
+                        />
+
+                        <label style={{ display: "block", fontWeight: "bold" }}>Geburtsdatum</label>
                         <input
                             type="date"
                             value={birthDateInput}
                             onChange={(e) => setBirthDateInput(e.target.value)}
-                            style={{ 
-                                width: "100%", padding: "0.5rem", marginTop: "1rem", 
-                                marginBottom: "1rem", border: "1px solid #ccc", borderRadius: "4px" 
-                            }}
+                            style={inputStyle}
                         />
 
-                        {birthDateMsg && <p style={{ color: "red", fontSize: "0.9rem" }}>{birthDateMsg}</p>}
+                        <label style={{ display: "block", fontWeight: "bold", marginBottom: "0.3rem" }}>Passwort</label>
+                        <button 
+                            type="button" 
+                            onClick={handleSendResetLink}
+                            disabled={isSendingLink || linkSent}
+                            style={{
+                                width: "100%", 
+                                padding: "0.6rem", 
+                                marginBottom: "1rem", 
+                                border: linkSent ? "1px solid #28a745" : "1px solid #ccc", 
+                                borderRadius: "6px",
+                                backgroundColor: linkSent ? "#d4edda" : "#f8f9fa",
+                                color: linkSent ? "#155724" : "#333",
+                                fontWeight: "bold",
+                                cursor: (isSendingLink || linkSent) ? "not-allowed" : "pointer",
+                                textAlign: "center"
+                            }}
+                        >
+                            {isSendingLink 
+                                ? "Wird gesendet..." 
+                                : linkSent 
+                                    ? "E-Mail mit Link versendet ✓" 
+                                    : "Passwort-Reset Link per E-Mail senden"}
+                        </button>
 
-                        <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
+                        {errorMsg && <p style={{ color: "red", fontSize: "0.9rem" }}>{errorMsg}</p>}
+
+                        <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", marginTop: "1rem" }}>
                             <button
-                                onClick={() => setIsBirthDateOpen(false)}
+                                onClick={() => {
+                                    setIsEditModalOpen(false);
+                                    setErrorMsg("");
+                                    setLinkSent(false); // Resetten, falls Modal später wieder geöffnet wird
+                                }}
                                 className="btn-secondary"
-                                disabled={savingBirthDate}
+                                disabled={isSaving}
                             >
                                 Abbrechen
                             </button>
                             <button
-                                onClick={handleSaveBirthDate}
+                                onClick={handleSaveProfile}
                                 className="btn-primary"
-                                disabled={savingBirthDate}
+                                disabled={isSaving}
                             >
-                                {savingBirthDate ? "Speichert..." : "Speichern"}
+                                {isSaving ? "Speichert..." : "Speichern"}
                             </button>
                         </div>
                     </div>
