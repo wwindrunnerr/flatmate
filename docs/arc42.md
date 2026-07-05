@@ -2,6 +2,8 @@
 > * [Qualitätsziele](#qualitätsziele)
 > * [Stakeholder](#stakeholder)
 > * [Randbedingen](#randbedingungen)
+> * [Kontextabgrenzung](#kontextabgrenzung)
+> * [Lösungsstrategie](#lösungsstrategie)
 > * [Bausteinsicht](#bausteinsicht)
 > * [Laufzeitsicht](#laufzeitsicht)
 > * [Verteilungssicht](#verteilungssicht)
@@ -119,187 +121,83 @@ Die Berücksichtigung dieser Randbedingungen ist notwendig, um eine realistische
 
 
 # Kontextabgrenzung
+Die Kontextabgrenzung beschreibt FlatMate als Webanwendung zur Unterstützung der Organisation einer Wohngemeinschaft. Das System wird von WG-Mitgliedern über einen Web-Browser verwendet und verwaltet zentrale WG-Daten wie Mitglieder, Termine, Einkaufsliste, Ausgaben und Putzplan.
 
-<div class="formalpara-title">
-
-**Inhalt**
-
-</div>
-
-Die Kontextabgrenzung grenzt das System gegen alle Kommunikationspartner
-(Nachbarsysteme und Benutzerrollen) ab. Sie legt damit die externen
-Schnittstellen fest und zeigt damit auch die Verantwortlichkeit (scope)
-Ihres Systems: Welche Verantwortung trägt das System und welche
-Verantwortung übernehmen die Nachbarsysteme?
-
-Differenzieren Sie fachlichen (Ein- und Ausgaben) und technischen
-Kontext (Kanäle, Protokolle, Hardware), falls nötig.
-
-<div class="formalpara-title">
-
-**Motivation**
-
-</div>
-
-Die fachlichen und technischen Schnittstellen zur Kommunikation gehören
-zu den kritischsten Aspekten eines Systems. Stellen Sie sicher, dass Sie
-diese komplett verstanden haben.
-
-<div class="formalpara-title">
-
-**Form**
-
-</div>
-
-Verschiedene Optionen:
-
-- Diverse Kontextdiagramme
-
-- Listen von Kommunikationsbeziehungen mit deren Schnittstellen
-
-<div class="formalpara-title">
-
-**Weiterführende Informationen**
-
-</div>
-
-Siehe [Kontextabgrenzung](https://docs.arc42.org/section-3/) in der
-online-Dokumentation (auf Englisch!).
+FlatMate ist dabei für die Bereitstellung der Benutzeroberfläche, die Verarbeitung der fachlichen Anwendungslogik und die Speicherung der Daten verantwortlich. Externe Drittsysteme sind im aktuellen Stand nicht produktiv angebunden. Eine mögliche Spotify-Integration ist als zukünftige Erweiterung vorgesehen, gehört jedoch nicht zum Kernumfang des aktuellen Systems.
 
 ## Fachlicher Kontext
 
-<div class="formalpara-title">
+FlatMate kommuniziert fachlich hauptsächlich mit den Nutzern der Anwendung. Die Nutzer geben WG-bezogene Informationen ein und erhalten daraus strukturierte Ansichten, Statusinformationen und Auswertungen innerhalb der Anwendung.
 
-**Inhalt**
+| Kommunikationsbeziehung | Eingabe an FlatMate | Ausgabe von FlatMate |
+|---|---|---|
+| WG-Mitglied / Nutzer | Registrierung, Login-Daten, WG-Daten, Einladungen, Termine, Einkaufseinträge, Ausgaben, Putzplan-Daten | Benutzeroberfläche, WG-Übersichten, Einkaufsliste, Budgetübersicht, Putzplan, Fehlermeldungen und Bestätigungen |
+| FlatMate-Datenhaltung | Zu speichernde Anwendungsdaten, z. B. User, WG, Memberships, Events, Expenses, ShoppingListItems, CleaningRooms | Persistierte und wieder abrufbare WG-Daten |
+| Spotify API, geplant | Anfrage nach Musik- oder Playlist-Funktionen | Musikbezogene Daten oder Playlist-Informationen, zukünftig vorgesehen |
 
-</div>
+### Erläuterung
 
-Festlegung **aller** Kommunikationsbeziehungen (Nutzer, IT-Systeme, …​)
-mit Erklärung der fachlichen Ein- und Ausgabedaten oder Schnittstellen.
-Zusätzlich (bei Bedarf) fachliche Datenformate oder Protokolle der
-Kommunikation mit den Nachbarsystemen.
+Die wichtigste fachliche Schnittstelle besteht zwischen den WG-Mitgliedern und FlatMate. Nutzer können innerhalb der Anwendung ihre WG verwalten, gemeinsame Aufgaben koordinieren und WG-relevante Daten erfassen. FlatMate verarbeitet diese Eingaben, speichert sie dauerhaft und stellt sie anderen berechtigten WG-Mitgliedern wieder zur Verfügung.
 
-<div class="formalpara-title">
+Die Datenbank ist fachlich kein eigenständiger Akteur, sondern dient als persistente Datenhaltung des Systems. Sie speichert die von FlatMate verwalteten Informationen, beispielsweise Benutzer, WGs, Mitgliedschaften, Termine, Ausgaben, Einkaufslisten und Putzplan-Daten.
 
-**Motivation**
+Die Spotify-Integration ist nur als geplante Erweiterung zu verstehen. Da sie im aktuellen System nicht zentral für die Kernfunktionen ist, wird sie nicht als produktive fachliche Schnittstelle betrachtet.
 
-</div>
-
-Alle Beteiligten müssen verstehen, welche fachlichen Informationen mit
-der Umwelt ausgetauscht werden.
-
-<div class="formalpara-title">
-
-**Form**
-
-</div>
-
-Alle Diagrammarten, die das System als Blackbox darstellen und die
-fachlichen Schnittstellen zu den Nachbarsystemen beschreiben.
-
-Alternativ oder ergänzend können Sie eine Tabelle verwenden. Der Titel
-gibt den Namen Ihres Systems wieder; die drei Spalten sind:
-Kommunikationsbeziehung, Eingabe, Ausgabe.
-
-**\<Diagramm und/oder Tabelle\>**
-
-**\<optional: Erläuterung der externen fachlichen Schnittstellen\>**
+---
 
 ## Technischer Kontext
 
-<div class="formalpara-title">
+Technisch wird FlatMate als Webanwendung über einen Browser verwendet. Die Kommunikation zwischen Browser und Anwendung erfolgt über HTTP. Innerhalb der Anwendung werden API-Routen verwendet, um Daten zu lesen, zu erstellen, zu ändern oder zu löschen. Der Zugriff auf die SQLite-Datenbank erfolgt über Prisma.
 
-**Inhalt**
-
-</div>
-
-Technische Schnittstellen (Kanäle, Übertragungsmedien) zwischen dem
-System und seiner Umwelt. Zusätzlich eine Erklärung (*mapping*), welche
-fachlichen Ein- und Ausgaben über welche technischen Kanäle fließen.
-
-<div class="formalpara-title">
-
-**Motivation**
-
-</div>
-
-Viele Stakeholder treffen Architekturentscheidungen auf Basis der
-technischen Schnittstellen des Systems zu seinem Kontext.
-
-Insbesondere bei der Entwicklung von Infrastruktur oder Hardware sind
-diese technischen Schnittstellen durchaus entscheidend.
-
-<div class="formalpara-title">
-
-**Form**
-
-</div>
-
-Beispielsweise UML Deployment-Diagramme mit den Kanälen zu
-Nachbarsystemen, begleitet von einer Tabelle, die Kanäle auf
-Ein-/Ausgaben abbildet.
-
-**\<Diagramm oder Tabelle\>**
-
-**\<optional: Erläuterung der externen technischen Schnittstellen\>**
-
-**\<Mapping fachliche auf technische Schnittstellen\>**
+| Technische Schnittstelle | Beteiligte Systeme | Kanal / Technologie | Übertragene Inhalte |
+|---|---|---|---|
+| Browser-Zugriff | Web-Browser ↔ FlatMate | HTTP / Web UI | Seitenaufrufe, Formulareingaben, UI-Daten, Statusmeldungen |
+| API-Zugriff | Frontend ↔ Backend/API-Routen | HTTP Requests innerhalb der Webanwendung | JSON-Daten für WG, Events, Expenses, Shopping List und Putzplan |
+| Datenbankzugriff | FlatMate ↔ SQLite-Datenbank | Prisma Client / lokaler Datenbankzugriff | Persistente Anwendungsdaten |
+| Spotify-Integration, geplant | FlatMate ↔ Spotify API | HTTPS / externe REST API | Musik- oder Playlist-Daten, zukünftig vorgesehen |
 
 # Lösungsstrategie
+Die Lösungsstrategie von FlatMate basiert auf einer einfachen, modularen und gut wartbaren Fullstack-Architektur. Ziel war es, eine Webanwendung zu entwickeln, die zentrale Funktionen zur Organisation einer Wohngemeinschaft bereitstellt und gleichzeitig mit einem überschaubaren Technologie-Stack umgesetzt werden kann.
 
-<div class="formalpara-title">
+## Zentrale Technologieentscheidungen
 
-**Inhalt**
+| Entscheidung | Beschreibung | Begründung |
+|---|---|---|
+| Next.js | Next.js wird für Frontend, Routing und API-Routen verwendet. | Dadurch können Benutzeroberfläche und Backend-Logik innerhalb eines gemeinsamen Frameworks umgesetzt werden. |
+| Prisma | Prisma bildet die Schnittstelle zwischen Anwendung und Datenbank. | Prisma ermöglicht typisierten Datenzugriff und erleichtert die Arbeit mit dem Datenmodell. |
+| SQLite | Die Anwendung verwendet SQLite als leichtgewichtige relationale Datenbank. | SQLite passt zum Projektumfang und benötigt keine separate Datenbankserver-Infrastruktur. |
+| CSS | Die Benutzeroberfläche wird mit CSS Styling-Konzepten umgesetzt. | Dadurch kann die Oberfläche flexibel und konsistent gestaltet werden. |
+| Vitest | Unit- und Integrationstests werden mit Vitest umgesetzt. | Vitest integriert sich gut in den TypeScript-/Next.js-Stack und unterstützt schnelle automatisierte Tests. |
+| Docker | Die Anwendung kann in einem Docker-Container gebaut und ausgeführt werden. | Docker sorgt für eine reproduzierbare Laufzeitumgebung und vereinfacht Build- und Deployment-Prozesse. |
 
-</div>
+## Top-Level-Zerlegung des Systems
 
-Kurzer Überblick über die grundlegenden Entscheidungen und
-Lösungsansätze, die Entwurf und Implementierung des Systems prägen.
-Hierzu gehören:
+Die Anwendung ist nach Verantwortlichkeiten und Funktionsbereichen strukturiert. Die wichtigsten Bereiche sind:
 
-- Technologieentscheidungen
+| Bereich | Verantwortung |
+|---|---|
+| `app/` | Frontend, Seitenstruktur und Routing |
+| `app/api/` | Backend-Logik und API-Endpunkte |
+| `components/` | Wiederverwendbare UI-Bausteine |
+| `lib/` | Zentrale Logik, Validierung und Hilfsfunktionen |
+| `models/` | Fachliche Datenmodelle |
+| `prisma/` | Datenbankschema, Migrationen und Datenbankkonfiguration |
+| `test/` | Unit- und Integrationstests |
 
-- Entscheidungen über die Top-Level-Zerlegung des Systems,
-  beispielsweise die Verwendung gesamthaft prägender Entwurfs- oder
-  Architekturmuster,
 
-- Entscheidungen zur Erreichung der wichtigsten Qualitätsanforderungen
-  sowie
+## Entscheidungen zur Erreichung der Qualitätsanforderungen
 
-- relevante organisatorische Entscheidungen, beispielsweise für
-  bestimmte Entwicklungsprozesse oder Delegation bestimmter Aufgaben an
-  andere Stakeholder.
+Die wichtigsten Qualitätsanforderungen an FlatMate sind Wartbarkeit, Verständlichkeit, Erweiterbarkeit und grundlegende Zuverlässigkeit.
 
-<div class="formalpara-title">
+Zur Unterstützung dieser Ziele wurden folgende Entscheidungen getroffen:
 
-**Motivation**
+- **Modularität:** Die Anwendung ist nach Funktionsbereichen und technischen Verantwortlichkeiten aufgeteilt.
+- **Typsicherheit:** TypeScript und Prisma reduzieren Fehler durch typisierte Schnittstellen und Datenmodelle.
+- **Validierung:** Eingaben werden vor der Verarbeitung geprüft, um ungültige Daten frühzeitig abzufangen.
+- **Testbarkeit:** Kritische Funktionen werden durch Unit- und Integrationstests abgesichert.
+- **Reproduzierbarkeit:** Docker und CI/CD ermöglichen reproduzierbare Builds und Laufzeittests.
+- **Einfache Datenhaltung:** SQLite reduziert Infrastrukturaufwand und ist für den Projektumfang ausreichend.
 
-</div>
-
-Diese wichtigen Entscheidungen bilden wesentliche „Eckpfeiler“ der
-Architektur. Von ihnen hängen viele weitere Entscheidungen oder
-Implementierungsregeln ab.
-
-<div class="formalpara-title">
-
-**Form**
-
-</div>
-
-Fassen Sie die zentralen Entwurfsentscheidungen **kurz** zusammen.
-Motivieren Sie, ausgehend von Aufgabenstellung, Qualitätszielen und
-Randbedingungen, was Sie entschieden haben und warum Sie so entschieden
-haben. Vermeiden Sie redundante Beschreibungen und verweisen Sie eher
-auf weitere Ausführungen in Folgeabschnitten.
-
-<div class="formalpara-title">
-
-**Weiterführende Informationen**
-
-</div>
-
-Siehe [Lösungsstrategie](https://docs.arc42.org/section-4/) in der
-online-Dokumentation (auf Englisch!).
 
 # Bausteinsicht
 
@@ -657,216 +555,200 @@ WG verlässt.
 
 # Verteilungssicht
 
-<div class="formalpara-title">
+## Überblick
 
-**Inhalt**
+Die Verteilungssicht beschreibt, auf welcher technischen Infrastruktur FlatMate ausgeführt wird und wie die Softwarebausteine auf diese Infrastruktur verteilt sind.
 
-</div>
+FlatMate wird als Webanwendung bereitgestellt. Die Anwendung läuft in einem Docker-Container auf einem Server. Innerhalb dieses Containers wird die Next.js-Anwendung ausgeführt. Die Anwendung enthält sowohl das Frontend als auch die API-Routen. Die persistente Datenhaltung erfolgt über eine SQLite-Datei, auf die über Prisma zugegriffen wird.
 
-Die Verteilungssicht beschreibt:
+Für Build und technische Prüfung existiert eine CI/CD-Pipeline über GitHub Actions. Die Datei `.github/workflows/main.yml` baut die Anwendung, erzeugt ein Docker-Image, startet einen Container und prüft die Erreichbarkeit der Anwendung.
 
-1.  die technische Infrastruktur, auf der Ihr System ausgeführt wird,
-    mit Infrastrukturelementen wie Standorten, Umgebungen, Rechnern,
-    Prozessoren, Kanälen und Netztopologien sowie sonstigen
-    Bestandteilen, und
-
-2.  die Abbildung von (Software-)Bausteinen auf diese Infrastruktur.
-
-Häufig laufen Systeme in unterschiedlichen Umgebungen, beispielsweise
-Entwicklung-/Test- oder Produktionsumgebungen. In solchen Fällen sollten
-Sie alle relevanten Umgebungen aufzeigen.
-
-Nutzen Sie die Verteilungssicht insbesondere dann, wenn Ihre Software
-auf mehr als einem Rechner, Prozessor, Server oder Container abläuft
-oder Sie Ihre Hardware sogar selbst konstruieren.
-
-Aus Softwaresicht genügt es, auf die Aspekte zu achten, die für die
-Softwareverteilung relevant sind. Insbesondere bei der
-Hardwareentwicklung kann es notwendig sein, die Infrastruktur mit
-beliebigen Details zu beschreiben.
-
-<div class="formalpara-title">
-
-**Motivation**
-
-</div>
-
-Software läuft nicht ohne Infrastruktur. Diese zugrundeliegende
-Infrastruktur beeinflusst Ihr System und/oder querschnittliche
-Lösungskonzepte, daher müssen Sie diese Infrastruktur kennen.
-
-<div class="formalpara-title">
-
-**Form**
-
-</div>
-
-Das oberste Verteilungsdiagramm könnte bereits in Ihrem technischen
-Kontext enthalten sein, mit Ihrer Infrastruktur als EINE Blackbox. Jetzt
-zoomen Sie in diese Infrastruktur mit weiteren Verteilungsdiagrammen
-hinein:
-
-- Die UML stellt mit Verteilungsdiagrammen (Deployment diagrams) eine
-  Diagrammart zur Verfügung, um diese Sicht auszudrücken. Nutzen Sie
-  diese, evtl. auch geschachtelt, wenn Ihre Verteilungsstruktur es
-  verlangt.
-
-- Falls Ihre Infrastruktur-Stakeholder andere Diagrammarten bevorzugen,
-  die beispielsweise Prozessoren und Kanäle zeigen, sind diese hier
-  ebenfalls einsetzbar.
-
-<div class="formalpara-title">
-
-**Weiterführende Informationen**
-
-</div>
-
-Siehe [Verteilungssicht](https://docs.arc42.org/section-7/) in der
-online-Dokumentation (auf Englisch!).
+---
 
 ## Infrastruktur Ebene 1
 
-An dieser Stelle beschreiben Sie (als Kombination von Diagrammen mit
-Tabellen oder Texten):
+### Einfaches Deployment-Diagramm
 
-- die Verteilung des Gesamtsystems auf mehrere Standorte, Umgebungen,
-  Rechner, Prozessoren o. Ä., sowie die physischen Verbindungskanäle
-  zwischen diesen,
+```text
++----------------------+        HTTP/HTTPS        +-----------------------------+
+| Nutzer               | -----------------------> | Server / Laufzeitumgebung   |
+| Web-Browser          |                          |                             |
++----------------------+                          |  +-----------------------+  |
+                                                  |  | Docker-Container      |  |
+                                                  |  |                       |  |
+                                                  |  |  Next.js App          |  |
+                                                  |  |  - Frontend           |  |
+                                                  |  |  - API-Routen         |  |
+                                                  |  |                       |  |
+                                                  |  |  Prisma Client        |  |
+                                                  |  |        |              |  |
+                                                  |  |        v              |  |
+                                                  |  |  SQLite-Datei         |  |
+                                                  |  +-----------------------+  |
+                                                  +-----------------------------+
+```
 
-- wichtige Begründungen für diese Verteilungsstruktur,
+### Beschreibung
 
-- Qualitäts- und/oder Leistungsmerkmale dieser Infrastruktur,
+| Element | Beschreibung |
+|---|---|
+| Nutzer / Web-Browser | Greift über die Benutzeroberfläche auf FlatMate zu. |
+| Server / Laufzeitumgebung | Zielumgebung, auf der die Anwendung ausgeführt wird. |
+| Docker-Container | Enthält die lauffähige FlatMate-Anwendung. |
+| Next.js App | Enthält Frontend, Routing und API-Routen. |
+| Prisma Client | Zugriffsschicht zwischen Anwendung und Datenbank. |
+| SQLite-Datei | Lokale persistente Datenhaltung der Anwendung. |
 
-- Zuordnung von Softwareartefakten zu Bestandteilen der Infrastruktur
+### Begründung
 
-Für mehrere Umgebungen oder alternative Deployments kopieren Sie diesen
-Teil von arc42 für alle wichtigen Umgebungen/Varianten.
+Die gewählte Verteilungsstruktur ist für den Projektumfang bewusst einfach gehalten. Da FlatMate als studentisches Projekt keine komplexe verteilte Infrastruktur benötigt, reicht ein einzelner Docker-Container aus. Dadurch lässt sich die Anwendung reproduzierbar bauen, starten und testen.
 
-***\<Übersichtsdiagramm\>***
+Die Kombination aus Next.js und API-Routen ermöglicht es, Frontend und Backend in einer gemeinsamen Anwendung bereitzustellen. SQLite ist als leichtgewichtige Datenbanklösung ausreichend und reduziert den Infrastrukturaufwand. Prisma kapselt den Datenbankzugriff und sorgt für eine klarere Trennung zwischen Anwendungslogik und Datenhaltung.
 
-Begründung  
-*\<Erläuternder Text\>*
+### Qualitäts- und Leistungsmerkmale
 
-Qualitäts- und/oder Leistungsmerkmale  
-*\<Erläuternder Text\>*
+| Merkmal | Umsetzung |
+|---|---|
+| Reproduzierbarkeit | Docker-Container stellt eine einheitliche Laufzeitumgebung bereit. |
+| Einfache Bereitstellung | Anwendung kann als Container gebaut und gestartet werden. |
+| Wartbarkeit | Frontend, API-Routen und Datenzugriff sind logisch getrennt. |
+| Testbarkeit | GitHub Actions baut und testet die Anwendung automatisiert. |
+| Geringer Infrastrukturaufwand | SQLite benötigt keinen separaten Datenbankserver. |
 
-Zuordnung von Bausteinen zu Infrastruktur  
-*\<Beschreibung der Zuordnung\>*
+
+
+## Build- und Deployment-Ablauf
+
+### Einfaches Prozessdiagramm
+
+```text
+Entwickler
+   |
+   | Git Push / Pull Request
+   v
+GitHub Repository
+   |
+   | GitHub Actions: main.yml
+   v
+CI/CD Pipeline
+   |
+   | 1. Dependencies installieren
+   | 2. Prisma Client generieren
+   | 3. Next.js Build ausführen
+   | 4. Docker Image bauen
+   | 5. Container starten und testen
+   v
+Docker Image / Build-Artefakt
+   |
+   | Deployment
+   v
+Server mit Docker-Container
+```
+
+### Beschreibung des Ablaufs
+
+| Schritt | Beschreibung |
+|---|---|
+| Git Push / Pull Request | Änderungen werden in das GitHub Repository übertragen. |
+| GitHub Actions | Die CI/CD-Pipeline wird automatisch gestartet. |
+| Build Next.js | Die Anwendung wird gebaut und auf Build-Fehler geprüft. |
+| Prisma Generate | Der Prisma Client wird aus dem Datenbankschema generiert. |
+| Docker Build | Ein Docker-Image für die Anwendung wird erstellt. |
+| Container Test | Der Container wird gestartet und die Erreichbarkeit wird geprüft. |
+| Deployment | Das geprüfte Image kann auf der Laufzeitumgebung bereitgestellt werden. |
+
+---
 
 ## Infrastruktur Ebene 2
 
-An dieser Stelle können Sie den inneren Aufbau (einiger)
-Infrastrukturelemente aus Ebene 1 beschreiben.
+### Docker-Container
 
-Für jedes Infrastrukturelement kopieren Sie die Struktur aus Ebene 1.
+```text
++------------------------------------------------+
+| Docker-Container                               |
+|                                                |
+|  +------------------------------------------+  |
+|  | Next.js Anwendung                         |  |
+|  |                                          |  |
+|  |  app/        Frontend und Routing        |  |
+|  |  app/api/    Backend und API-Routen      |  |
+|  |  lib/        Logik, Validierung, Utils   |  |
+|  |  prisma/     Schema und DB-Konfiguration |  |
+|  +------------------------------------------+  |
+|                         |                      |
+|                         | Prisma Client        |
+|                         v                      |
+|  +------------------------------------------+  |
+|  | SQLite-Datenbankdatei                     |  |
+|  +------------------------------------------+  |
++------------------------------------------------+
+```
 
-### *\<Infrastrukturelement 1\>*
+### Erläuterung
 
-*\<Diagramm + Erläuterungen\>*
+Der Docker-Container enthält die gesamte lauffähige Anwendung. Innerhalb des Containers wird die Next.js-Anwendung ausgeführt. Diese übernimmt sowohl die Darstellung der Benutzeroberfläche als auch die Verarbeitung der API-Anfragen.
 
-### *\<Infrastrukturelement 2\>*
+Die API-Routen greifen über Prisma auf die SQLite-Datenbankdatei zu. Dadurch bleibt der Datenzugriff innerhalb der Anwendung gekapselt. Für den aktuellen Projektumfang ist keine separate Datenbankinstanz notwendig.
 
-*\<Diagramm + Erläuterungen\>*
-
-…​
-
-### *\<Infrastrukturelement n\>*
-
-*\<Diagramm + Erläuterungen\>*
 
 # Querschnittliche Konzepte
 
-<div class="formalpara-title">
+Dieser Abschnitt beschreibt übergreifende Konzepte, die in mehreren Teilen der FlatMate-Anwendung relevant sind. Diese Konzepte sorgen dafür, dass zentrale technische und fachliche Regeln konsistent umgesetzt werden und nicht in jedem Baustein einzeln neu definiert werden müssen.
 
-**Inhalt**
+Für FlatMate sind insbesondere drei querschnittliche Konzepte relevant:
 
-</div>
+- Session-Handling und Zugriffsschutz
+- Einheitliches API-Fehlerformat
+- Trennung von Cent-Logik und Euro-Darstellung
 
-Dieser Abschnitt beschreibt übergreifende, prinzipielle Regelungen und
-Lösungsansätze, die an mehreren Stellen (=*querschnittlich*) relevant
-sind.
+## Session-Handling und Zugriffsschutz
 
-Solche Konzepte betreffen oft mehrere Bausteine. Dazu können vielerlei
-Themen gehören, wie beispielsweise die Themen aus dem nachfolgenden
-Diagramm:
+FlatMate verwendet ein cookie-basiertes Session-Handling. Nach erfolgreicher Anmeldung wird eine Session erzeugt, über die der Benutzer bei späteren Anfragen wieder erkannt werden kann. Die Authentifizierung erfolgt dadurch nicht rein clientseitig, sondern wird serverseitig geprüft.
+Zusätzlich muss geprüft werden, ob der Benutzer Mitglied der jeweiligen WG ist. Diese Prüfung wird zentral über Hilfsfunktionen wie `requireMembershipOrResponse` umgesetzt.
+Dadurch gilt für alle geschützten API-Routen ein einheitliches Zugriffskonzept:
+
+| Fall | Ergebnis |
+|---|---|
+| Benutzer ist nicht eingeloggt | Anfrage wird mit Fehlerantwort abgelehnt |
+| Benutzer ist eingeloggt, aber kein WG-Mitglied | Zugriff auf die WG wird verweigert |
+| Benutzer ist Mitglied der WG | Anfrage wird weiterverarbeitet |
+
+## Einheitliches API-Fehlerformat
+
+FlatMate verwendet in den API-Routen ein einheitliches Fehlerformat. Fehlerantworten werden grundsätzlich als JSON-Objekt mit mindestens einem `error`-Feld zurückgegeben.
+
+```json
+{
+  "error": "Fehlermeldung"
+}
+```
+
+Dieses Format wird in unterschiedlichen Fehlersituationen verwendet, beispielsweise bei fehlender Anmeldung, fehlender Berechtigung, ungültigen Eingaben oder internen Fehlern.
+
+Beispiele:
+
+| Situation | Beispielhafte Antwort |
+|---|---|
+| Nicht eingeloggt | `{ "error": "Nicht eingeloggt" }` |
+| Kein Zugriff auf eine WG | `{ "error": "Kein Zugriff auf diese WG" }` |
+| Ungültige Eingaben | `{ "error": "Ungültige Eingaben" }` |
 
 
+## Cent-/Euro-Trennung
 
-<div class="formalpara-title">
+FlatMate speichert Geldbeträge intern konsequent in Cent. Das betrifft insbesondere Ausgaben und Salden im Budgetbereich. Ein Betrag von 10,99 Euro wird intern also nicht als `10.99`, sondern als `1099` gespeichert.
 
-**Motivation**
+Dieses Konzept vermeidet Rundungsprobleme, die bei der Arbeit mit Kommazahlen entstehen können. Berechnungen wie Aufteilung von Ausgaben, Salden oder `pairwiseBalance` erfolgen deshalb auf Basis von Integer-Werten in Cent.
 
-</div>
+Die Darstellung für Benutzer erfolgt getrennt von der internen Logik. Für die Anzeige wird der Cent-Betrag in Euro formatiert, beispielsweise über `formatEuro` aus `src/lib/utils.ts`.
 
-Konzepte bilden die Grundlage für *konzeptionelle Integrität*
-(Konsistenz, Homogenität) der Architektur und damit eine wesentliche
-Grundlage für die innere Qualität Ihrer Systeme.
+| Ebene | Darstellung / Speicherung |
+|---|---|
+| Interne Logik | `amountCents = 1099` |
+| Berechnung | Integer-Berechnung in Cent |
+| Benutzeroberfläche | `10,99 €` über Formatierungsfunktion |
 
-Dieser Abschnitt im Template ist der richtige Ort für die konsistente
-Behandlung solcher Themen.
-
-Viele solche Konzepte beeinflussen oder beziehen sich auf mehrerer Ihrer
-Bausteine.
-
-<div class="formalpara-title">
-
-**Form**
-
-</div>
-
-Kann vielfältig sein:
-
-- Konzeptpapiere mit beliebiger Gliederung,
-
-- beispielhafte Implementierung speziell für technische Konzepte,
-
-- übergreifende Modelle/Szenarien mit Notationen, die Sie auch in den
-  Architektursichten nutzen,
-
-<div class="formalpara-title">
-
-**Struktur**
-
-</div>
-
-Wählen Sie **nur** die wichtigsten Themen für Ihr System und erklären
-das jeweilige Konzept dann unter einer Level-2 Überschrift dieser
-Sektion (z.B. 8.1, 8.2 etc).
-
-Beschränken Sie sich auf die wichtigen, und versuchen **auf keinen
-Fall** alle oben dargestellten Themen zu bearbeiten.
-
-<div class="formalpara-title">
-
-**Weiterführende Informationen**
-
-</div>
-
-Einige Themen innerhalb von Systemen betreffen oft mehrere Bausteine,
-Hardwareelemente oder Prozesse. Es könnte einfacher sein, solche
-*Querschnittsthemen* an einer zentralen Stelle zu kommunizieren oder zu
-dokumentieren, anstatt sie in der Beschreibung der betreffenden
-Bausteine, Hardwareelemente oder Entwicklungsprozesse zu wiederholen.
-
-Bestimmte Konzepte können **alle** Elemente eines Systems betreffen,
-andere sind vielleicht nur für einige wenige relevant.
-
-Siehe [Querschnittliche Konzepte](https://docs.arc42.org/section-8/) in
-der online-Dokumentation (auf Englisch).
-
-## *\<Konzept 1\>*
-
-*\<Erklärung\>*
-
-## *\<Konzept 2\>*
-
-*\<Erklärung\>*
-
-…​
-
-## *\<Konzept n\>*
-
-*\<Erklärung\>*
+Dieses Konzept betrifft alle Stellen, an denen Geldbeträge verarbeitet werden. Dadurch bleibt die Berechnung technisch zuverlässig, während die Benutzeroberfläche trotzdem eine verständliche Euro-Darstellung bietet.
 
 # Architekturentscheidungen
 
@@ -1146,15 +1028,13 @@ Typische Kerninteraktionen sollen im Normalfall innerhalb von etwa 1 bis 2 Sekun
 Dieser Abschnitt beschreibt die wichtigsten erkannten Risiken und technischen Schulden von FlatMate.
 Berücksichtigt werden dabei sowohl architekturrelevante Projektrisiken als auch Risiken, die sich aus dem gewählten Technologie-Stack, der Sicherheitslogik, der fachlichen Kernfunktionalität und dem organisatorischen Projektrahmen ergeben.
 
-Für FlatMate sind insbesondere solche Risiken relevant, die
-
-die Umsetzung des MVP gefährden,
+Für FlatMate sind insbesondere solche Risiken relevant, die die Umsetzung des MVP gefährden,
 die Korrektheit fachlicher Kernprozesse beeinträchtigen,
 die Sicherheit von WG-, Rollen- und Benutzerdaten schwächen,
 die Wartbarkeit und Erweiterbarkeit des Systems verschlechtern,
 oder durch Zeitdruck zu technischer Schuld führen.
 
-> ![Risikomanagement](./Risikomanagement.pdf)
+![Risikomanagement](./Risikomanagement/Risikomanagement_Juni.pdf)
 
 
 <div class="formalpara-title">
@@ -1175,33 +1055,7 @@ Diese entstehen insbesondere dann, wenn unter Zeitdruck schnelle Workarounds gew
 
 
 
-> Risikomanagement ist Projektmanagement für Erwachsene.
->
-> —  Tim Lister Atlantic Systems Guild
 
-Unter diesem Motto sollten Sie Architekturrisiken und/oder technische
-Schulden gezielt ermitteln, bewerten und Ihren Management-Stakeholdern
-(z.B. Projektleitung, Product-Owner) transparent machen.
-
-<div class="formalpara-title">
-
-**Form**
-
-</div>
-
-Liste oder Tabelle von Risiken und/oder technischen Schulden, eventuell
-mit vorgeschlagenen Maßnahmen zur Risikovermeidung, Risikominimierung
-oder dem Abbau der technischen Schulden.
-
-<div class="formalpara-title">
-
-**Weiterführende Informationen**
-
-</div>
-
-Siehe [Risiken und technische
-Schulden](https://docs.arc42.org/section-11/) in der
-online-Dokumentation (auf Englisch!).
 
 # Glossar
 
@@ -1224,22 +1078,23 @@ Da im Projekt sowohl fachliche Konzepte der WG-Verwaltung als auch technische Be
 Das Glossar unterstützt alle Beteiligten dabei, Begriffe konsistent zu verwenden und dieselben Sachverhalte nicht unterschiedlich zu benennen.
 
 
-| Begriff                      | Definition |
-|------------------------------|------------|
-| **1. FlatMate**              | Name der entwickelten Webanwendung zur Verwaltung einer Wohngemeinschaft. Die Anwendung unterstützt unter anderem WG-Erstellung, Einladungen, Budget, Putzplan, Einkaufsliste und Termine. |
-| **2. WG**                    | Eine Wohngemeinschaft innerhalb des Systems. Sie bildet die zentrale organisatorische Einheit, zu der Mitglieder, Ausgaben, Einladungen, Räume und weitere Funktionen gehören. |
-| **3. Mitglied**              | Ein registrierter Nutzer, der einer bestimmten WG beigetreten ist. Mitglieder können abhängig von ihrer Rolle auf WG-Funktionen zugreifen. |
-| **4. Admin**                 | Ein WG-Mitglied mit erweiterten Rechten. Admins dürfen beispielsweise Einladungslinks erstellen. |
-| **5. Mitgliedsrolle**        | Die Rolle eines Nutzers innerhalb einer WG. Im aktuellen System wird zwischen `ADMIN` und `MEMBER` unterschieden. |
-| **6. Invite**                | Ein erzeugter Link bzw. Code, über den neue Nutzer einer WG beitreten können. Der Invite ist einer bestimmten WG zugeordnet und wird von einem Mitglied mit entsprechenden Rechten erstellt. |
-| **7. Budget**                | Das Fachmodul zur Verwaltung gemeinsamer Ausgaben und zur Berechnung offener Schulden zwischen WG-Mitgliedern. Es basiert auf erfassten Ausgaben und nicht auf manuell eingegebenen Schulden. |
-| **8. Ausgabe**               | Ein einzelner erfasster Kostenposten im Budget-Modul. Eine Ausgabe enthält unter anderem Beschreibung, Betrag, zahlende Person und die Mitglieder, zwischen denen die Kosten aufgeteilt werden. |
-| **9. Schulden**              | Die aus den Ausgaben berechneten finanziellen Verpflichtungen zwischen WG-Mitgliedern. Sie werden automatisch aggregiert und zeigen, wer wem aktuell Geld schuldet oder von wem Geld erhält. |
-| **10. Split**                | Die Zuordnung, zwischen welchen Mitgliedern eine Ausgabe aufgeteilt wird. Ein Split bestimmt, welche Personen an den Kosten einer Ausgabe beteiligt sind. |
-| **11. Expense**              | Technischer Datenbankbegriff für eine gespeicherte Ausgabe im Budget-Modul. Ein `Expense` enthält die Kerndaten einer Ausgabe und ist mit einer WG sowie dem zahlenden Nutzer verknüpft. |
-| **12. ExpenseParticipant**   | Technische Zuordnungstabelle, die speichert, welche Nutzer an einer bestimmten Ausgabe beteiligt sind. Sie bildet die Aufteilung einer Ausgabe auf mehrere Mitglieder ab. |
-| **13. Putzplan**             | Das Fachmodul zur Organisation von Reinigungsaufgaben innerhalb der WG. Es verteilt Räume oder Aufgaben auf Mitglieder und unterstützt rotierende Zuständigkeiten pro Kalenderwoche. |
-| **14. CleaningRoom**         | Technischer Datenbankbegriff für einen Raum, der im Putzplan berücksichtigt wird. Beispiele sind Küche, Bad oder Wohnzimmer. |
-| **15. CleaningWeekOverride** | Technischer Begriff für eine wochenbezogene Überschreibung des Putzplans. Damit kann die Standardrotation für eine bestimmte Woche manuell angepasst werden. |
-| **16. Event**                | Ein Termin oder Ereignis innerhalb einer WG, z. B. Waschtag, Hausmeisterbesuch oder Geburtstag. Events können erstellt und innerhalb der WG angezeigt werden. |
-| **17. Mockup**               | Ein visueller Entwurf der Benutzeroberfläche. Mockups dienen im Projekt als Vorlage für Layout, Bedienlogik und die schrittweise Umsetzung einzelner Screens. |
+| Begriff | Definition |
+|---|---|
+| **FlatMate** | Name der entwickelten Webanwendung zur Verwaltung einer Wohngemeinschaft. Die Anwendung unterstützt unter anderem WG-Erstellung, Einladungen, Budget, Putzplan, Einkaufsliste und Termine. |
+| **WG** | Eine Wohngemeinschaft innerhalb des Systems. Sie bildet die zentrale organisatorische Einheit, zu der Mitglieder, Ausgaben, Einladungen, Räume, Termine und weitere Funktionen gehören. |
+| **User** | Ein registrierter Nutzer der Anwendung. Ein User kann einer oder mehreren WGs zugeordnet sein. |
+| **Membership** | Technische und fachliche Verbindung zwischen einem User und einer WG. Über die Membership wird gespeichert, welcher Nutzer Mitglied welcher WG ist und welche Rolle er dort besitzt. |
+| **ADMIN / MEMBER** | Rollen innerhalb einer WG. `ADMIN` besitzt erweiterte Rechte, zum Beispiel zum Erstellen von Einladungen. `MEMBER` besitzt normale Mitgliedsrechte innerhalb der WG. |
+| **Invite-Code** | Ein eindeutiger Code, über den neue Nutzer einer bestimmten WG beitreten können. Der Invite-Code ist einer WG zugeordnet und wird zur Einladung neuer Mitglieder verwendet. |
+| **Session** | Eine serverseitig geprüfte Anmeldung eines Nutzers. Die Session wird cookie-basiert verwaltet und dient dazu, geschützte Bereiche und API-Routen nur für eingeloggte Nutzer zugänglich zu machen. |
+| **Expense** | Technischer Datenbankbegriff für eine gespeicherte Ausgabe im Budget-Modul. Ein `Expense` enthält unter anderem Beschreibung, Betrag, zahlende Person und die zugehörige WG. |
+| **ExpenseParticipant** | Zuordnungstabelle zwischen einer Ausgabe und den beteiligten Nutzern. Sie legt fest, welche Mitglieder an einer bestimmten Ausgabe beteiligt sind. |
+| **amountCents** | Technisches Feld zur Speicherung von Geldbeträgen in Cent. Dadurch werden Rundungsfehler vermieden, die bei der direkten Speicherung von Euro-Beträgen als Kommazahlen entstehen könnten. |
+| **Saldo** | Zusammengefasster finanzieller Stand eines Mitglieds im Budget-Modul. Der Saldo zeigt, ob ein Nutzer insgesamt Geld schuldet oder Geld von anderen Mitgliedern erhält. |
+| **pairwiseBalance** | Berechneter Ausgleichsbetrag zwischen zwei konkreten WG-Mitgliedern. Er zeigt, welche Person welcher anderen Person welchen Betrag schuldet. |
+| **Putzplan** | Fachmodul zur Organisation von Reinigungsaufgaben innerhalb der WG. Es verteilt Räume oder Aufgaben auf Mitglieder und unterstützt rotierende Zuständigkeiten pro Kalenderwoche. |
+| **CleaningRoom** | Technischer Datenbankbegriff für einen Raum, der im Putzplan berücksichtigt wird, zum Beispiel Küche, Bad oder Wohnzimmer. |
+| **CleaningWeekOverride** | Wochenbezogene Überschreibung des Putzplans. Damit kann die Standardrotation für eine bestimmte Woche manuell angepasst werden. |
+| **ShoppingListItem** | Technischer Begriff für einen Eintrag auf der Einkaufsliste. Ein Eintrag enthält unter anderem Bezeichnung, Status und die zugehörige WG. |
+| **Event** | Ein Termin oder Ereignis innerhalb einer WG, zum Beispiel Waschtag, Hausmeisterbesuch oder Geburtstag. |
+| **Mockup** | Ein visueller Entwurf der Benutzeroberfläche. Mockups dienten im Projekt als Vorlage für Layout, Bedienlogik und die schrittweise Umsetzung einzelner Screens. |
