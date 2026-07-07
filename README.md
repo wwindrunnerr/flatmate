@@ -24,10 +24,10 @@ sind alle relevanten Dokumente erreichbar:
 | **Qualitätsbaum** | [docs/Qualitätsbaum.pdf](docs/Qualitätsbaum.pdf) |
 | **Risikomanagement** | [docs/Risikomanagement/](docs/Risikomanagement/) |
 | **Refactoring** | [docs/refactor.md](docs/refactor.md) |
-| **Review-Protokoll** | [docs/review_protokoll.md](docs/review_protokoll.md) ⚠️ _(Datei noch anlegen)_ |
+| **Review-Protokoll** | [docs/review_protokoll.md](docs/review_protokoll.md) |
 | **Testbericht** | [test_bericht.md](test_bericht.md) |
-| **Metriken** | [docs/metriken.md](docs/metriken.md) ⚠️ _(Datei noch anlegen)_ |
-| **Retrospektive** | [docs/retrospektive.md](docs/retrospektive.md) ⚠️ _(Datei noch anlegen)_ |
+| **Metriken** | [docs/metriken.md](docs/metriken.md)  |
+| **Retrospektive** | [docs/retrospektive.md](docs/retrospektive.md)  |
 | **Use Cases** | [docs/useCases/](docs/useCases/) |
 | **User Stories** | [docs/userStories.md](docs/userStories.md) |
 
