@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { formatEuro } from "@/lib/utils";
 
 type WGMember = {
     id: string;
@@ -63,12 +64,6 @@ type SessionUser = {
 
 type ModalMode = "create" | "edit";
 
-function formatEuro(amount: number) {
-    return new Intl.NumberFormat("de-DE", {
-        style: "currency",
-        currency: "EUR",
-    }).format(amount);
-}
 
 function formatDateTime(iso: string) {
     return new Intl.DateTimeFormat("de-DE", {
@@ -492,6 +487,9 @@ export default function KostenPage() {
 
                             <input
                                 className="wg-input"
+                                type="number"
+                                min="0.01"
+                                step="0.01"
                                 placeholder="0,00"
                                 value={amountInput}
                                 onChange={(e) => {

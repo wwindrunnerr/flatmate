@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { formatEuro } from "@/lib/utils";
 
 interface WGMember {
     id: string;
@@ -112,12 +113,6 @@ interface LeaderboardEntry {
     average: number | null;
 }
 
-function formatEuro(amount: number) {
-    return new Intl.NumberFormat("de-DE", {
-        style: "currency",
-        currency: "EUR",
-    }).format(amount);
-}
 
 function getNextBirthdayDate(birthDate: string) {
     const original = new Date(birthDate);
