@@ -87,7 +87,7 @@ export async function GET(
         currentUserSummary: balances.currentUserSummary,
     });
 }
-
+```
 
 Gemessene Antwortzeit `GET /api/wgs/:id/expenses`: **~95–130 ms**
 
