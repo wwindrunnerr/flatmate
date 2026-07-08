@@ -27,6 +27,7 @@ sind alle relevanten Dokumente erreichbar:
 | **Retrospektive** | [docs/retrospektive.md](docs/retrospektive.md)  |
 | **Use Cases** | [docs/useCases/](docs/useCases/) |
 | **User Stories** | [docs/userStories.md](docs/userStories.md) |
+| **CICD Übersicht** | [docs/cicd.md](docs/cicd.md) |
 | **Projekt-Handout** | [docs/präsentation/FlatMate Handout.pdf](docs/präsentation/FlatMate_Handout.pdf) |
 | **gezeigte Slides** | [docs/präsentation/FlatMate_gezeigte_Slides.pdf](docs/präsentation/FlatMate_gezeigte_Slides.pdf) |
 | **Demo Link** | [docs/präsentation/FlatMate_gezeigte_Slides.pdf](docs/präsentation/demolink.md) |
