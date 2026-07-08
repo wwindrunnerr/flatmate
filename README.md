@@ -1,13 +1,10 @@
 # FlatMate – WG-Verwaltungs-App
 
-**FlatMate** ist eine Web-App zur Verwaltung von Wohngemeinschaften. Sie hilft
-Mitbewohner:innen dabei, ihren gemeinsamen Alltag zu organisieren: WGs anlegen und
-beitreten, geteilte Ausgaben erfassen und faire Salden berechnen, eine gemeinsame
-Einkaufsliste pflegen und einen Putzplan koordinieren.
+**FlatMate** ist eine Web-App zur Verwaltung von Wohngemeinschaften. Sie unterstützt Mitbewohner:innen dabei, ihren gemeinsamen Alltag strukturiert und transparent zu organisieren – vom gemeinsamen Einzug bis zur fairen Abrechnung.
 
-Die Anwendung ist mit **Next.js 16 / React 19** umgesetzt, nutzt **Prisma 7** mit
-einer **SQLite**-Datenbank, **NextAuth** für die Authentifizierung und **Zod** zur
-Validierung. Getestet wird mit **Vitest**.
+Die Kernfunktionen umfassen das Anlegen und Beitreten von WGs über sichere Einladungslinks, das Erfassen und automatische Aufteilen gemeinsamer Ausgaben mit transparenter Saldenberechnung, eine geteilte Einkaufsliste sowie einen Putzplan mit automatischer Aufgabenrotation.
+
+Technisch setzt FlatMate auf Next.js und React als Fullstack-Framework, Prisma mit SQLite als Datenbankschicht, NextAuth für sichere Session-basierte Authentifizierung und Zod zur serverseitigen Validierung. Die Anwendung ist containerisiert mit Docker und wird über eine GitHub Actions CI/CD-Pipeline automatisch gebaut und geprüft. Getestet wird mit Vitest – sowohl Unit- als auch Integrationstests mit einer Abdeckung von bis zu 100 % in den Kernmodulen.
 
 ---
 
@@ -31,7 +28,7 @@ sind alle relevanten Dokumente erreichbar:
 | **Use Cases** | [docs/useCases/](docs/useCases/) |
 | **User Stories** | [docs/userStories.md](docs/userStories.md) |
 | **Projekt-Handout** | [docs/präsentation/FlatMate Handout.pdf](docs/präsentation/FlatMate_Handout.pdf) |
-| **User Stories** | [docs/präsentation/FlatMate_gezeigte_Slides.pdf](docs/präsentation/FlatMate_gezeigte_Slides.pdf) |
+| **gezeigte Slides** | [docs/präsentation/FlatMate_gezeigte_Slides.pdf](docs/präsentation/FlatMate_gezeigte_Slides.pdf) |
 | **Demo Link** | [docs/präsentation/FlatMate_gezeigte_Slides.pdf](docs/präsentation/demolink.md) |
 
 ### Weitere Artefakte
