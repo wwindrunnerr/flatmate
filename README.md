@@ -30,6 +30,9 @@ sind alle relevanten Dokumente erreichbar:
 | **Retrospektive** | [docs/retrospektive.md](docs/retrospektive.md)  |
 | **Use Cases** | [docs/useCases/](docs/useCases/) |
 | **User Stories** | [docs/userStories.md](docs/userStories.md) |
+| **Projekt-Handout** | [docs/präsentation/FlatMate Handout.pdf](docs/präsentation/FlatMateHandout.pdf) |
+| **User Stories** | [docs/präsentation/FlatMate_gezeigte_Slides.pdf](docs/präsentation/FlatMate_gezeigte_Slides.pdf) |
+| **Demo Link** | [docs/präsentation/FlatMate_gezeigte_Slides.pdf](docs/präsentation/demolink.md) |
 
 ### Weitere Artefakte
 
