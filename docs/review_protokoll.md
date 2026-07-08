@@ -74,7 +74,7 @@ Wir haben die **formale Inspektion in Sitzungstechnik** gewählt. Yaroslav führ
 
 **Frist:** 15.05.2026
 
-**Status:** ✅ Umgesetzt – `src/lib/utils.ts` wurde erstellt, lokale Definitionen entfernt.
+**Status:** Umgesetzt – `src/lib/utils.ts` wurde erstellt, lokale Definitionen entfernt.
 
 ---
 
@@ -90,7 +90,7 @@ Wir haben die **formale Inspektion in Sitzungstechnik** gewählt. Yaroslav führ
 
 **Frist:** 15.05.2026
 
-**Status:** 🔄 Ticket angelegt – Umsetzung für späteren Sprint geplant. Eine sofortige Umstrukturierung kurz vor der Abgabe wäre zu riskant.
+**Status:** Ticket angelegt – Umsetzung für späteren Sprint geplant. Eine sofortige Umstrukturierung kurz vor der Abgabe wäre zu riskant.
 
 ---
 
@@ -106,7 +106,7 @@ Wir haben die **formale Inspektion in Sitzungstechnik** gewählt. Yaroslav führ
 
 **Frist:** 19.05.2026
 
-**Status:** ✅ Umgesetzt – Attribute wurden in `kosten/page.tsx` ergänzt.
+**Status:** Umgesetzt – Attribute wurden in `kosten/page.tsx` ergänzt.
 
 ---
 
