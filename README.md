@@ -45,8 +45,9 @@ sind alle relevanten Dokumente erreichbar:
 ## 🔗 Projekt-Links
 
 - **GitHub-Repository:** https://github.com/wwindrunnerr/flatmate
-- **Scrum-Board:** https://github.com/users/wwindrunnerr/projects/1
 - **Blog:** https://github.com/wwindrunnerr/flatmate/discussions
+- **Scrum-Board:** https://github.com/users/wwindrunnerr/projects/1
+- (Alle Tasks auch aus dem 1. Semester: https://docs.google.com/spreadsheets/d/1SHh4b8-QCLjLSfMAUgdy1_FpABlky1LKnZdIYULb-mA/edit?usp=sharing)
 
 ---
 
